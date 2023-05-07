@@ -1,0 +1,16 @@
+# Description: Outputs for the deployment
+
+output "SA_EMAIL" {
+  value       = google_service_account.github_actions_user.email
+  description = "Service account to use in GitHub Actions."
+}
+
+output "PROVIDER_ID" {
+  value       = google_iam_workload_identity_pool_provider.github_provider.name
+  description = "Provider ID to use in Auth Actions."
+}
+
+output "REGISTRY_URI" {
+  value       = "${google_artifact_registry_repository.registry.location}-docker.pkg.dev/${data.google_project.project.name}/${google_artifact_registry_repository.registry.name}"
+  description = "Artifact Registry location."
+}
