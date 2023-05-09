@@ -14,6 +14,6 @@ resource "google_storage_bucket_iam_member" "admin" {
 
 resource "google_storage_bucket_iam_member" "creator" {
   bucket  = google_container_registry.registry.id
-  role    = "roles/storage.objectCreator"
+  role    = "roles/storage.legacyBucketOwner"
   member  = "serviceAccount:${google_service_account.github_actions_user.email}"
 }

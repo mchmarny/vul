@@ -4,7 +4,6 @@
 locals {
   # List of roles that will be assigned to the GitHub federted user
   ci_roles = toset([
-    "roles/storage.objectAdmin",
     "roles/storage.objectViewer",
     "roles/storage.objectCreator",
   ])
