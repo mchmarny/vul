@@ -1,13 +1,21 @@
-# Description: Creates a Google Container Registry for the project
+# Description: Creates a Google Artifact Registry for the project
 
-resource "google_container_registry" "registry" {
+# Artifact Registry
+resource "google_artifact_registry_repository" "registry" {
   provider      = google-beta
   project       = var.project_id
-  location      = "US"
+  description   = "${var.name} artifacts registry"
+  location      = var.location
+  repository_id = var.name
+  format        = "DOCKER"
 }
 
-resource "google_storage_bucket_iam_member" "admin" {
-  bucket  = google_container_registry.registry.id
-  role    = "roles/storage.objectViewer"
-  member  = "serviceAccount:${google_service_account.github_actions_user.email}"
+# Role binding to allow publisher to publish images
+resource "google_artifact_registry_repository_iam_member" "registry_role_binding" {
+  provider   = google-beta
+  project    = var.project_id
+  location   = var.location
+  repository = google_artifact_registry_repository.registry.name
+  role       = "roles/artifactregistry.repoAdmin"
+  member     = "serviceAccount:${google_service_account.github_actions_user.email}"
 }
