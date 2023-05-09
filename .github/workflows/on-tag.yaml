@@ -12,7 +12,7 @@ env:
   LINTER_VERSION: v1.52
   PROVIDER_ID: "projects/595203407878/locations/global/workloadIdentityPools/vul-gh/providers/github-provider"
   REGISTRY: "us-west1-docker.pkg.dev"
-  IMAGE: "s3cme1/vul"
+  IMAGE: "s3cme1/vul/vul"
   SA_EMAIL: "vul-github-actions-user@s3cme1.iam.gserviceaccount.com"
 
 jobs:
