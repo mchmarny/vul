@@ -11,39 +11,72 @@ on:
 permissions:
   contents: read
 
+env:
+  GO_VERSION: "1.20.4"
+  LINTER_VERSION: v1.52
+
 jobs:
 
-  conf:
-    env:
-      ERR_VULNERABILITY_SEV: "CRITICAL,HIGH,MEDIUM"
-      GO_VERSION: "1.20.4"
-      LINTER_VERSION: v1.52
-
+  test:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    outputs:
-      err_on_vulnerability_sev: ${{ steps.conf.outputs.err_on_vulnerability_sev }}
-      go_version: ${{ steps.conf.outputs.go_version }}
-      linter_version: ${{ steps.conf.outputs.linter_version }}
-    steps:
-
-    - name: Export Config
-      id: conf
-      run: |
-        echo "err_on_vulnerability_sev=${{ env.ERR_VULNERABILITY_SEV }}" >> $GITHUB_OUTPUT
-        echo "go_version=${{ env.GO_VERSION }}" >> $GITHUB_OUTPUT
-        echo "linter_version=${{ env.LINTER_VERSION }}" >> $GITHUB_OUTPUT
-
-  test:
-    needs:
-    - conf
-    permissions:
-      contents: read
       security-events: write
-      id-token: write
-    uses: ./.github/workflows/test.yaml
-    with:
-      go_version: ${{ needs.conf.outputs.go_version }}
-      scan_severity: ${{ needs.conf.outputs.err_on_vulnerability_sev }}
-      golangci_version: ${{ needs.conf.outputs.linter_version }}
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_DB: test
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+    - name: Setup Go
+      uses: actions/setup-go@4d34df0c2316fe8122ab82dc22947d607c0c91f9  # v4.0.0
+      with:
+        go-version: '${{ env.GO_VERSION }}'
+    - run: go version
+    - name: Cache Go Modules
+      uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8  # v3.3.1
+      with:
+        path: |
+          ~/go/pkg/mod
+          ~/.cache/go-build
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+    - name: Checkout Code
+      uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab  # v3.4.0
+    - name: Tidy Modules
+      run: |
+        make tidy
+    - name: Config Go Lint
+      id: golangci_config
+      uses: andstor/file-existence-action@20b4d2e596410855db8f9ca21e96fbe18e12930b  # v2.0
+      with:
+        files: .golangci.yaml
+    - name: Lint Go
+      if: steps.golangci_config.outputs.files_exists == 'true'
+      uses: golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5  # v3.4.0
+      with:
+        version: ${{ env.LINTER_VERSION }}
+    - name: Config YAML Lint
+      id: yamllint_config
+      uses: andstor/file-existence-action@20b4d2e596410855db8f9ca21e96fbe18e12930b  # v2.0
+      with:
+        files: .yamllint
+    - name: Lint YAML
+      if: steps.yamllint_config.outputs.files_exists == 'true'
+      uses: karancode/yamllint-github-action@fdef6bc189425ecc84cc4543b2674566c0827053  # master
+      with:
+        yamllint_config_filepath: .yamllint
+    - name: Unit Test
+      run: |
+        make test
