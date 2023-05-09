@@ -12,7 +12,7 @@ env:
   LINTER_VERSION: v1.52
   PROVIDER_ID: "projects/595203407878/locations/global/workloadIdentityPools/vul-gh/providers/github-provider"
   REGISTRY: "gcr.io"
-  PROJECT: "s3cme1"
+  IMAGE: "s3cme1/vul"
   SA_EMAIL: "vul-github-actions-user@s3cme1.iam.gserviceaccount.com"
 
 jobs:
@@ -75,7 +75,7 @@ jobs:
     - name: Build Image
       id: image
       env:
-        KO_DOCKER_REPO: ${{ env.REGISTRY }}/${{ env.PROJECT }}/${{ github.repository }}
+        KO_DOCKER_REPO: ${{ env.REGISTRY }}/${{ env.IMAGE }}
         GOFLAGS: "-ldflags=-X=main.version=${{ env.RELEASE_VERSION }}"
         COSIGN_EXPERIMENTAL: "true"
       run: |
