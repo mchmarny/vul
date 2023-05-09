@@ -12,9 +12,13 @@ tmp
 bin
 dist
 
+# Data
+/data
+
 # Keys 
 cosign.*
 *.pem
+/keys
 
 # ko 
 /.digest

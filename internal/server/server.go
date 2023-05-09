@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/mchmarny/vul/internal/data"
 	"github.com/mchmarny/vul/internal/handler"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -32,6 +33,8 @@ type key int
 
 // Run starts the server with a given name and version.
 func Run(name, version string) {
+	ctx := context.Background()
+
 	level, ok := os.LookupEnv(logLevelEnvVar)
 	if !ok {
 		level = "info"
@@ -45,19 +48,25 @@ func Run(name, version string) {
 		fmt.Fprintf(w, "nothing to see here, try: /api/v1\n")
 	})
 
+	pool, err := data.GetPool(ctx, os.Getenv("DATA_URI"))
+	if err != nil {
+		log.Fatal().Err(err).Msg("error getting data pool")
+	}
+
 	h := &handler.Handler{
 		Name:    name,
 		Version: version,
+		Pool:    pool,
 	}
 
-	mux.HandleFunc("/api/v1", h.RootHandler)
+	mux.HandleFunc("/api/v1/image", h.ImageHandler)
 
 	address := addressDefault
 	if val, ok := os.LookupEnv("PORT"); ok {
 		address = fmt.Sprintf(":%s", val)
 	}
 
-	run(context.Background(), mux, address)
+	run(ctx, mux, address)
 }
 
 // run starts the server and waits for termination signal.

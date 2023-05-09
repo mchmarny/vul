@@ -65,6 +65,25 @@ deploy: ## Applies Terraform deployment
 server: ## Runs uncompiled app 
 	LOG_LEVEL=debug go run internal/cmd/main.go
 
+.PHONY: db
+db: ## Runs postgres DB as a container
+	docker run \
+		--name postgres \
+		-e POSTGRES_USER=test \
+		-e POSTGRES_PASSWORD=test \
+		-p 5432:5432 \
+		-v $(PWD)/data:/var/lib/postgresql/data \
+		-d postgres
+
+.PHONY: dbconn
+dbconn: ## Connect to remote db
+	psql "hostaddr=34.168.223.229 port=5432 user=postgres dbname=vimp"
+
+.PHONY: dbless
+dbless: ## Stops and remvoes previously run postgres DB container 
+	docker stop /postgres
+	docker remove /postgres
+
 .PHONY: tag
 tag: ## Creates release tag 
 	git tag -s -m "version bump to $(VERSION)" $(VERSION)
