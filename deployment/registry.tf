@@ -8,12 +8,6 @@ resource "google_container_registry" "registry" {
 
 resource "google_storage_bucket_iam_member" "admin" {
   bucket  = google_container_registry.registry.id
-  role    = "roles/storage.objectAdmin"
-  member  = "serviceAccount:${google_service_account.github_actions_user.email}"
-}
-
-resource "google_storage_bucket_iam_member" "creator" {
-  bucket  = google_container_registry.registry.id
-  role    = "roles/storage.legacyBucketOwner"
+  role    = "roles/storage.objectViewer"
   member  = "serviceAccount:${google_service_account.github_actions_user.email}"
 }
