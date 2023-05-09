@@ -11,6 +11,6 @@ output "PROVIDER_ID" {
 }
 
 output "REGISTRY_URI" {
-  value       = "${google_artifact_registry_repository.registry.location}-docker.pkg.dev/${data.google_project.project.name}/${google_artifact_registry_repository.registry.name}"
-  description = "Artifact Registry location."
+  value       = "gcr.io/${var.project_id}"
+  description = "Provider ID to use in Auth Actions."
 }

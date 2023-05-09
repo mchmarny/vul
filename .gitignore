@@ -1,9 +1,8 @@
 # Mac 
 .DS_Store
 
-# Test
+# Test binaries
 *.test
-/*.json
 tmp
 
 # Coverage
@@ -16,34 +15,13 @@ dist
 # Keys 
 cosign.*
 *.pem
-/keys
 
-# IDEs
-.idea/*
-.vscode/*
+# ko 
+/.digest
 
 # Terraform
-**/.terraform/*
 *.tfstate
-*.tfstate.*
-*.lock.hcl
 *.tfvars
-*.tfvars.json
-override.tf
-override.tf.json
-*_override.tf
-*_override.tf.json
-.terraformrc
-terraform.rc
-
-# Logs
-crash.log
-crash.*.log
-
-# docker 
-digest.txt
-
-# Data
-/data
-*.db
-.digest
+*.hcl
+.terraform
+*.backup

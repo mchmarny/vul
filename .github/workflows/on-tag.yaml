@@ -1,0 +1,68 @@
+name: on_tag
+on:
+  push:
+    tags:
+    - 'v[0-9]+.[0-9]+.[0-9]+'  # Only build tag with semantic versioning format
+
+permissions:
+  contents: read
+
+jobs:
+
+  conf:
+    env:
+      ERR_VULNERABILITY_SEV: "CRITICAL,HIGH,MEDIUM"
+      GO_VERSION: "1.20.4"
+      LINTER_VERSION: v1.52
+      PROVIDER_ID: "projects/595203407878/locations/global/workloadIdentityPools/vul-gh/providers/github-provider"
+      REGISTRY_URI: "gcr.io/s3cme1"
+      SA_EMAIL: "vul-github-actions-user@s3cme1.iam.gserviceaccount.com"
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      err_on_vulnerability_sev: ${{ steps.conf.outputs.err_on_vulnerability_sev }}
+      go_version: ${{ steps.conf.outputs.go_version }}
+      linter_version: ${{ steps.conf.outputs.linter_version }}
+      provider_id: ${{ steps.conf.outputs.provider_id }}
+      registry_uri: ${{ steps.conf.outputs.registry_uri }}
+      sa_email: ${{ steps.conf.outputs.sa_email }}
+    steps:
+    - name: Export Config
+      id: conf
+      run: |
+        echo "err_on_vulnerability_sev=${{ env.ERR_VULNERABILITY_SEV }}" >> $GITHUB_OUTPUT
+        echo "go_version=${{ env.GO_VERSION }}" >> $GITHUB_OUTPUT
+        echo "linter_version=${{ env.LINTER_VERSION }}" >> $GITHUB_OUTPUT
+        echo "provider_id=${{ env.PROVIDER_ID }}" >> $GITHUB_OUTPUT
+        echo "registry_uri=${{ env.REGISTRY_URI }}" >> $GITHUB_OUTPUT
+        echo "sa_email=${{ env.SA_EMAIL }}" >> $GITHUB_OUTPUT
+
+  test:
+    needs:
+    - conf
+    permissions:
+      contents: read
+      security-events: write
+      id-token: write
+    uses: ./.github/workflows/test.yaml
+    with:
+      go_version: ${{ needs.conf.outputs.go_version }}
+      scan_severity: ${{ needs.conf.outputs.err_on_vulnerability_sev }}
+      golangci_version: ${{ needs.conf.outputs.linter_version }}
+
+  build:
+    needs:
+    - conf
+    - test
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/build.yaml
+    with:
+      go_version: ${{ needs.conf.outputs.go_version }}
+      registry: ${{ needs.conf.outputs.registry_uri }}
+      image_name: ${{ github.repository }}
+      id_provider: ${{ needs.conf.outputs.provider_id }}
+      service_account: ${{ needs.conf.outputs.sa_email }}
