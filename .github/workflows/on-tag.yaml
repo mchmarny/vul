@@ -11,7 +11,8 @@ env:
   GO_VERSION: "1.20.4"
   LINTER_VERSION: v1.52
   PROVIDER_ID: "projects/595203407878/locations/global/workloadIdentityPools/vul-gh/providers/github-provider"
-  REGISTRY_URI: "gcr.io/s3cme1"
+  REGISTRY: "gcr.io"
+  PROJECT: "s3cme1"
   SA_EMAIL: "vul-github-actions-user@s3cme1.iam.gserviceaccount.com"
 
 jobs:
@@ -68,13 +69,13 @@ jobs:
       env:
         AUTH_TOKEN: ${{ steps.auth.outputs.access_token }}
       run: |
-        echo "${AUTH_TOKEN}" | ko login ${{ env.REGISTRY_URI }} --username oauth2accesstoken --password-stdin
+        echo "${AUTH_TOKEN}" | ko login ${{ env.REGISTRY }} --username oauth2accesstoken --password-stdin
 
     # Note: ko build image ref will include BOTH, the tag AND digest of the image.
     - name: Build Image
       id: image
       env:
-        KO_DOCKER_REPO: ${{ env.REGISTRY_URI }}/${{ github.repository }}
+        KO_DOCKER_REPO: ${{ env.REGISTRY }}/${{ env.PROJECT }}/${{ github.repository }}
         GOFLAGS: "-ldflags=-X=main.version=${{ env.RELEASE_VERSION }}"
         COSIGN_EXPERIMENTAL: "true"
       run: |
