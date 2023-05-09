@@ -23,6 +23,7 @@ jobs:
   unit:
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       security-events: write
     services:
       postgres:
@@ -72,6 +73,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       security-events: write
     steps:
     - name: Setup Go
@@ -119,6 +121,7 @@ jobs:
   scan:
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       security-events: write
     steps:
     - name: Checkout Code
