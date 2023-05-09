@@ -78,5 +78,7 @@ jobs:
       with:
         yamllint_config_filepath: .yamllint
     - name: Unit Test
+      env:
+        DATA_URI: "postgres://test:test@localhost:5432/test"
       run: |
         make test
