@@ -64,7 +64,7 @@ deploy: ## Applies Terraform deployment
 	terraform -chdir=./deployment apply -auto-approve
 
 .PHONY: release
-release: ## Runs test, lint, and tag before release
+release: test lint tag ## Runs test, lint, and tag before release
 	@echo "Triggered image build/publish for: $(RELEASE_VERSION)"
 	tools/gh/wait-for-publish-to-finish
 	tools/tf/apply-if-img-exists "$(REG_URI)/vul" "$(RELEASE_VERSION)"
