@@ -3,11 +3,11 @@ package handler
 import (
 	"context"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/mchmarny/vul/internal/config"
 	"github.com/mchmarny/vul/internal/data"
 	"github.com/pkg/errors"
 )
@@ -32,15 +32,19 @@ type Response[t any] struct {
 }
 
 // New creates a new handler.
-func New(ctx context.Context, name, version string) (*Handler, error) {
-	pool, err := data.GetPool(ctx, os.Getenv("DATA_URI"))
+func New(ctx context.Context, cnf *config.Config) (*Handler, error) {
+	if cnf == nil {
+		return nil, errors.New("config is nil")
+	}
+
+	pool, err := data.GetPool(ctx, cnf.Store.URI)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create data pool")
 	}
 
 	h := &Handler{
-		Name:    name,
-		Version: version,
+		Name:    cnf.Name,
+		Version: cnf.Version,
 		Pool:    pool,
 		Router:  gin.New(),
 	}
@@ -51,7 +55,8 @@ func New(ctx context.Context, name, version string) (*Handler, error) {
 	h.Router.GET("/", func(c *gin.Context) {
 		c.IndentedJSON(http.StatusOK, gin.H{
 			"status":  "ok",
-			"version": version,
+			"name":    cnf.Name,
+			"version": cnf.Version,
 		})
 	})
 

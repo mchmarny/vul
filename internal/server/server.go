@@ -11,14 +11,17 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/mchmarny/vul/internal/config"
 	"github.com/mchmarny/vul/internal/handler"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
 const (
-	addressDefault = ":8080"
-	logLevelEnvVar = "LOG_LEVEL"
+	portEnvVar        = "PORT"
+	portDefaultVal    = "8080"
+	configEnvVar      = "CONFIG"
+	configDefaultPath = "config/secret-test.yaml"
 
 	closeTimeout = 3
 	readTimeout  = 10
@@ -32,36 +35,35 @@ var (
 type key int
 
 // Run starts the server with a given name and version.
-func Run(name, version string) {
+func Run(version string) {
 	gin.SetMode(gin.ReleaseMode)
 
-	level, ok := os.LookupEnv(logLevelEnvVar)
-	if !ok {
-		level = "info"
+	cnf, err := config.ReadFromFile(config.GetEnv(configEnvVar, configDefaultPath))
+	if err != nil {
+		log.Fatal().Err(err).Msg("error reading config")
 	}
-	initLogging(name, version, level)
-	log.Info().Str("name", name).Msg("starting server")
+	cnf.Version = version
+
+	initLogging(cnf.Name, version, cnf.Runtime.LogLevel)
+	log.Info().
+		Str("name", cnf.Name).
+		Str("version", version).
+		Msg("starting server")
 
 	ctx := context.Background()
-	h, err := handler.New(ctx, name, version)
+	h, err := handler.New(ctx, cnf)
 	if err != nil {
 		log.Fatal().Err(err).Msg("error creating handler")
 	}
-
 	defer h.Close()
 
-	address := addressDefault
-	if val, ok := os.LookupEnv("PORT"); ok {
-		address = fmt.Sprintf(":%s", val)
-	}
-
-	run(ctx, h.Router, address)
+	run(ctx, h.Router)
 }
 
 // run starts the server and waits for termination signal.
-func run(ctx context.Context, router http.Handler, address string) {
+func run(ctx context.Context, router http.Handler) {
 	server := &http.Server{
-		Addr:              address,
+		Addr:              fmt.Sprintf(":%s", config.GetEnv(portEnvVar, portDefaultVal)),
 		Handler:           router,
 		ReadHeaderTimeout: readTimeout * time.Second,
 		WriteTimeout:      writeTimeout * time.Second,

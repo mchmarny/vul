@@ -30,3 +30,6 @@ cosign.*
 *.hcl
 .terraform
 *.backup
+
+# Secrets
+secret-prod.yaml

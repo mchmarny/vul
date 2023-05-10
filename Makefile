@@ -27,8 +27,7 @@ upgrade: ## Upgrades all dependancies
 
 .PHONY: test
 test: tidy ## Runs unit tests
-	DATA_URI="postgres://vimp:test@localhost:5432/vimp" \
-		go test -count=1 -race -covermode=atomic -coverprofile=cover.out ./...
+	go test -count=1 -race -covermode=atomic -coverprofile=cover.out ./...
 
 .PHONY: lint
 lint: lint-go lint-yaml ## Lints the entire project 
