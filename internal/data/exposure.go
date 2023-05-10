@@ -14,13 +14,15 @@ var (
 	sqlExposureList = `SELECT 
 						exposure,
 						source,
+						package,
+						version,
 						severity,
 						MAX(score) as score,
 						fixed
 					  FROM vulns
 					  WHERE image = $1 AND digest = $2
-					  GROUP BY exposure, source, severity, fixed
-					  ORDER BY 1, 2, 4 desc`
+					  GROUP BY exposure, source, package, version, severity, fixed
+					  ORDER BY 1, 2, 3, 4`
 )
 
 func ListImageVersionExposures(ctx context.Context, pool *pgxpool.Pool, imageURI, digest string) (map[string][]*query.ListDigestExposureItem, error) {
@@ -32,6 +34,8 @@ func ListImageVersionExposures(ctx context.Context, pool *pgxpool.Pool, imageURI
 		if err := rows.Scan(
 			&e,
 			&q.Source,
+			&q.Package,
+			&q.Version,
 			&q.Severity,
 			&q.Score,
 			&q.Fixed); err != nil {

@@ -65,7 +65,7 @@ deploy: ## Applies Terraform deployment
 
 .PHONY: server
 server: ## Runs uncompiled app 
-	LOG_LEVEL=debug go run internal/cmd/main.go
+	go run internal/cmd/main.go
 
 .PHONY: db
 db: ## Runs postgres DB as a container
