@@ -15,7 +15,7 @@ steps:
         gcloud pubsub topics publish image-queue \
           --message "$img" \
           --project $PROJECT_ID
-      done < ./image.txt
+      done < config/image.txt
 
 options:
   pool:
