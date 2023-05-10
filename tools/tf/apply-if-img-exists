@@ -19,4 +19,4 @@ if [[ "$reg_tag" == "[]" ]]; then
 fi
 
 printf "\nApplying terraform..."
-terraform -chdir=./deployments apply -auto-approve
+terraform -chdir=./deployment apply -auto-approve
