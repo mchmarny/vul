@@ -1,12 +1,15 @@
 package handler
 
 import (
-	"errors"
+	"context"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/mchmarny/vul/internal/data"
+	"github.com/pkg/errors"
 )
 
 var (
@@ -20,6 +23,7 @@ var (
 	ErrInternal = errors.New("internal error, see logs for details")
 )
 
+// Response is the response for the API.
 type Response[t any] struct {
 	Version  string      `json:"version"`
 	Created  time.Time   `json:"created"`
@@ -27,27 +31,24 @@ type Response[t any] struct {
 	Data     t           `json:"data"`
 }
 
-// Handler is the handler for the API.
-type Handler struct {
-	Name    string
-	Version string
-	Pool    *pgxpool.Pool
-	Router  http.Handler
-}
-
-func New(name, version string, pool *pgxpool.Pool) *Handler {
-	r := gin.New()
-	r.Use(gin.Recovery(), gin.Logger(), options)
+// New creates a new handler.
+func New(ctx context.Context, name, version string) (*Handler, error) {
+	pool, err := data.GetPool(ctx, os.Getenv("DATA_URI"))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create data pool")
+	}
 
 	h := &Handler{
 		Name:    name,
 		Version: version,
 		Pool:    pool,
-		Router:  r,
+		Router:  gin.New(),
 	}
 
+	h.Router.Use(gin.Recovery(), gin.Logger(), options)
+
 	// health check
-	r.GET("/", func(c *gin.Context) {
+	h.Router.GET("/", func(c *gin.Context) {
 		c.IndentedJSON(http.StatusOK, gin.H{
 			"status":  "ok",
 			"version": version,
@@ -55,11 +56,24 @@ func New(name, version string, pool *pgxpool.Pool) *Handler {
 	})
 
 	// routes
-	v1 := r.Group("/api/v1")
+	v1 := h.Router.Group("/api/v1")
 	v1.GET("/images", h.imageHandler)
 	v1.POST("/versions", h.imageVersionHandler)
 
-	return h
+	return h, nil
+}
+
+// Handler is the handler for the API.
+type Handler struct {
+	Name    string
+	Version string
+	Pool    *pgxpool.Pool
+	Router  *gin.Engine
+}
+
+// Close closes all resources used by the handler.
+func (h *Handler) Close() {
+	h.Pool.Close()
 }
 
 // options middleware adds options headers.

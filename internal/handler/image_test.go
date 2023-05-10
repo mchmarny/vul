@@ -1,26 +1,14 @@
 package handler
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
-	"github.com/mchmarny/vul/internal/data"
 	"github.com/mchmarny/vul/pkg/query"
 	"github.com/stretchr/testify/assert"
 )
-
-func getTestHandler(t *testing.T) *Handler {
-	pool, err := data.GetPool(context.Background(), os.Getenv("DATA_URI"))
-	if err != nil {
-		t.Fatalf("error getting data pool: %v", err)
-	}
-
-	return New("test", "v0.0.1", pool)
-}
 
 func TestImageHandler(t *testing.T) {
 	h := getTestHandler(t)

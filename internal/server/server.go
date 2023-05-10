@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mchmarny/vul/internal/data"
 	"github.com/mchmarny/vul/internal/handler"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -35,24 +34,21 @@ type key int
 // Run starts the server with a given name and version.
 func Run(name, version string) {
 	gin.SetMode(gin.ReleaseMode)
-	ctx := context.Background()
 
 	level, ok := os.LookupEnv(logLevelEnvVar)
 	if !ok {
 		level = "info"
 	}
-
 	initLogging(name, version, level)
 	log.Info().Str("name", name).Msg("starting server")
 
-	// handler
-	pool, err := data.GetPool(ctx, os.Getenv("DATA_URI"))
+	ctx := context.Background()
+	h, err := handler.New(ctx, name, version)
 	if err != nil {
-		log.Fatal().Err(err).Msg("error getting data pool")
+		log.Fatal().Err(err).Msg("error creating handler")
 	}
-	defer pool.Close()
 
-	h := handler.New(name, version, pool)
+	defer h.Close()
 
 	address := addressDefault
 	if val, ok := os.LookupEnv("PORT"); ok {
