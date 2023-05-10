@@ -1,6 +1,8 @@
 VERSION    :=$(shell cat .version)
 YAML_FILES :=$(shell find . ! -path "./vendor/*" ! -path "./deployment/*" -type f -regex ".*y*ml" -print)
-REG_URI    :="gcr.io/s3cme1"
+REG_URI    :=us-west1-docker.pkg.dev/s3cme1/vul
+DB_BUCKET  :=vuln-db-dumps
+NOW        ?=$(shell date +%s)
 
 all: help
 
@@ -25,7 +27,8 @@ upgrade: ## Upgrades all dependancies
 
 .PHONY: test
 test: tidy ## Runs unit tests
-	go test -count=1 -race -covermode=atomic -coverprofile=cover.out ./...
+	DATA_URI="postgres://vimp:test@localhost:5432/vimp" \
+		go test -count=1 -race -covermode=atomic -coverprofile=cover.out ./...
 
 .PHONY: lint
 lint: lint-go lint-yaml ## Lints the entire project 
@@ -68,16 +71,28 @@ server: ## Runs uncompiled app
 .PHONY: db
 db: ## Runs postgres DB as a container
 	docker run \
+		-d \
 		--name postgres \
-		-e POSTGRES_USER=test \
+		-e POSTGRES_USER=vimp \
 		-e POSTGRES_PASSWORD=test \
 		-p 5432:5432 \
 		-v $(PWD)/data:/var/lib/postgresql/data \
-		-d postgres
+		postgres
+
+.PHONY: dbrestre
+dbrestre: ## Restores Cloud SQL DB locally
+	gcloud sql export sql db gs://$(DB_BUCKET)/$(NOW).gz -d vimp
+	gsutil cp gs://$(DB_BUCKET)/$(NOW).gz tools/db/dump/
+	gzip -d tools/db/dump/$(NOW).gz
+	PGPASSWORD=test psql -h localhost -U vimp -d vimp < tools/db/sql/pre-restore.sql
+	PGPASSWORD=test psql -h localhost -U vimp -d vimp < tools/db/dump/$(NOW)
+	PGPASSWORD=test psql -h localhost -U vimp -d vimp < tools/db/sql/post-restore.sql
+	gsutil rm gs://$(DB_BUCKET)/$(NOW).gz
+	# rm tools/db/dump/$(NOW)
 
 .PHONY: dbconn
 dbconn: ## Connect to remote db
-	psql "hostaddr=34.168.223.229 port=5432 user=postgres dbname=vimp"
+	PGPASSWORD=test psql -h localhost -U vimp -d vimp
 
 .PHONY: dbless
 dbless: ## Stops and remvoes previously run postgres DB container 

@@ -26,9 +26,8 @@ jobs:
       postgres:
         image: postgres
         env:
-          POSTGRES_DB: test
           POSTGRES_PORT: 5432
-          POSTGRES_USER: test
+          POSTGRES_USER: vimp
           POSTGRES_PASSWORD: test
         ports:
           - 5432:5432
@@ -77,8 +76,10 @@ jobs:
       uses: karancode/yamllint-github-action@fdef6bc189425ecc84cc4543b2674566c0827053  # master
       with:
         yamllint_config_filepath: .yamllint
-    - name: Unit Test
+    - name: Setup DB
+      run: psql -h localhost -d vimp -U vimp < tools/db/test/data
       env:
-        DATA_URI: "postgres://test:test@localhost:5432/test"
+        PGPASSWORD: test
+    - name: Unit Test
       run: |
         make test
