@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/mchmarny/vul/internal/data"
 	"github.com/mchmarny/vul/internal/handler"
 	"github.com/rs/zerolog"
@@ -33,6 +34,7 @@ type key int
 
 // Run starts the server with a given name and version.
 func Run(name, version string) {
+	gin.SetMode(gin.ReleaseMode)
 	ctx := context.Background()
 
 	level, ok := os.LookupEnv(logLevelEnvVar)
@@ -43,37 +45,28 @@ func Run(name, version string) {
 	initLogging(name, version, level)
 	log.Info().Str("name", name).Msg("starting server")
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "nothing to see here, try: /api/v1\n")
-	})
-
+	// handler
 	pool, err := data.GetPool(ctx, os.Getenv("DATA_URI"))
 	if err != nil {
 		log.Fatal().Err(err).Msg("error getting data pool")
 	}
+	defer pool.Close()
 
-	h := &handler.Handler{
-		Name:    name,
-		Version: version,
-		Pool:    pool,
-	}
-
-	mux.HandleFunc("/api/v1/image", h.ImageHandler)
+	h := handler.New(name, version, pool)
 
 	address := addressDefault
 	if val, ok := os.LookupEnv("PORT"); ok {
 		address = fmt.Sprintf(":%s", val)
 	}
 
-	run(ctx, mux, address)
+	run(ctx, h.Router, address)
 }
 
 // run starts the server and waits for termination signal.
-func run(ctx context.Context, mux *http.ServeMux, address string) {
+func run(ctx context.Context, router http.Handler, address string) {
 	server := &http.Server{
 		Addr:              address,
-		Handler:           mux,
+		Handler:           router,
 		ReadHeaderTimeout: readTimeout * time.Second,
 		WriteTimeout:      writeTimeout * time.Second,
 		BaseContext: func(l net.Listener) context.Context {

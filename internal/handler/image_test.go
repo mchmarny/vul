@@ -19,30 +19,28 @@ func getTestHandler(t *testing.T) *Handler {
 		t.Fatalf("error getting data pool: %v", err)
 	}
 
-	return &Handler{
-		Name:    "test",
-		Version: "1.0.0",
-		Pool:    pool,
-	}
+	return New("test", "v0.0.1", pool)
 }
 
 func TestImageHandler(t *testing.T) {
 	h := getTestHandler(t)
 
-	req, err := http.NewRequest(http.MethodGet, "/", nil)
+	// request
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest(http.MethodGet, "/api/v1/images", nil)
 	assert.NoError(t, err)
 
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(h.ImageHandler)
+	// execute
+	h.Router.ServeHTTP(w, req)
 
-	handler.ServeHTTP(rr, req)
-	status := rr.Code
-	assert.Equal(t, http.StatusOK, status)
+	// validate
+	assert.Equal(t, http.StatusOK, w.Code)
 
 	var r Response[[]*query.ListImageItem]
-	err = json.NewDecoder(rr.Body).Decode(&r)
+	err = json.NewDecoder(w.Result().Body).Decode(&r)
 	assert.NoError(t, err)
 	assert.Equal(t, h.Version, r.Version)
 	assert.NotEmpty(t, r.Created)
+	assert.Nil(t, r.Criteria)
 	assert.NotNil(t, r.Data)
 }

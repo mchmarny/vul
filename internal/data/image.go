@@ -20,7 +20,6 @@ var (
 					GROUP BY image`
 )
 
-// Query returns all rows from the table.
 func ListImages(ctx context.Context, pool *pgxpool.Pool) ([]*query.ListImageItem, error) {
 	conn, err := getDBConn(ctx, pool)
 	if err != nil {
