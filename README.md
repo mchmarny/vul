@@ -41,7 +41,7 @@ gcloud pubsub topics publish image-queue \
     --project=$PROJECT_ID
 ```
 
-## Schedule 
+## schedule 
 
 To schedule [config/image.txt](config/image.txt) to be queued for processing: 
 
@@ -97,6 +97,74 @@ gcloud scheduler jobs create http queue-images-schedule \
 
 Now everyday, at 3am and 3pm UTC, the image will be rebuilt and the Cloud Workstation configuration updated with the latest image.
 
+## query 
+
+List images:
+
+```shell
+curl -X GET https://vul.thingz.io/api/v1/images
+```
+
+That returns: 
+
+```json
+{
+    "version": "v0.1.0",
+    "created": "2023-05-10T17:44:22.128263373Z",
+    "data": [
+        {
+            "image": "docker.io/amazon/aws-cli",
+            "version_count": 1,
+            "first_reading": "2023-05-08T22:03:34.68755Z",
+            "last_reading": "2023-05-10T12:45:40.134534Z"
+        },
+        {
+            "image": "docker.io/amazon/aws-lambda-python",
+            "version_count": 1,
+            "first_reading": "2023-05-08T22:03:43.964732Z",
+            "last_reading": "2023-05-10T12:45:43.322162Z"
+        },
+        ...
+    ]
+}
+```
+
+Then, using one of the returned images: 
+
+```shell
+curl -H "Content-Type: application/json" \
+     -d '{ "image": "docker.io/bitnami/mariadb" }' \
+    https://vul.thingz.io/api/v1/versions
+```
+
+The result: 
+
+```json
+{
+    "version": "v0.1.0",
+    "created": "2023-05-10T17:53:28.910083767Z",
+    "criteria": {
+        "image": "docker.io/bitnami/mariadb"
+    },
+    "data": [
+        {
+            "digest": "sha256:19a6c75aa7efeaa833e40bb6aa8659d04e030299a5b11e2db9345de752599db3",
+            "source_count": 3,
+            "first_reading": "2023-05-09T22:03:20.943867Z",
+            "last_reading": "2023-05-10T12:46:11.244266Z",
+            "package_count": 69
+        },
+        {
+            "digest": "sha256:97b0be98b4714e81dac9ac55513f4f87c627d88da09d90c708229835124a8215",
+            "source_count": 3,
+            "first_reading": "2023-05-08T22:03:32.725514Z",
+            "last_reading": "2023-05-08T22:04:18.365187Z",
+            "package_count": 69
+        },
+        ...
+    ]
+}
+```
 
 ## Disclaimer
 
