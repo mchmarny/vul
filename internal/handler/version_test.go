@@ -32,7 +32,7 @@ func TestImageVersionHandler(t *testing.T) {
 	// validate
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var r Response[[]*query.ListImageVersionItem]
+	var r Response[map[string][]*query.ListImageSourceItem]
 	err = json.NewDecoder(w.Result().Body).Decode(&r)
 	assert.NoError(t, err)
 	assert.Equal(t, h.Version, r.Version)

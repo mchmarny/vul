@@ -14,6 +14,7 @@ var (
 	sqlImageList = `SELECT 
 						image, 
 						COUNT(distinct digest) versions,
+						COUNT(distinct source) sources,
 						MIN(processed) fist_reading,
 						MAX(processed) last_reading
 					FROM vulns 
@@ -25,7 +26,12 @@ func ListImages(ctx context.Context, pool *pgxpool.Pool) ([]*query.ListImageItem
 
 	r := func(rows pgx.Rows) error {
 		q := &query.ListImageItem{}
-		if err := rows.Scan(&q.Image, &q.VersionCount, &q.FirstReading, &q.LastReading); err != nil {
+		if err := rows.Scan(
+			&q.Image,
+			&q.VersionCount,
+			&q.SourceCount,
+			&q.FirstReading,
+			&q.LastReading); err != nil {
 			return errors.Wrapf(err, "failed to scan image row")
 		}
 		list = append(list, q)

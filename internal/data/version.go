@@ -13,25 +13,35 @@ import (
 var (
 	sqlVersionList = `SELECT 
 						digest,
-						COUNT(distinct source) as sources,
+						source,
+						COUNT(distinct package) as packages,
 						MIN(processed) as min_processed,
-						MAX(processed) as max_processed,
-						COUNT(distinct package) as packages
+						MAX(processed) as max_processed
 					  FROM vulns
 					  WHERE image = $1
-					  GROUP BY digest
-					  ORDER BY 4 DESC`
+					  GROUP BY digest, source
+					  ORDER BY 1, 2, 3`
 )
 
-func ListImageVersions(ctx context.Context, pool *pgxpool.Pool, imageURI string) ([]*query.ListImageVersionItem, error) {
-	list := make([]*query.ListImageVersionItem, 0)
+func ListImageVersions(ctx context.Context, pool *pgxpool.Pool, imageURI string) (map[string][]*query.ListImageSourceItem, error) {
+	list := make(map[string][]*query.ListImageSourceItem)
 
 	r := func(rows pgx.Rows) error {
-		q := &query.ListImageVersionItem{}
-		if err := rows.Scan(&q.Digest, &q.SourceCount, &q.FirstReading, &q.LastReading, &q.PackageCount); err != nil {
+		q := &query.ListImageSourceItem{}
+		var d string
+		if err := rows.Scan(
+			&d,
+			&q.Source,
+			&q.PackageCount,
+			&q.FirstReading,
+			&q.LastReading); err != nil {
 			return errors.Wrapf(err, "failed to scan image version row")
 		}
-		list = append(list, q)
+		if _, ok := list[d]; !ok {
+			list[d] = make([]*query.ListImageSourceItem, 0)
+		}
+
+		list[d] = append(list[d], q)
 		return nil
 	}
 

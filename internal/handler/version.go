@@ -27,7 +27,7 @@ func (h *Handler) imageVersionHandler(c *gin.Context) {
 		return
 	}
 
-	resp := Response[[]*query.ListImageVersionItem]{
+	resp := Response[map[string][]*query.ListImageSourceItem]{
 		Version:  h.Version,
 		Created:  time.Now().UTC(),
 		Criteria: criteria,
