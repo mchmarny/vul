@@ -2,8 +2,10 @@ package data
 
 import (
 	"context"
+	"database/sql"
 	"embed"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
@@ -73,4 +75,33 @@ func getDBConn(ctx context.Context, pool *pgxpool.Pool) (*pgxpool.Conn, error) {
 	}
 
 	return conn, nil
+}
+
+type mapper func(rows pgx.Rows) error
+
+func mapRows(ctx context.Context, p *pgxpool.Pool, m mapper, q string, args ...any) error {
+	conn, err := getDBConn(ctx, p)
+	if err != nil {
+		return errors.Wrapf(err, "failed to get db conn")
+	}
+	defer conn.Release()
+
+	rows, err := conn.Query(ctx, q, args...)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		log.Debug().
+			Err(err).
+			Str("query", sqlImageList).
+			Interface("args", args).
+			Msg("error executing query")
+		return errors.Wrapf(err, "failed to execute select statement")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		if err := m(rows); err != nil {
+			return errors.Wrapf(err, "failed to map row")
+		}
+	}
+
+	return nil
 }

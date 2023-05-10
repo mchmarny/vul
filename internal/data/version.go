@@ -2,8 +2,8 @@ package data
 
 import (
 	"context"
-	"database/sql"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mchmarny/vul/pkg/query"
 	"github.com/pkg/errors"
@@ -24,34 +24,22 @@ var (
 )
 
 func ListImageVersions(ctx context.Context, pool *pgxpool.Pool, imageURI string) ([]*query.ListImageVersionItem, error) {
-	conn, err := getDBConn(ctx, pool)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to get db conn")
-	}
-	defer conn.Release()
-
-	rows, err := conn.Query(ctx, sqlVersionList, imageURI)
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		log.Debug().
-			Err(err).
-			Str("query", sqlImageList).
-			Interface("params", imageURI).
-			Msg("error executing query")
-		return nil, errors.Wrapf(err, "failed to execute select statement")
-	}
-	defer rows.Close()
-
 	list := make([]*query.ListImageVersionItem, 0)
 
-	for rows.Next() {
+	r := func(rows pgx.Rows) error {
 		q := &query.ListImageVersionItem{}
 		if err := rows.Scan(&q.Digest, &q.SourceCount, &q.FirstReading, &q.LastReading, &q.PackageCount); err != nil {
-			return nil, errors.Wrapf(err, "failed to scan image version row")
+			return errors.Wrapf(err, "failed to scan image version row")
 		}
 		list = append(list, q)
+		return nil
 	}
 
-	log.Info().Msgf("found %d records", len(list))
+	if err := mapRows(ctx, pool, r, sqlVersionList, imageURI); err != nil {
+		return nil, errors.Wrap(err, "failed to map image version rows")
+	}
+
+	log.Info().Msgf("found %d image versions", len(list))
 
 	return list, nil
 }
