@@ -43,14 +43,14 @@ resource "google_project_iam_member" "runner_role_bindings" {
 # App Cloud Run service 
 resource "google_cloud_run_service" "app" {
   name                       = "${var.name}-app"
-  location                   = var.region
+  location                   = var.location
   project                    = var.project_id
   autogenerate_revision_name = true
 
   template {
     spec {
       containers {
-        image = "${var.app_image_uri}:${data.template_file.version.rendered}"
+        image = "${var.image_uri}:${data.template_file.version.rendered}"
         volume_mounts {
           name       = "config-secret"
           mount_path = "/secrets"
@@ -61,7 +61,7 @@ resource "google_cloud_run_service" "app" {
         }
         resources {
           limits = {
-            cpu    = "1000m"
+            cpu    = "2000m"
             memory = "512Mi"
           }
         }
@@ -91,8 +91,9 @@ resource "google_cloud_run_service" "app" {
     }
     metadata {
       annotations = {
-        "autoscaling.knative.dev/maxScale"      = "10"
-        "run.googleapis.com/cloudsql-instances" = "${var.db_conn_uri}"
+        "autoscaling.knative.dev/maxScale"         = "10"
+        "run.googleapis.com/cloudsql-instances"    = "${var.db_conn_uri}"
+        "run.googleapis.com/execution-environment" = "gen2"
       }
     }
   }
@@ -100,7 +101,7 @@ resource "google_cloud_run_service" "app" {
   metadata {
     annotations = {
       "run.googleapis.com/client-name" = "terraform"
-      "run.googleapis.com/ingress"     = "internal-and-cloud-load-balancing"
+      "run.googleapis.com/ingress"     = "all"
       # all, internal, internal-and-cloud-load-balancing
     }
   }

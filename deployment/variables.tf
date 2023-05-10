@@ -23,3 +23,27 @@ variable "git_repo" {
   type        = string
   nullable    = false
 }
+
+variable "domain_name" {
+  description = "Domain name"
+  type        = string
+  nullable    = false
+}
+
+variable "image_uri" {
+  description = "worker container image to deploy"
+  type        = string
+  nullable    = false
+}
+
+variable "config_secret_version" {
+  description = "secret manager version to use"
+  type        = string
+  default     = "latest"
+}
+
+variable "db_conn_uri" {
+  description = "Cloud SQL instance connection URI"
+  type        = string
+  nullable    = false
+}

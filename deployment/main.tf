@@ -5,13 +5,18 @@ locals {
   services = [
     "artifactregistry.googleapis.com",
     "cloudresourcemanager.googleapis.com",
+    "compute.googleapis.com",
     "container.googleapis.com",
-    "containerregistry.googleapis.com",
-    "containerscanning.googleapis.com",
     "iam.googleapis.com",
     "iamcredentials.googleapis.com",
+    "monitoring.googleapis.com",
+    "run.googleapis.com",
+    "secretmanager.googleapis.com",
     "servicecontrol.googleapis.com",
-    "servicemanagement.googleapis.com",
+    "servicemanagement.googleapis.com", 
+    "sql-component.googleapis.com",
+    "sqladmin.googleapis.com",
+    "stackdriver.googleapis.com",
   ]
 }
 
