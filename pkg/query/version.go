@@ -7,7 +7,7 @@ type ListImageVersionRequest struct {
 }
 
 type ListImageSourceItem struct {
-	Source       string    `json:"source_count"`
+	Source       string    `json:"source"`
 	PackageCount int       `json:"package_count"`
 	FirstReading time.Time `json:"first_reading"`
 	LastReading  time.Time `json:"last_reading"`

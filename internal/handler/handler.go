@@ -64,6 +64,7 @@ func New(ctx context.Context, cnf *config.Config) (*Handler, error) {
 	v1 := h.Router.Group("/api/v1")
 	v1.GET("/images", h.imageHandler)
 	v1.POST("/versions", h.imageVersionHandler)
+	v1.POST("/exposures", h.imageVersionExposureHandler)
 
 	return h, nil
 }
