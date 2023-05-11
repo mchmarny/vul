@@ -1,0 +1,22 @@
+{{ define "header" }}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Vulnerability Thingz</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="VulThingz - Image Vulnerability">
+    <meta name="keywords" content="s3c, Vulnerability, exposure, cve, software, security">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/static/assets/img/favicon.ico" rel="shortcut icon" />
+    <link rel="stylesheet" href="/static/assets/css/app.css?version={{ .version }}" />
+    <script src="/static/assets/js/app.js?v={{ .version }}"></script>
+</head>
+<body>
+<header class="page-header">
+  <nav>
+    <h1>VulThingz</h1>
+  </nav>
+</header>
+
+<section class="page-content">
+{{end}}

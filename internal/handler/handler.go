@@ -2,6 +2,8 @@ package handler
 
 import (
 	"context"
+	"embed"
+	"html/template"
 	"net/http"
 	"time"
 
@@ -22,6 +24,12 @@ var (
 
 	// ErrInternal is returned when an internal error occurs.
 	ErrInternal = errors.New("internal error, see logs for details")
+
+	//go:embed templates/*
+	fsTpl embed.FS
+
+	//go:embed assets/*
+	fsAss embed.FS
 )
 
 // Response is the response for the API.
@@ -59,8 +67,14 @@ func New(ctx context.Context, cnf *config.Config) (*Handler, error) {
 
 	h.Router.Use(gin.Recovery(), gin.Logger(), options)
 
+	// templates
+	h.Router.SetHTMLTemplate(template.Must(template.New("").ParseFS(fsTpl, "templates/*.html")))
+
+	// enables '/static/assets/img/favicon.ico'
+	h.Router.StaticFS("/static", http.FS(fsAss))
+
 	// health check
-	h.Router.GET("/", func(c *gin.Context) {
+	h.Router.GET("/health", func(c *gin.Context) {
 		c.IndentedJSON(http.StatusOK, gin.H{
 			"status":  "ok",
 			"name":    cnf.Name,
@@ -68,7 +82,10 @@ func New(ctx context.Context, cnf *config.Config) (*Handler, error) {
 		})
 	})
 
-	// routes
+	// UI routes
+	h.Router.GET("/", h.homeHandler)
+
+	// API routes
 	v1 := h.Router.Group("/api/v1")
 	v1.GET("/images", h.imageHandler)
 	v1.POST("/timeline", h.imageTimelineHandler)

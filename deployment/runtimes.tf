@@ -51,6 +51,11 @@ resource "google_cloud_run_service" "app" {
     spec {
       containers {
         image = "${var.image_uri}:${data.template_file.version.rendered}"
+        startup_probe {
+          http_get {
+            path = "/health"
+          }
+        }
         volume_mounts {
           name       = "config-secret"
           mount_path = "/secrets"
