@@ -17,6 +17,10 @@ type Runtime struct {
 	ExternalURL string `yaml:"external_url"`
 }
 
+type App struct {
+	ImageTimelineDays int `yaml:"image_timeline_days"`
+}
+
 // Config represents app config object.
 type Config struct {
 	Name      string  `yaml:"name"`
@@ -24,6 +28,7 @@ type Config struct {
 	ProjectID string  `yaml:"project_id"`
 	Runtime   Runtime `yaml:"runtime"`
 	Store     Store   `yaml:"store"`
+	App       App     `yaml:"app"`
 }
 
 // ReadFromEnvVarFile reads app config from file path in env var CONFIG.

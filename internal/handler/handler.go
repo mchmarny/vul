@@ -47,6 +47,7 @@ func New(ctx context.Context, cnf *config.Config) (*Handler, error) {
 		Version: cnf.Version,
 		Pool:    pool,
 		Router:  gin.New(),
+		Config:  cnf,
 	}
 
 	h.Router.Use(gin.Recovery(), gin.Logger(), options)
@@ -63,6 +64,7 @@ func New(ctx context.Context, cnf *config.Config) (*Handler, error) {
 	// routes
 	v1 := h.Router.Group("/api/v1")
 	v1.GET("/images", h.imageHandler)
+	v1.POST("/timeline", h.imageTimelineHandler)
 	v1.POST("/versions", h.imageVersionHandler)
 	v1.POST("/exposures", h.imageVersionExposureHandler)
 
@@ -75,6 +77,7 @@ type Handler struct {
 	Version string
 	Pool    *pgxpool.Pool
 	Router  *gin.Engine
+	Config  *config.Config
 }
 
 // Close closes all resources used by the handler.
