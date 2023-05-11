@@ -1,10 +1,7 @@
 package handler
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -27,22 +24,13 @@ func getTestHandler(t *testing.T) *Handler {
 }
 
 func TestHealthHandler(t *testing.T) {
-	testHandler(t, "/health", http.MethodGet, http.StatusOK, nil)
+	testHandler(t, "/health", http.StatusOK)
 }
 
-func testHandler(t *testing.T, url, method string, expectedCode int, d interface{}) *httptest.ResponseRecorder {
+func testHandler(t *testing.T, url string, expectedCode int) *httptest.ResponseRecorder {
 	h := getTestHandler(t)
-	var r io.Reader
-
-	if d != nil {
-
-		b, err := json.Marshal(d)
-		assert.Nil(t, err)
-		r = bytes.NewBuffer(b)
-	}
-
 	w := httptest.NewRecorder()
-	req, err := http.NewRequest(method, url, r)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	assert.NoError(t, err)
 	h.Router.ServeHTTP(w, req)
 	assert.Equal(t, expectedCode, w.Code)

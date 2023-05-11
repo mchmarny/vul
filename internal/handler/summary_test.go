@@ -11,20 +11,18 @@ import (
 )
 
 func TestImageSummaryHandler(t *testing.T) {
-	h := getTestHandler(t)
-
-	validateImageSummaryResponse(t, h, "")
-	validateImageSummaryResponse(t, h, "docker.io/bitnami/mariadb")
+	validateImageSummaryResponse(t, "")
+	validateImageSummaryResponse(t, "docker.io/bitnami/mariadb")
 }
 
-func validateImageSummaryResponse(t *testing.T, h *Handler, img string) {
+func validateImageSummaryResponse(t *testing.T, img string) {
 	uri := "/api/v1/summary"
 
 	if img != "" {
 		uri += "?img=" + url.QueryEscape(img)
 	}
 
-	w := testHandler(t, uri, http.MethodGet, http.StatusOK, nil)
+	w := testHandler(t, uri, http.StatusOK)
 
 	var out Response[*vul.SummaryItem]
 	err := json.NewDecoder(w.Result().Body).Decode(&out)

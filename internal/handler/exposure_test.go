@@ -16,7 +16,7 @@ func TestImageVersionExposureHandler(t *testing.T) {
 	dig := url.QueryEscape("sha256:97b0be98b4714e81dac9ac55513f4f87c627d88da09d90c708229835124a8215")
 	uri := fmt.Sprintf("/api/v1/exposures?img=%s&dig=%s", img, dig)
 
-	w := testHandler(t, uri, http.MethodGet, http.StatusOK, nil)
+	w := testHandler(t, uri, http.StatusOK)
 
 	var out Response[map[string][]*vul.ListDigestExposureItem]
 	err := json.NewDecoder(w.Result().Body).Decode(&out)

@@ -9,7 +9,7 @@ import (
 )
 
 func TestImageHandler(t *testing.T) {
-	w := testHandler(t, "/api/v1/images", http.MethodGet, http.StatusOK, nil)
+	w := testHandler(t, "/api/v1/images", http.StatusOK)
 
 	var out Response[[]string]
 	err := json.NewDecoder(w.Result().Body).Decode(&out)

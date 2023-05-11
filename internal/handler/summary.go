@@ -21,7 +21,7 @@ func (h *Handler) imageSummaryHandler(c *gin.Context) {
 
 	list, err := data.GetSummary(c.Request.Context(), h.Pool, img)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, errors.Wrap(err, "error getting image summary"))
+		c.AbortWithError(http.StatusInternalServerError, errors.Wrap(err, "error getting image summary")) //nolint:errcheck
 		return
 	}
 

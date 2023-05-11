@@ -20,7 +20,7 @@ func (h *Handler) imageVersionExposureHandler(c *gin.Context) {
 		Msg("image version exposure")
 
 	if img == "" || dig == "" {
-		c.AbortWithError(http.StatusBadRequest, errors.New("empty image or its digest"))
+		c.AbortWithError(http.StatusBadRequest, errors.New("empty image or its digest")) //nolint:errcheck
 		return
 	}
 
@@ -31,7 +31,7 @@ func (h *Handler) imageVersionExposureHandler(c *gin.Context) {
 
 	list, err := data.ListImageVersionExposures(c.Request.Context(), h.Pool, img, dig)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, errors.Wrapf(err, "error listing image version exposures for %s@%s", img, dig))
+		c.AbortWithError(http.StatusInternalServerError, errors.Wrapf(err, "error listing image version exposures for %s@%s", img, dig)) //nolint:errcheck
 		return
 	}
 

@@ -13,13 +13,13 @@ func (h *Handler) homeHandler(c *gin.Context) {
 
 	list, err := data.ListImages(c.Request.Context(), h.Pool)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, errors.Wrap(err, "error listing images"))
+		c.AbortWithError(http.StatusInternalServerError, errors.Wrap(err, "error listing images")) //nolint:errcheck
 		return
 	}
 
 	sum, err := data.GetSummary(c.Request.Context(), h.Pool, "")
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, errors.Wrap(err, "error getting image summary"))
+		c.AbortWithError(http.StatusInternalServerError, errors.Wrap(err, "error getting image summary")) //nolint:errcheck
 		return
 	}
 

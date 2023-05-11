@@ -16,7 +16,7 @@ func (h *Handler) imageVersionHandler(c *gin.Context) {
 	log.Debug().Str("image", img).Msg("image version")
 
 	if img == "" {
-		c.AbortWithError(http.StatusBadRequest, errors.New("empty image"))
+		c.AbortWithError(http.StatusBadRequest, errors.New("empty image")) //nolint:errcheck
 		return
 	}
 
@@ -26,7 +26,7 @@ func (h *Handler) imageVersionHandler(c *gin.Context) {
 
 	list, err := data.ListImageVersions(c.Request.Context(), h.Pool, img)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, errors.Wrapf(err, "error listing image versions for %s", img))
+		c.AbortWithError(http.StatusInternalServerError, errors.Wrapf(err, "error listing image versions for %s", img)) //nolint:errcheck
 		return
 	}
 

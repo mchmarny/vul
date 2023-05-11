@@ -16,7 +16,7 @@ func (h *Handler) imageTimelineHandler(c *gin.Context) {
 	log.Debug().Str("image", img).Msg("image version")
 
 	if img == "" {
-		c.AbortWithError(http.StatusBadRequest, errors.New("empty image"))
+		c.AbortWithError(http.StatusBadRequest, errors.New("empty image")) //nolint:errcheck
 		return
 	}
 
@@ -30,7 +30,7 @@ func (h *Handler) imageTimelineHandler(c *gin.Context) {
 
 	list, err := data.ListImageTimelines(c.Request.Context(), h.Pool, img, since)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, errors.Wrapf(err, "error listing image timeline for %s", img))
+		c.AbortWithError(http.StatusInternalServerError, errors.Wrapf(err, "error listing image timeline for %s", img)) //nolint:errcheck
 		return
 	}
 

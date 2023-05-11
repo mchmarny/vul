@@ -14,7 +14,7 @@ func (h *Handler) imageHandler(c *gin.Context) {
 
 	list, err := data.ListImages(c.Request.Context(), h.Pool)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, errors.Wrap(err, "error listing images"))
+		c.AbortWithError(http.StatusInternalServerError, errors.Wrap(err, "error listing images")) //nolint:errcheck
 		return
 	}
 

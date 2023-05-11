@@ -15,7 +15,7 @@ func TestImageTimelineHandler(t *testing.T) {
 	img := url.QueryEscape("docker.io/bitnami/mariadb")
 	uri := fmt.Sprintf("/api/v1/timeline?img=%s", img)
 
-	w := testHandler(t, uri, http.MethodGet, http.StatusOK, nil)
+	w := testHandler(t, uri, http.StatusOK)
 
 	var out Response[map[string]*vul.ListImageTimelineItem]
 	err := json.NewDecoder(w.Result().Body).Decode(&out)
@@ -26,5 +26,5 @@ func TestImageTimelineHandler(t *testing.T) {
 }
 
 func TestImageTimelineHandlerError(t *testing.T) {
-	testHandler(t, "/api/v1/timeline", http.MethodGet, http.StatusBadRequest, nil)
+	testHandler(t, "/api/v1/timeline", http.StatusBadRequest)
 }

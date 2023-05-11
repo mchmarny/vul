@@ -20,7 +20,7 @@ func TestImageVersionHandler(t *testing.T) {
 	uri := fmt.Sprintf("%s?img=%s",
 		imageVersionURL, url.QueryEscape("docker.io/bitnami/mariadb"))
 
-	w := testHandler(t, uri, http.MethodGet, http.StatusOK, nil)
+	w := testHandler(t, uri, http.StatusOK)
 
 	var out Response[map[string][]*vul.ListImageSourceItem]
 	err := json.NewDecoder(w.Result().Body).Decode(&out)
@@ -31,5 +31,5 @@ func TestImageVersionHandler(t *testing.T) {
 }
 
 func TestImageVersionHandlerError(t *testing.T) {
-	testHandler(t, imageVersionURL, http.MethodGet, http.StatusBadRequest, nil)
+	testHandler(t, imageVersionURL, http.StatusBadRequest)
 }
