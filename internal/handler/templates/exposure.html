@@ -1,0 +1,30 @@
+{{ define "exposure" }}
+
+{{ template "header" . }}
+
+<!-- Middle  -->
+
+    <h1>Image: {{ .img }}@{{ .dig }}</h1>
+
+    <section>
+        <h3>Exposures:</h3>
+        {{ range $k, $v := .list }}
+            <div class="exposure">
+                <h4>{{ $k }}</h4>
+                <div class="exposure-detail">
+                {{ range $v }}
+                    <p>Source: {{ .Source }}</p>
+                    <p>Package/Version: {{ .Package }}, {{ .Version }} (Fixed: {{ .Fixed }})</p>
+                    <p>Severity: {{ .Severity }} (Score: {{ .Score }})</p>
+                {{ end }}
+                </div>
+            </div>
+        {{ end }}
+    </section>
+
+
+<!-- End Middle  -->
+
+{{ template "footer" . }}
+
+{{ end }}

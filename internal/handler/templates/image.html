@@ -1,17 +1,11 @@
-{{ define "home" }}
+{{ define "image" }}
 
 {{ template "header" . }}
 
 <!-- Middle  -->
 
-    <section>
-        <h3>Images:</h3>
-        <ul id="images">
-            {{ range .images }}
-                <li><a href="/image?img={{ . }}">{{ . }}</a></li>
-            {{ end }}
-        </ul>
-    </section>
+    {{ $image := . }}
+    <h1>Image: {{ .img }}</h1>
 
     <section>
         {{ with .data }}
@@ -32,6 +26,20 @@
                     <li>Unknown: {{ .Unknown }}</li>
                 </ul>
             {{ end }}
+        {{ end }}
+    </section>
+
+    <section>
+        <h3>Versions:</h3>
+        {{ range $k, $v := .list }}
+            <div class="version">
+                <h4><a href="/exposure?img={{ $image.img }}&dig={{ $k }}">{{ $k }}</a></h4>
+                <div class="version-source">
+                {{ range $v }}
+                    <p>{{ .Source }}: {{ .PackageCount }} ({{ .FirstReading }}-{{ .LastReading }})</p>
+                {{ end }}
+                </div>
+            </div>
         {{ end }}
     </section>
 

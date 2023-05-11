@@ -47,3 +47,35 @@ func (h *Handler) imageVersionExposureHandler(c *gin.Context) {
 
 	c.IndentedJSON(http.StatusOK, resp)
 }
+
+func (h *Handler) imageVersionExposureViewHandler(c *gin.Context) {
+	h.Meter.RecordOne(c.Request.Context(), "image_version_exposure_view")
+
+	img := c.Query("img")
+	dig := c.Query("dig")
+	log.Debug().
+		Str("image", img).
+		Str("digest", dig).
+		Msg("image version exposure view")
+
+	if img == "" || dig == "" {
+		c.AbortWithError(http.StatusBadRequest, errors.New("empty image or its digest")) //nolint:errcheck
+		return
+	}
+
+	list, err := data.ListImageVersionExposures(c.Request.Context(), h.Pool, img, dig)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, errors.Wrapf(err, "error listing image version exposures view for %s@%s", img, dig)) //nolint:errcheck
+		return
+	}
+
+	d := gin.H{
+		"name":    h.Name,
+		"version": h.Version,
+		"img":     img,
+		"digest":  dig,
+		"list":    list,
+	}
+
+	c.HTML(http.StatusOK, "exposure", d)
+}

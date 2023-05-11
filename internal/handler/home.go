@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (h *Handler) homeHandler(c *gin.Context) {
+func (h *Handler) homeViewHandler(c *gin.Context) {
 	h.Meter.RecordOne(c.Request.Context(), "home")
 
 	list, err := data.ListImages(c.Request.Context(), h.Pool)
@@ -27,7 +27,7 @@ func (h *Handler) homeHandler(c *gin.Context) {
 		"name":    h.Name,
 		"version": h.Version,
 		"images":  list,
-		"summary": sum,
+		"data":    sum,
 	}
 
 	c.HTML(http.StatusOK, "home", d)

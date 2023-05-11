@@ -82,7 +82,9 @@ func New(ctx context.Context, cnf *config.Config) (*Handler, error) {
 	})
 
 	// UI routes
-	h.Router.GET("/", h.homeHandler)
+	h.Router.GET("/", h.homeViewHandler)
+	h.Router.GET("/image", h.imageViewHandler)
+	h.Router.GET("/exposure", h.imageVersionExposureViewHandler)
 
 	// API routes
 	v1 := h.Router.Group("/api/v1")
