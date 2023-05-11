@@ -148,7 +148,7 @@ func (s *TimeSeriesService) post(ctx context.Context, req *monitoringpb.CreateTi
 	}
 }
 
-func (s *TimeSeriesService) getDefaultMetricLabels(c *gin.Context) map[string]string {
+func (s *TimeSeriesService) getDefaultMetricLabels() map[string]string {
 	return map[string]string{
 		"name":     s.serviceName,
 		"version":  s.serviceVersion,
@@ -159,12 +159,12 @@ func (s *TimeSeriesService) getDefaultMetricLabels(c *gin.Context) map[string]st
 
 // Count adds the specified value to the specified metric.
 func (s *TimeSeriesService) Count(c *gin.Context, name string) {
-	s.RecordOneWithLabels(c.Request.Context(), name, s.getDefaultMetricLabels(c))
+	s.RecordOneWithLabels(c.Request.Context(), name, s.getDefaultMetricLabels())
 }
 
 // CountWithLabels adds one to the specified metric with labels.
 func (s *TimeSeriesService) CountWithLabels(c *gin.Context, name string, labels map[string]string) {
-	l := s.getDefaultMetricLabels(c)
+	l := s.getDefaultMetricLabels()
 	for k, v := range labels {
 		l[k] = v
 	}
@@ -173,7 +173,7 @@ func (s *TimeSeriesService) CountWithLabels(c *gin.Context, name string, labels 
 
 // MeterWithLabels adds the specified value to the specified metric.
 func (s *TimeSeriesService) MeterWithLabels(c *gin.Context, name string, v interface{}, labels map[string]string) {
-	l := s.getDefaultMetricLabels(c)
+	l := s.getDefaultMetricLabels()
 	for k, v := range labels {
 		l[k] = v
 	}
@@ -182,6 +182,6 @@ func (s *TimeSeriesService) MeterWithLabels(c *gin.Context, name string, v inter
 
 // Meter adds the specified value to the specified metric.
 func (s *TimeSeriesService) Meter(c *gin.Context, name string, v interface{}) {
-	l := s.getDefaultMetricLabels(c)
+	l := s.getDefaultMetricLabels()
 	s.Record(c.Request.Context(), name, v, l)
 }
