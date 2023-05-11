@@ -4,10 +4,28 @@ url=$1
 [[ -z "$url" ]] && url="https://vul.thingz.io"
 echo "Testing: $url"
 
-# get image with all sources
-img=$(curl -s -X GET $url/api/v1/images | jq -r '[.data[] | select(.source_count == 3)] | .[0].image')
+# get images
+img=$(curl -s \
+    -H "Content-Type: application/json" \
+    $url/api/v1/images \
+    | jq -r '.data[3]')
 [[ -z "$img" ]] && echo "image not found" && exit 1
 echo "Image: $img"
+
+# get all summary
+img1=$(curl -s \
+    -H "Content-Type: application/json" \
+    $url/api/v1/summary \
+    | jq -r '.data.image')
+[ "$img1" != "" ] && echo "expected empty image" && exit 1
+
+# get one image summary
+img2=$(curl -s \
+    -H "Content-Type: application/json" \
+    -d "{ \"image\": \"$img\" }" \
+    $url/api/v1/summary \
+    | jq -r '.data.image')
+[ "$img2" != "$img" ] && echo "expected: $img, got: $img2" && exit 1
 
 # get image versions 
 dig=$(curl -s -H "Content-Type: application/json" -d "{ \"image\": \"$img\" }" \

@@ -2,7 +2,7 @@ package vul
 
 import "time"
 
-type ListImageVersionRequest struct {
+type ImageRequest struct {
 	Image string `json:"image"`
 }
 

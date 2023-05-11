@@ -11,9 +11,9 @@ import (
 )
 
 func (h *Handler) imageVersionHandler(c *gin.Context) {
-	var criteria vul.ListImageVersionRequest
+	var criteria vul.ImageRequest
 	if err := c.ShouldBindJSON(&criteria); err != nil {
-		log.Error().Err(err).Msg("error binding request")
+		log.Error().Err(err).Msg("error binding image version request")
 		c.JSON(http.StatusBadRequest, ErrInvalidRequest)
 		c.Abort()
 		return

@@ -88,6 +88,8 @@ func New(ctx context.Context, cnf *config.Config) (*Handler, error) {
 	// API routes
 	v1 := h.Router.Group("/api/v1")
 	v1.GET("/images", h.imageHandler)
+	v1.GET("/summary", h.imageSummaryHandler)
+	v1.POST("/summary", h.imageSummaryHandler)
 	v1.POST("/timeline", h.imageTimelineHandler)
 	v1.POST("/versions", h.imageVersionHandler)
 	v1.POST("/exposures", h.imageVersionExposureHandler)

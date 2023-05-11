@@ -77,9 +77,10 @@ func getDBConn(ctx context.Context, pool *pgxpool.Pool) (*pgxpool.Conn, error) {
 	return conn, nil
 }
 
-type mapper func(rows pgx.Rows) error
+type rowsMapper func(rows pgx.Rows) error
+type rowMapper func(rows pgx.Row) error
 
-func mapRows(ctx context.Context, p *pgxpool.Pool, m mapper, q string, args ...any) error {
+func mapRows(ctx context.Context, p *pgxpool.Pool, m rowsMapper, q string, args ...any) error {
 	conn, err := getDBConn(ctx, p)
 	if err != nil {
 		return errors.Wrapf(err, "failed to get db conn")
@@ -101,6 +102,30 @@ func mapRows(ctx context.Context, p *pgxpool.Pool, m mapper, q string, args ...a
 		if err := m(rows); err != nil {
 			return errors.Wrapf(err, "failed to map row")
 		}
+	}
+
+	return nil
+}
+
+func mapRow(ctx context.Context, p *pgxpool.Pool, m rowMapper, q string, args ...any) error {
+	conn, err := getDBConn(ctx, p)
+	if err != nil {
+		return errors.Wrapf(err, "failed to get db conn")
+	}
+	defer conn.Release()
+
+	row := conn.QueryRow(ctx, q, args...)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		log.Debug().
+			Err(err).
+			Str("query", sqlImageList).
+			Interface("args", args).
+			Msg("error executing query")
+		return errors.Wrapf(err, "failed to execute select statement")
+	}
+
+	if err := m(row); err != nil {
+		return errors.Wrapf(err, "failed to map row")
 	}
 
 	return nil

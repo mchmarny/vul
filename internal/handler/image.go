@@ -6,7 +6,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/mchmarny/vul/internal/data"
-	"github.com/mchmarny/vul/pkg/vul"
 	"github.com/rs/zerolog/log"
 )
 
@@ -21,7 +20,7 @@ func (h *Handler) imageHandler(c *gin.Context) {
 		return
 	}
 
-	resp := Response[[]*vul.ListImageItem]{
+	resp := Response[[]string]{
 		Version: h.Version,
 		Created: time.Now().UTC(),
 		Data:    list,

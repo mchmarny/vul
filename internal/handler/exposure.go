@@ -13,7 +13,7 @@ import (
 func (h *Handler) imageVersionExposureHandler(c *gin.Context) {
 	var criteria vul.ListImageVersionExposureRequest
 	if err := c.ShouldBindJSON(&criteria); err != nil {
-		log.Error().Err(err).Msg("error binding request")
+		log.Error().Err(err).Msg("error binding image version exposure request")
 		c.JSON(http.StatusBadRequest, ErrInvalidRequest)
 		c.Abort()
 		return

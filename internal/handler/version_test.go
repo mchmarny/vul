@@ -14,7 +14,7 @@ import (
 func TestImageVersionHandler(t *testing.T) {
 	h := getTestHandler(t)
 
-	vr := vul.ListImageVersionRequest{
+	vr := vul.ImageRequest{
 		Image: "docker.io/bitnami/mariadb",
 	}
 

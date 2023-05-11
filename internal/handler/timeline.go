@@ -13,7 +13,7 @@ import (
 func (h *Handler) imageTimelineHandler(c *gin.Context) {
 	var criteria vul.ListImageTimelineRequest
 	if err := c.ShouldBindJSON(&criteria); err != nil {
-		log.Error().Err(err).Msg("error binding request")
+		log.Error().Err(err).Msg("error binding image timeline request")
 		c.JSON(http.StatusBadRequest, ErrInvalidRequest)
 		c.Abort()
 		return
