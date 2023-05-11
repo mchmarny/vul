@@ -1,4 +1,4 @@
-package query
+package vul
 
 type ListImageTimelineRequest struct {
 	Image   string `json:"image"`

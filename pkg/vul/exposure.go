@@ -1,4 +1,4 @@
-package query
+package vul
 
 type ListImageVersionExposureRequest struct {
 	Image  string `json:"image"`

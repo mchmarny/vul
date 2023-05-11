@@ -6,12 +6,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/mchmarny/vul/internal/data"
-	"github.com/mchmarny/vul/pkg/query"
+	"github.com/mchmarny/vul/pkg/vul"
 	"github.com/rs/zerolog/log"
 )
 
 func (h *Handler) imageTimelineHandler(c *gin.Context) {
-	var criteria query.ListImageTimelineRequest
+	var criteria vul.ListImageTimelineRequest
 	if err := c.ShouldBindJSON(&criteria); err != nil {
 		log.Error().Err(err).Msg("error binding request")
 		c.JSON(http.StatusBadRequest, ErrInvalidRequest)
@@ -48,7 +48,7 @@ func (h *Handler) imageTimelineHandler(c *gin.Context) {
 		return
 	}
 
-	resp := Response[map[string]*query.ListImageTimelineItem]{
+	resp := Response[map[string]*vul.ListImageTimelineItem]{
 		Version:  h.Version,
 		Created:  time.Now().UTC(),
 		Criteria: criteria,

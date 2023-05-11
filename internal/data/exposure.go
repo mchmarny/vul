@@ -5,7 +5,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/mchmarny/vul/pkg/query"
+	"github.com/mchmarny/vul/pkg/vul"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )
@@ -25,11 +25,11 @@ var (
 					  ORDER BY 1, 2, 3, 4`
 )
 
-func ListImageVersionExposures(ctx context.Context, pool *pgxpool.Pool, imageURI, digest string) (map[string][]*query.ListDigestExposureItem, error) {
-	list := make(map[string][]*query.ListDigestExposureItem)
+func ListImageVersionExposures(ctx context.Context, pool *pgxpool.Pool, imageURI, digest string) (map[string][]*vul.ListDigestExposureItem, error) {
+	list := make(map[string][]*vul.ListDigestExposureItem)
 
 	r := func(rows pgx.Rows) error {
-		q := &query.ListDigestExposureItem{}
+		q := &vul.ListDigestExposureItem{}
 		var e string
 		if err := rows.Scan(
 			&e,
@@ -42,7 +42,7 @@ func ListImageVersionExposures(ctx context.Context, pool *pgxpool.Pool, imageURI
 			return errors.Wrapf(err, "failed to scan image version row")
 		}
 		if _, ok := list[e]; !ok {
-			list[e] = make([]*query.ListDigestExposureItem, 0)
+			list[e] = make([]*vul.ListDigestExposureItem, 0)
 		}
 
 		list[e] = append(list[e], q)

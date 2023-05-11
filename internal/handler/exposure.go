@@ -6,12 +6,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/mchmarny/vul/internal/data"
-	"github.com/mchmarny/vul/pkg/query"
+	"github.com/mchmarny/vul/pkg/vul"
 	"github.com/rs/zerolog/log"
 )
 
 func (h *Handler) imageVersionExposureHandler(c *gin.Context) {
-	var criteria query.ListImageVersionExposureRequest
+	var criteria vul.ListImageVersionExposureRequest
 	if err := c.ShouldBindJSON(&criteria); err != nil {
 		log.Error().Err(err).Msg("error binding request")
 		c.JSON(http.StatusBadRequest, ErrInvalidRequest)
@@ -38,7 +38,7 @@ func (h *Handler) imageVersionExposureHandler(c *gin.Context) {
 		return
 	}
 
-	resp := Response[map[string][]*query.ListDigestExposureItem]{
+	resp := Response[map[string][]*vul.ListDigestExposureItem]{
 		Version:  h.Version,
 		Created:  time.Now().UTC(),
 		Criteria: criteria,

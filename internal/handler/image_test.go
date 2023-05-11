@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/mchmarny/vul/pkg/query"
+	"github.com/mchmarny/vul/pkg/vul"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -24,7 +24,7 @@ func TestImageHandler(t *testing.T) {
 	// validate
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var r Response[[]*query.ListImageItem]
+	var r Response[[]*vul.ListImageItem]
 	err = json.NewDecoder(w.Result().Body).Decode(&r)
 	assert.NoError(t, err)
 	assert.Equal(t, h.Version, r.Version)

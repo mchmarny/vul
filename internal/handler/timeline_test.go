@@ -7,14 +7,14 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/mchmarny/vul/pkg/query"
+	"github.com/mchmarny/vul/pkg/vul"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestImageTimelineHandler(t *testing.T) {
 	h := getTestHandler(t)
 
-	vr := query.ListImageTimelineRequest{
+	vr := vul.ListImageTimelineRequest{
 		Image: "docker.io/bitnami/mongodb",
 	}
 
@@ -32,7 +32,7 @@ func TestImageTimelineHandler(t *testing.T) {
 	// validate
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var r Response[map[string]*query.ListImageTimelineItem]
+	var r Response[map[string]*vul.ListImageTimelineItem]
 	err = json.NewDecoder(w.Result().Body).Decode(&r)
 	assert.NoError(t, err)
 	assert.Equal(t, h.Version, r.Version)

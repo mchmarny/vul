@@ -7,14 +7,14 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/mchmarny/vul/pkg/query"
+	"github.com/mchmarny/vul/pkg/vul"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestImageVersionHandler(t *testing.T) {
 	h := getTestHandler(t)
 
-	vr := query.ListImageVersionRequest{
+	vr := vul.ListImageVersionRequest{
 		Image: "docker.io/bitnami/mariadb",
 	}
 
@@ -32,7 +32,7 @@ func TestImageVersionHandler(t *testing.T) {
 	// validate
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var r Response[map[string][]*query.ListImageSourceItem]
+	var r Response[map[string][]*vul.ListImageSourceItem]
 	err = json.NewDecoder(w.Result().Body).Decode(&r)
 	assert.NoError(t, err)
 	assert.Equal(t, h.Version, r.Version)

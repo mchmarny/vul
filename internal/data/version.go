@@ -5,7 +5,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/mchmarny/vul/pkg/query"
+	"github.com/mchmarny/vul/pkg/vul"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )
@@ -23,11 +23,11 @@ var (
 					  ORDER BY 1, 2, 3`
 )
 
-func ListImageVersions(ctx context.Context, pool *pgxpool.Pool, imageURI string) (map[string][]*query.ListImageSourceItem, error) {
-	list := make(map[string][]*query.ListImageSourceItem)
+func ListImageVersions(ctx context.Context, pool *pgxpool.Pool, imageURI string) (map[string][]*vul.ListImageSourceItem, error) {
+	list := make(map[string][]*vul.ListImageSourceItem)
 
 	r := func(rows pgx.Rows) error {
-		q := &query.ListImageSourceItem{}
+		q := &vul.ListImageSourceItem{}
 		var d string
 		if err := rows.Scan(
 			&d,
@@ -38,7 +38,7 @@ func ListImageVersions(ctx context.Context, pool *pgxpool.Pool, imageURI string)
 			return errors.Wrapf(err, "failed to scan image version row")
 		}
 		if _, ok := list[d]; !ok {
-			list[d] = make([]*query.ListImageSourceItem, 0)
+			list[d] = make([]*vul.ListImageSourceItem, 0)
 		}
 
 		list[d] = append(list[d], q)

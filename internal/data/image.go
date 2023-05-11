@@ -5,7 +5,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/mchmarny/vul/pkg/query"
+	"github.com/mchmarny/vul/pkg/vul"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )
@@ -21,11 +21,11 @@ var (
 					GROUP BY image`
 )
 
-func ListImages(ctx context.Context, pool *pgxpool.Pool) ([]*query.ListImageItem, error) {
-	list := make([]*query.ListImageItem, 0)
+func ListImages(ctx context.Context, pool *pgxpool.Pool) ([]*vul.ListImageItem, error) {
+	list := make([]*vul.ListImageItem, 0)
 
 	r := func(rows pgx.Rows) error {
-		q := &query.ListImageItem{}
+		q := &vul.ListImageItem{}
 		if err := rows.Scan(
 			&q.Image,
 			&q.VersionCount,

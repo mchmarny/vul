@@ -7,14 +7,14 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/mchmarny/vul/pkg/query"
+	"github.com/mchmarny/vul/pkg/vul"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestImageVersionExposureHandler(t *testing.T) {
 	h := getTestHandler(t)
 
-	vr := query.ListImageVersionExposureRequest{
+	vr := vul.ListImageVersionExposureRequest{
 		Image:  "docker.io/bitnami/mongodb",
 		Digest: "sha256:419f129df0140834d89c94b29700c91f38407182137be480a0d6c6cbe2e0d00a",
 	}
@@ -33,7 +33,7 @@ func TestImageVersionExposureHandler(t *testing.T) {
 	// validate
 	assert.Equal(t, http.StatusOK, w.Code)
 
-	var r Response[map[string][]*query.ListDigestExposureItem]
+	var r Response[map[string][]*vul.ListDigestExposureItem]
 	err = json.NewDecoder(w.Result().Body).Decode(&r)
 	assert.NoError(t, err)
 	assert.Equal(t, h.Version, r.Version)

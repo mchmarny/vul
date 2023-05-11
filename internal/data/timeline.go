@@ -5,7 +5,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/mchmarny/vul/pkg/query"
+	"github.com/mchmarny/vul/pkg/vul"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )
@@ -32,15 +32,15 @@ var (
 					  ORDER BY 1 DESC, 2`
 )
 
-func ListImageTimelines(ctx context.Context, pool *pgxpool.Pool, req *query.ListImageTimelineRequest) (map[string]*query.ListImageTimelineItem, error) {
+func ListImageTimelines(ctx context.Context, pool *pgxpool.Pool, req *vul.ListImageTimelineRequest) (map[string]*vul.ListImageTimelineItem, error) {
 	if req == nil {
 		return nil, errors.New("nil request")
 	}
 
-	m := make(map[string]*query.ListImageTimelineItem)
+	m := make(map[string]*vul.ListImageTimelineItem)
 
 	r := func(rows pgx.Rows) error {
-		q := &query.ListImageSourceTimelineItem{}
+		q := &vul.ListImageSourceTimelineItem{}
 		var day string
 		var src string
 		if err := rows.Scan(
@@ -58,8 +58,8 @@ func ListImageTimelines(ctx context.Context, pool *pgxpool.Pool, req *query.List
 		}
 
 		if _, ok := m[day]; !ok {
-			m[day] = &query.ListImageTimelineItem{
-				Sources: make(map[string]*query.ListImageSourceTimelineItem),
+			m[day] = &vul.ListImageTimelineItem{
+				Sources: make(map[string]*vul.ListImageSourceTimelineItem),
 			}
 		}
 
