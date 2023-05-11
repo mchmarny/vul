@@ -26,6 +26,10 @@ func (h *Handler) imageTimelineHandler(c *gin.Context) {
 		return
 	}
 
+	h.Meter.RecordOneWithLabels(c.Request.Context(), "image_timeline", map[string]string{
+		"image": criteria.Image,
+	})
+
 	today := time.Now().UTC()
 	if criteria.FromDay == "" {
 		criteria.ToDay = today.Format(time.DateOnly)

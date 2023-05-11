@@ -19,6 +19,17 @@ func (h *Handler) imageVersionHandler(c *gin.Context) {
 		return
 	}
 
+	if criteria.Image == "" {
+		log.Error().Msg("empty image")
+		c.JSON(http.StatusBadRequest, ErrInvalidRequest)
+		c.Abort()
+		return
+	}
+
+	h.Meter.RecordOneWithLabels(c.Request.Context(), "image_version", map[string]string{
+		"image": criteria.Image,
+	})
+
 	list, err := data.ListImageVersions(c.Request.Context(), h.Pool, criteria.Image)
 	if err != nil {
 		log.Error().Err(err).Msgf("error listing image versions for %s", criteria.Image)

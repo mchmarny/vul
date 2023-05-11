@@ -19,6 +19,17 @@ func (h *Handler) imageVersionExposureHandler(c *gin.Context) {
 		return
 	}
 
+	if criteria.Image == "" || criteria.Digest == "" {
+		log.Error().Msg("empty image or its digest")
+		c.JSON(http.StatusBadRequest, ErrInvalidRequest)
+		c.Abort()
+		return
+	}
+
+	h.Meter.RecordOneWithLabels(c.Request.Context(), "image_version_exposure", map[string]string{
+		"image": criteria.Image,
+	})
+
 	list, err := data.ListImageVersionExposures(c.Request.Context(), h.Pool, criteria.Image, criteria.Digest)
 	if err != nil {
 		log.Error().Err(err).Msgf("error listing image version exposures for %s", criteria.Image)

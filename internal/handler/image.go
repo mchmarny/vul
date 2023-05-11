@@ -11,6 +11,8 @@ import (
 )
 
 func (h *Handler) imageHandler(c *gin.Context) {
+	h.Meter.RecordOne(c.Request.Context(), "images")
+
 	list, err := data.ListImages(c.Request.Context(), h.Pool)
 	if err != nil {
 		log.Error().Err(err).Msg("error listing images")

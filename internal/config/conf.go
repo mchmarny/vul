@@ -15,6 +15,7 @@ type Store struct {
 type Runtime struct {
 	LogLevel    string `yaml:"log_level"`
 	ExternalURL string `yaml:"external_url"`
+	SendMetrics bool   `yaml:"send_metrics"`
 }
 
 type App struct {

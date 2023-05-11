@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mchmarny/vul/internal/config"
 	"github.com/mchmarny/vul/internal/data"
+	"github.com/mchmarny/vul/internal/metric"
 	"github.com/pkg/errors"
 )
 
@@ -42,12 +43,18 @@ func New(ctx context.Context, cnf *config.Config) (*Handler, error) {
 		return nil, errors.Wrap(err, "failed to create data pool")
 	}
 
+	mon, err := metric.New(cnf.ProjectID, cnf.Name, cnf.Version, cnf.Runtime.SendMetrics)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create metric service")
+	}
+
 	h := &Handler{
 		Name:    cnf.Name,
 		Version: cnf.Version,
 		Pool:    pool,
 		Router:  gin.New(),
 		Config:  cnf,
+		Meter:   mon,
 	}
 
 	h.Router.Use(gin.Recovery(), gin.Logger(), options)
@@ -78,6 +85,7 @@ type Handler struct {
 	Pool    *pgxpool.Pool
 	Router  *gin.Engine
 	Config  *config.Config
+	Meter   metric.Service
 }
 
 // Close closes all resources used by the handler.
