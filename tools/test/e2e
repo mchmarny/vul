@@ -1,0 +1,27 @@
+#!/bin/bash
+
+url=$1
+[[ -z "$url" ]] && url="https://vul.thingz.io"
+echo "Testing: $url"
+
+# get image with all sources
+img=$(curl -s -X GET $url/api/v1/images | jq -r '[.data[] | select(.source_count == 3)] | .[0].image')
+[[ -z "$img" ]] && echo "image not found" && exit 1
+echo "Image: $img"
+
+# get image versions 
+dig=$(curl -s -H "Content-Type: application/json" -d "{ \"image\": \"$img\" }" \
+    $url/api/v1/versions | jq -r '.data | keys[0]')
+[[ -z "$dig" ]] && echo "image digest not found" && exit 1
+echo "Digest: $dig"
+
+# get image version exposures
+exp=$(curl -s -H "Content-Type: application/json" -d "{ \"image\": \"$img\", \"digest\": \"$dig\" }" \
+    $url/api/v1/exposures | jq -r '.data | keys[0]')
+[[ -z "$exp" ]] && echo "image exposure not found" && exit 1
+echo "Exposure: $exp"
+
+# get image timeline 
+day=$(curl -s -H "Content-Type: application/json" -d "{ \"image\": \"$img\" }" \
+    $url/api/v1/timeline | jq -r '.data | keys | last')
+echo "Last: $day"

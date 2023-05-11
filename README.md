@@ -132,7 +132,7 @@ That returns:
 Then, using one of the returned versions: 
 
 ```shell
-curl -H "Content-Type: application/json" \
+curl -s -H "Content-Type: application/json" \
      -d '{ "image": "docker.io/bitnami/mariadb" }' \
     https://vul.thingz.io/api/v1/versions
 ```
@@ -169,7 +169,7 @@ The result:
 Next, using image digest return exposures: 
 
 ```shell
-curl -H "Content-Type: application/json" \
+curl -s -H "Content-Type: application/json" \
      -d '{ "image": "docker.io/bitnami/mongodb", "digest": "sha256:419f129df0140834d89c94b29700c91f38407182137be480a0d6c6cbe2e0d00a" }' \
     https://vul.thingz.io/api/v1/exposures
 ```
@@ -178,35 +178,31 @@ The result:
 
 ```json
 {
-    "version": "v0.1.0",
-    "created": "2023-05-10T17:53:28.910083767Z",
+    "version": "v0.1.7",
+    "created": "2023-05-11T11:53:10.535212577Z",
     "criteria": {
-        "image": "docker.io/bitnami/mariadb"
+        "image": "docker.io/bitnami/mongodb",
+        "digest": "sha256:419f129df0140834d89c94b29700c91f38407182137be480a0d6c6cbe2e0d00a"
     },
-    "data": [
-        {
-            "digest": "sha256:19a6c75aa7efeaa833e40bb6aa8659d04e030299a5b11e2db9345de752599db3",
-            "source_count": 3,
-            "first_reading": "2023-05-09T22:03:20.943867Z",
-            "last_reading": "2023-05-10T12:46:11.244266Z",
-            "package_count": 69
-        },
-        {
-            "digest": "sha256:97b0be98b4714e81dac9ac55513f4f87c627d88da09d90c708229835124a8215",
-            "source_count": 3,
-            "first_reading": "2023-05-08T22:03:32.725514Z",
-            "last_reading": "2023-05-08T22:04:18.365187Z",
-            "package_count": 69
-        },
-        ...
-    ]
+    "data": {
+        "CVE-2005-2541": [
+            {
+                "source": "grype",
+                "package": "tar",
+                "version": "1.34+dfsg-1",
+                "severity": "high",
+                "score": 10,
+                "fixed": false
+            },
+            ...
+    ],
 }
 ```
 
 You can also get a exposure timeline for each image: 
 
 ```shell
-curl -H "Content-Type: application/json" \
+curl -s -H "Content-Type: application/json" \
      -d '{ "image": "docker.io/bitnami/mongodb" }' \
     https://vul.thingz.io/api/v1/timeline
 ```
