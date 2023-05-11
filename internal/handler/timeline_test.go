@@ -1,10 +1,8 @@
 package handler
 
 import (
-	"bytes"
 	"encoding/json"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/mchmarny/vul/pkg/vul"
@@ -12,31 +10,24 @@ import (
 )
 
 func TestImageTimelineHandler(t *testing.T) {
-	h := getTestHandler(t)
-
-	vr := vul.ListImageTimelineRequest{
+	in := vul.ListImageTimelineRequest{
 		Image: "docker.io/bitnami/mongodb",
 	}
+	w := testHandler(t, "/api/v1/timeline", http.MethodPost, http.StatusOK, in)
 
-	b, err := json.Marshal(vr)
-	assert.Nil(t, err)
-
-	// request
-	w := httptest.NewRecorder()
-	req, err := http.NewRequest(http.MethodPost, "/api/v1/timeline", bytes.NewBuffer(b))
+	var out Response[map[string]*vul.ListImageTimelineItem]
+	err := json.NewDecoder(w.Result().Body).Decode(&out)
 	assert.NoError(t, err)
+	assert.NotEmpty(t, out.Created)
+	assert.NotEmpty(t, out.Criteria)
+	assert.NotNil(t, out.Data)
+}
 
-	// execute
-	h.Router.ServeHTTP(w, req)
+func TestImageTimelineHandlerError(t *testing.T) {
+	testHandler(t, "/api/v1/timeline", http.MethodPost, http.StatusBadRequest, nil)
+}
 
-	// validate
-	assert.Equal(t, http.StatusOK, w.Code)
-
-	var r Response[map[string]*vul.ListImageTimelineItem]
-	err = json.NewDecoder(w.Result().Body).Decode(&r)
-	assert.NoError(t, err)
-	assert.Equal(t, h.Version, r.Version)
-	assert.NotEmpty(t, r.Created)
-	assert.NotEmpty(t, r.Criteria)
-	assert.NotNil(t, r.Data)
+func TestImageTimelineHandlerEmptyError(t *testing.T) {
+	r := vul.ListImageTimelineRequest{}
+	testHandler(t, "/api/v1/timeline", http.MethodPost, http.StatusBadRequest, r)
 }

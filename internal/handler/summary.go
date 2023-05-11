@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mchmarny/vul/internal/data"
 	"github.com/mchmarny/vul/pkg/vul"
-	"github.com/rs/zerolog/log"
+	"github.com/pkg/errors"
 )
 
 func (h *Handler) imageSummaryHandler(c *gin.Context) {
@@ -16,9 +16,7 @@ func (h *Handler) imageSummaryHandler(c *gin.Context) {
 	if c.Request.Method == http.MethodPost {
 		var criteria vul.ImageRequest
 		if err := c.BindJSON(&criteria); err != nil {
-			log.Error().Err(err).Msg("error binding image summary request")
-			c.JSON(http.StatusBadRequest, ErrInvalidRequest)
-			c.Abort()
+			c.AbortWithError(http.StatusBadRequest, errors.Wrap(err, "error binding image summary request"))
 			return
 		}
 		img = criteria.Image
@@ -30,9 +28,7 @@ func (h *Handler) imageSummaryHandler(c *gin.Context) {
 
 	list, err := data.GetSummary(c.Request.Context(), h.Pool, img)
 	if err != nil {
-		log.Error().Err(err).Msg("error getting image summary")
-		c.JSON(http.StatusInternalServerError, ErrInternal)
-		c.Abort()
+		c.AbortWithError(http.StatusInternalServerError, errors.Wrap(err, "error getting image summary"))
 		return
 	}
 

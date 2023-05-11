@@ -7,22 +7,18 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mchmarny/vul/internal/data"
 	"github.com/mchmarny/vul/pkg/vul"
-	"github.com/rs/zerolog/log"
+	"github.com/pkg/errors"
 )
 
 func (h *Handler) imageVersionHandler(c *gin.Context) {
 	var criteria vul.ImageRequest
 	if err := c.ShouldBindJSON(&criteria); err != nil {
-		log.Error().Err(err).Msg("error binding image version request")
-		c.JSON(http.StatusBadRequest, ErrInvalidRequest)
-		c.Abort()
+		c.AbortWithError(http.StatusBadRequest, errors.Wrap(err, "error binding image version request"))
 		return
 	}
 
 	if criteria.Image == "" {
-		log.Error().Msg("empty image")
-		c.JSON(http.StatusBadRequest, ErrInvalidRequest)
-		c.Abort()
+		c.AbortWithError(http.StatusBadRequest, errors.New("empty image"))
 		return
 	}
 
@@ -32,9 +28,7 @@ func (h *Handler) imageVersionHandler(c *gin.Context) {
 
 	list, err := data.ListImageVersions(c.Request.Context(), h.Pool, criteria.Image)
 	if err != nil {
-		log.Error().Err(err).Msgf("error listing image versions for %s", criteria.Image)
-		c.JSON(http.StatusInternalServerError, ErrInternal)
-		c.Abort()
+		c.AbortWithError(http.StatusInternalServerError, errors.Wrapf(err, "error listing image versions for %s", criteria.Image))
 		return
 	}
 

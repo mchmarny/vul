@@ -13,18 +13,10 @@ import (
 	"github.com/mchmarny/vul/internal/data"
 	"github.com/mchmarny/vul/internal/metric"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 )
 
 var (
-	// ErrInvalidRequest is returned when the request is invalid.
-	ErrInvalidRequest = errors.New("invalid request, see logs for details")
-
-	// ErrNotFound is returned when the requested resource is not found.
-	ErrNotFound = errors.New("not found")
-
-	// ErrInternal is returned when an internal error occurs.
-	ErrInternal = errors.New("internal error, see logs for details")
-
 	//go:embed templates/*
 	fsTpl embed.FS
 
@@ -65,7 +57,13 @@ func New(ctx context.Context, cnf *config.Config) (*Handler, error) {
 		Meter:   mon,
 	}
 
-	h.Router.Use(gin.Recovery(), gin.Logger(), options)
+	// middleware
+	h.Router.Use(
+		gin.Recovery(),
+		gin.Logger(),
+		h.optionHandler,
+		h.errorHandler,
+	)
 
 	// templates
 	h.Router.SetHTMLTemplate(template.Must(template.New("").ParseFS(fsTpl, "templates/*.html")))
@@ -113,7 +111,7 @@ func (h *Handler) Close() {
 }
 
 // options middleware adds options headers.
-func options(c *gin.Context) {
+func (h *Handler) optionHandler(c *gin.Context) {
 	if c.Request.Method != "OPTIONS" {
 		c.Next()
 	} else {
@@ -123,5 +121,19 @@ func options(c *gin.Context) {
 		c.Header("Allow", "POST,OPTIONS")
 		c.Header("Content-Type", "application/json")
 		c.AbortWithStatus(http.StatusOK)
+	}
+}
+
+func (h *Handler) errorHandler(c *gin.Context) {
+	c.Next()
+
+	for _, err := range c.Errors {
+		log.Err(err.Err).
+			Str("name", h.Name).
+			Str("version", h.Version).
+			Str("path", c.Request.URL.Path).
+			Str("method", c.Request.Method).
+			Str("clientIP", c.ClientIP()).
+			Msg("error")
 	}
 }
