@@ -16,8 +16,8 @@ echo "Image: $img"
 img1=$(curl -s \
     -H "Content-Type: application/json" \
     $url/api/v1/summary \
-    | jq -r '.data.image')
-[ "$img1" != "" ] && echo "expected empty image" && exit 1
+    | jq -r '.data.image_count')
+[ "$img1" -lt "1" ] && echo "expected at least one image" && exit 1
 
 # get one image summary
 img2=$(curl -s \
@@ -43,3 +43,8 @@ echo "Exposure: $exp"
 day=$(curl -s -H "Content-Type: application/json" -d "{ \"image\": \"$img\" }" \
     $url/api/v1/timeline | jq -r '.data | keys | last')
 echo "Last: $day"
+
+# print summary 
+echo "Summary:"
+curl -s -H "Content-Type: application/json" \
+    $url/api/v1/summary

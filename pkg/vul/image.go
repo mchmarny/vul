@@ -3,7 +3,7 @@ package vul
 import "time"
 
 type SummaryItem struct {
-	Image        string    `json:"image"`
+	Image        string    `json:"image,omitempty"`
 	ImageCount   int       `json:"image_count"`
 	VersionCount int       `json:"version_count"`
 	SourceCount  int       `json:"source_count"`
