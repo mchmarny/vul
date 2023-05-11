@@ -1,6 +1,6 @@
 package vul
 
-type ListImageVersionExposureRequest struct {
+type ExposureRequest struct {
 	Image  string `json:"image"`
 	Digest string `json:"digest"`
 }

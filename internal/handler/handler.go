@@ -26,14 +26,15 @@ var (
 
 // Response is the response for the API.
 type Response[t any] struct {
-	Version  string      `json:"version"`
-	Created  time.Time   `json:"created"`
-	Criteria interface{} `json:"criteria,omitempty"`
-	Data     t           `json:"data"`
+	Version  string                 `json:"version"`
+	Created  time.Time              `json:"created"`
+	Criteria map[string]interface{} `json:"criteria,omitempty"`
+	Data     t                      `json:"data"`
 }
 
 // New creates a new handler.
 func New(ctx context.Context, cnf *config.Config) (*Handler, error) {
+	gin.SetMode(gin.ReleaseMode)
 	if cnf == nil {
 		return nil, errors.New("config is nil")
 	}
@@ -87,10 +88,9 @@ func New(ctx context.Context, cnf *config.Config) (*Handler, error) {
 	v1 := h.Router.Group("/api/v1")
 	v1.GET("/images", h.imageHandler)
 	v1.GET("/summary", h.imageSummaryHandler)
-	v1.POST("/summary", h.imageSummaryHandler)
-	v1.POST("/timeline", h.imageTimelineHandler)
-	v1.POST("/versions", h.imageVersionHandler)
-	v1.POST("/exposures", h.imageVersionExposureHandler)
+	v1.GET("/timeline", h.imageTimelineHandler)
+	v1.GET("/versions", h.imageVersionHandler)
+	v1.GET("/exposures", h.imageVersionExposureHandler)
 
 	return h, nil
 }

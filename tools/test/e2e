@@ -5,50 +5,36 @@ url=$1
 echo "Testing: $url"
 
 # get images
-img=$(curl -s \
-    -H "Content-Type: application/json" \
-    $url/api/v1/images \
-    | jq -r '.data[3]')
+img=$(curl -s $url/api/v1/images | jq -r '.data[3]')
 [[ -z "$img" ]] && echo "image not found" && exit 1
 echo "Image: $img"
 
 # get all summary
-img1=$(curl -s \
-    -H "Content-Type: application/json" \
-    $url/api/v1/summary \
-    | jq -r '.data.image_count')
+img1=$(curl -s $url/api/v1/summary | jq -r '.data.image_count')
 [ "$img1" -lt "1" ] && echo "expected at least one image" && exit 1
 
 # get one image summary
-img2=$(curl -s \
-    -H "Content-Type: application/json" \
-    -d "{ \"image\": \"$img\" }" \
-    $url/api/v1/summary \
-    | jq -r '.data.image')
+img2=$(curl -s --data-urlencode "img=$img" --get $url/api/v1/summary | jq -r '.data.image')
 [ "$img2" != "$img" ] && echo "expected: $img, got: $img2" && exit 1
 
 # get image versions 
-dig=$(curl -s -H "Content-Type: application/json" -d "{ \"image\": \"$img\" }" \
-    $url/api/v1/versions | jq -r '.data | keys[0]')
+dig=$(curl -s --data-urlencode "img=$img" --get $url/api/v1/versions | jq -r '.data | keys[0]')
 [[ -z "$dig" ]] && echo "image digest not found" && exit 1
 echo "Digest: $dig"
 
 # get image version exposures
-exp=$(curl -s -H "Content-Type: application/json" -d "{ \"image\": \"$img\", \"digest\": \"$dig\" }" \
-    $url/api/v1/exposures | jq -r '.data | keys[0]')
+exp=$(curl -s --data-urlencode "img=$img" --data-urlencode "dig=$dig" \
+    --get $url/api/v1/exposures | jq -r '.data | keys[0]')
 [[ -z "$exp" ]] && echo "image exposure not found" && exit 1
 echo "Exposure: $exp"
 
 # get image timeline 
-day=$(curl -s -H "Content-Type: application/json" -d "{ \"image\": \"$img\" }" \
-    $url/api/v1/timeline | jq -r '.data | keys | last')
+day=$(curl -s --data-urlencode "img=$img&dig$dig" --get $url/api/v1/timeline | jq -r '.data | keys | last')
 echo "Last: $day"
 
 # print summary 
 echo "Summary:"
-curl -s -H "Content-Type: application/json" \
-    $url/api/v1/summary
+curl -s $url/api/v1/summary
 
 # print image summary
-curl -s -H "Content-Type: application/json" \
-    $url/api/v1/images
+curl -s $url/api/v1/images

@@ -5,9 +5,36 @@
 <!-- Middle  -->
 
     <section>
-       Hello
+        <h3>Images:</h3>
+        <ul id="images">
+            {{ range .images }}
+                <li>{{ . }}</li>
+            {{ end }}
+
+        </ul>
     </section>
 
+    <section>
+        {{ with .summary }}
+            <h3>Summary:</h3>
+            <p>Span: {{ .FirstReading }} - {{ .LastReading }}</p>
+            <p>Images: {{ .ImageCount }}</p>
+            <p>Versions: {{ .VersionCount }}</p>
+            <p>Sources: {{ .SourceCount }}</p>
+            <p>Packages: {{ .PackageCount }}</p>
+            {{ with .Exposure }}
+                <ul>
+                    <li>Total: {{ .Total }}</li>
+                    <li>Negligible: {{ .Negligible }}</li>
+                    <li>Low: {{ .Low }}</li>
+                    <li>Medium: {{ .Medium }}</li>
+                    <li>High: {{ .High }}</li>
+                    <li>Critical: {{ .Critical }}</li>
+                    <li>Unknown: {{ .Unknown }}</li>
+                </ul>
+            {{ end }}
+        {{ end }}
+    </section>
 
 <!-- End Middle  -->
 

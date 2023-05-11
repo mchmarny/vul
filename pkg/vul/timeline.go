@@ -1,11 +1,5 @@
 package vul
 
-type ListImageTimelineRequest struct {
-	Image   string `json:"image"`
-	FromDay string `json:"from_day,omitempty"`
-	ToDay   string `json:"to_day,omitempty"`
-}
-
 type ListImageTimelineItem struct {
 	Sources map[string]*ListImageSourceTimelineItem `json:"sources"`
 }

@@ -2,7 +2,9 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"net/url"
 	"testing"
 
 	"github.com/mchmarny/vul/pkg/vul"
@@ -10,17 +12,16 @@ import (
 )
 
 func TestImageVersionExposureHandler(t *testing.T) {
-	in := vul.ListImageVersionExposureRequest{
-		Image:  "docker.io/bitnami/mongodb",
-		Digest: "sha256:419f129df0140834d89c94b29700c91f38407182137be480a0d6c6cbe2e0d00a",
-	}
+	img := url.QueryEscape("docker.io/bitnami/mariadb")
+	dig := url.QueryEscape("sha256:97b0be98b4714e81dac9ac55513f4f87c627d88da09d90c708229835124a8215")
+	uri := fmt.Sprintf("/api/v1/exposures?img=%s&dig=%s", img, dig)
 
-	w := testHandler(t, "/api/v1/exposures", http.MethodPost, http.StatusOK, in)
+	w := testHandler(t, uri, http.MethodGet, http.StatusOK, nil)
 
 	var out Response[map[string][]*vul.ListDigestExposureItem]
 	err := json.NewDecoder(w.Result().Body).Decode(&out)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, out.Created)
 	assert.NotEmpty(t, out.Criteria)
-	assert.NotNil(t, out.Data)
+	assert.NotEmpty(t, out.Data)
 }

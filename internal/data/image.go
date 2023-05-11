@@ -53,32 +53,32 @@ func ListImages(ctx context.Context, pool *pgxpool.Pool) ([]string, error) {
 	return list, nil
 }
 
-func GetSummary(ctx context.Context, pool *pgxpool.Pool, uri string) (*vul.SummaryItem, error) {
-	img := &vul.SummaryItem{
-		Image:    uri,
+func GetSummary(ctx context.Context, pool *pgxpool.Pool, img string) (*vul.SummaryItem, error) {
+	s := &vul.SummaryItem{
+		Image:    img,
 		Exposure: vul.Exposure{},
 	}
 
 	var arg sql.NullString
-	if uri != "" {
-		arg = sql.NullString{String: uri, Valid: true}
+	if img != "" {
+		arg = sql.NullString{String: img, Valid: true}
 	}
 
 	r := func(rows pgx.Row) error {
 		if err := rows.Scan(
-			&img.ImageCount,
-			&img.VersionCount,
-			&img.SourceCount,
-			&img.PackageCount,
-			&img.Exposure.Total,
-			&img.Exposure.Negligible,
-			&img.Exposure.Low,
-			&img.Exposure.Medium,
-			&img.Exposure.High,
-			&img.Exposure.Critical,
-			&img.Exposure.Unknown,
-			&img.FirstReading,
-			&img.LastReading); err != nil {
+			&s.ImageCount,
+			&s.VersionCount,
+			&s.SourceCount,
+			&s.PackageCount,
+			&s.Exposure.Total,
+			&s.Exposure.Negligible,
+			&s.Exposure.Low,
+			&s.Exposure.Medium,
+			&s.Exposure.High,
+			&s.Exposure.Critical,
+			&s.Exposure.Unknown,
+			&s.FirstReading,
+			&s.LastReading); err != nil {
 			return errors.Wrapf(err, "failed to scan image row")
 		}
 		return nil
@@ -88,5 +88,5 @@ func GetSummary(ctx context.Context, pool *pgxpool.Pool, uri string) (*vul.Summa
 		return nil, errors.Wrap(err, "failed to map summary row")
 	}
 
-	return img, nil
+	return s, nil
 }

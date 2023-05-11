@@ -8,19 +8,12 @@ import (
 	"github.com/mchmarny/vul/internal/data"
 	"github.com/mchmarny/vul/pkg/vul"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 )
 
 func (h *Handler) imageSummaryHandler(c *gin.Context) {
-	var img string
-
-	if c.Request.Method == http.MethodPost {
-		var criteria vul.ImageRequest
-		if err := c.BindJSON(&criteria); err != nil {
-			c.AbortWithError(http.StatusBadRequest, errors.Wrap(err, "error binding image summary request"))
-			return
-		}
-		img = criteria.Image
-	}
+	img := c.Query("img")
+	log.Debug().Str("image", img).Msg("image summary")
 
 	h.Meter.RecordOneWithLabels(c.Request.Context(), "image_summary", map[string]string{
 		"image": img,

@@ -26,15 +26,14 @@ var (
 						FROM vulns
 						WHERE image = $1 
 						AND imported >= $2
-						AND imported <= $3
 					  ) x
 					  GROUP BY x.imported, x.source
 					  ORDER BY 1 DESC, 2`
 )
 
-func ListImageTimelines(ctx context.Context, pool *pgxpool.Pool, req *vul.ListImageTimelineRequest) (map[string]*vul.ListImageTimelineItem, error) {
-	if req == nil {
-		return nil, errors.New("nil request")
+func ListImageTimelines(ctx context.Context, pool *pgxpool.Pool, img, since string) (map[string]*vul.ListImageTimelineItem, error) {
+	if img == "" || since == "" {
+		return nil, errors.New("empty image or since")
 	}
 
 	m := make(map[string]*vul.ListImageTimelineItem)
@@ -67,7 +66,7 @@ func ListImageTimelines(ctx context.Context, pool *pgxpool.Pool, req *vul.ListIm
 		return nil
 	}
 
-	if err := mapRows(ctx, pool, r, sqlTimelineList, req.Image, req.FromDay, req.ToDay); err != nil {
+	if err := mapRows(ctx, pool, r, sqlTimelineList, img, since); err != nil {
 		return nil, errors.Wrap(err, "failed to map image version rows")
 	}
 

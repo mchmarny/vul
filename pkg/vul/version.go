@@ -2,10 +2,6 @@ package vul
 
 import "time"
 
-type ImageRequest struct {
-	Image string `json:"image"`
-}
-
 type ListImageSourceItem struct {
 	Source       string    `json:"source"`
 	PackageCount int       `json:"package_count"`

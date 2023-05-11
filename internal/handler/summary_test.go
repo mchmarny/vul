@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"net/url"
 	"testing"
 
 	"github.com/mchmarny/vul/pkg/vul"
@@ -16,23 +17,20 @@ func TestImageSummaryHandler(t *testing.T) {
 	validateImageSummaryResponse(t, h, "docker.io/bitnami/mariadb")
 }
 
-func validateImageSummaryResponse(t *testing.T, h *Handler, uri string) {
-	var in interface{}
-	method := http.MethodGet
+func validateImageSummaryResponse(t *testing.T, h *Handler, img string) {
+	uri := "/api/v1/summary"
 
-	if uri != "" {
-		in = vul.ImageRequest{
-			Image: uri,
-		}
-		method = http.MethodPost
+	if img != "" {
+		uri += "?img=" + url.QueryEscape(img)
 	}
 
-	w := testHandler(t, "/api/v1/summary", method, http.StatusOK, in)
+	w := testHandler(t, uri, http.MethodGet, http.StatusOK, nil)
 
-	var out Response[*vul.ImageRequest]
+	var out Response[*vul.SummaryItem]
 	err := json.NewDecoder(w.Result().Body).Decode(&out)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, out.Created)
 	assert.Nil(t, out.Criteria)
 	assert.NotNil(t, out.Data)
+	assert.Equal(t, img, out.Data.Image)
 }

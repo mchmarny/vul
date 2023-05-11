@@ -2,7 +2,9 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"net/url"
 	"testing"
 
 	"github.com/mchmarny/vul/pkg/vul"
@@ -10,10 +12,10 @@ import (
 )
 
 func TestImageTimelineHandler(t *testing.T) {
-	in := vul.ListImageTimelineRequest{
-		Image: "docker.io/bitnami/mongodb",
-	}
-	w := testHandler(t, "/api/v1/timeline", http.MethodPost, http.StatusOK, in)
+	img := url.QueryEscape("docker.io/bitnami/mariadb")
+	uri := fmt.Sprintf("/api/v1/timeline?img=%s", img)
+
+	w := testHandler(t, uri, http.MethodGet, http.StatusOK, nil)
 
 	var out Response[map[string]*vul.ListImageTimelineItem]
 	err := json.NewDecoder(w.Result().Body).Decode(&out)
@@ -24,10 +26,5 @@ func TestImageTimelineHandler(t *testing.T) {
 }
 
 func TestImageTimelineHandlerError(t *testing.T) {
-	testHandler(t, "/api/v1/timeline", http.MethodPost, http.StatusBadRequest, nil)
-}
-
-func TestImageTimelineHandlerEmptyError(t *testing.T) {
-	r := vul.ListImageTimelineRequest{}
-	testHandler(t, "/api/v1/timeline", http.MethodPost, http.StatusBadRequest, r)
+	testHandler(t, "/api/v1/timeline", http.MethodGet, http.StatusBadRequest, nil)
 }

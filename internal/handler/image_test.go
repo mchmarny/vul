@@ -16,5 +16,5 @@ func TestImageHandler(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotEmpty(t, out.Created)
 	assert.Nil(t, out.Criteria)
-	assert.NotNil(t, out.Data)
+	assert.NotEmpty(t, out.Data)
 }

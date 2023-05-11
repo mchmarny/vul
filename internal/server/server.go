@@ -10,7 +10,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/mchmarny/vul/internal/config"
 	"github.com/mchmarny/vul/internal/handler"
 	"github.com/rs/zerolog"
@@ -36,8 +35,6 @@ type key int
 
 // Run starts the server with a given name and version.
 func Run(version string) {
-	gin.SetMode(gin.ReleaseMode)
-
 	cnf, err := config.ReadFromFile(config.GetEnv(configEnvVar, configDefaultPath))
 	if err != nil {
 		log.Fatal().Err(err).Msg("error reading config")
