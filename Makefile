@@ -1,5 +1,5 @@
 VERSION    :=$(shell cat .version)
-YAML_FILES :=$(shell find . ! -path "./vendor/*" ! -path "./deployment/*" -type f -regex ".*y*ml" -print)
+YAML_FILES :=$(shell find . ! -path "./vendor/*" ! -path "./deployment/*" -type f -regex ".*\.yaml" -print)
 REG_URI    :=us-west1-docker.pkg.dev/s3cme1/vul
 DB_BUCKET  :=vuln-db-dumps
 NOW        ?=$(shell date +%s)

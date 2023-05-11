@@ -5,8 +5,7 @@ yaml-files:
 
 ignore:
   - vendor
-  - setup
-  - deploy
+  - deployment
   - .git
 
 rules:
