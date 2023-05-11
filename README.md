@@ -203,6 +203,46 @@ The result:
 }
 ```
 
+You can also get a exposure timeline for each image: 
+
+```shell
+curl -H "Content-Type: application/json" \
+     -d '{ "image": "docker.io/bitnami/mongodb" }' \
+    https://vul.thingz.io/api/v1/timeline
+```
+
+The result: 
+
+```json
+{
+    "version": "v0.1.6",
+    "created": "2023-05-11T10:58:34.090456796Z",
+    "criteria": {
+        "image": "docker.io/bitnami/mongodb",
+        "from_day": "2023-04-11",
+        "to_day": "2023-05-11"
+    },
+    "data": {
+        "2023-05-08": {
+            "sources": {
+                "grype": {
+                    "total": 96,
+                    "negligible": 1,
+                    "low": 10,
+                    "medium": 39,
+                    "high": 40,
+                    "critical": 5,
+                    "unknown": 1
+                },
+                ...
+                }
+            }
+        },
+        ...
+    }
+}
+```
+
 ## Disclaimer
 
 This is my personal project and it does not represent my employer. While I do my best to ensure that everything works, I take no responsibility for issues caused by this code.
