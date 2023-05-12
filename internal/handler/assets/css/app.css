@@ -1,15 +1,16 @@
 :root {
   --rad: .7rem;
   --dur: .3s;
-  --header-dark: #1a1919;
+  --color-black: #222121;
   --color-dark: #2f2f2f;
-  --color-gray: #858484;
-  --color-light: #fff;
-  --color-brand: #57bd84;
+  --color-gray: #727272;
+  --color-light: #dad6d6;
+  --color-brand: #43a56d;
   --font-fam: 'Lato', sans-serif;
   --height: 5rem;
   --btn-width: 6rem;
   --bez: cubic-bezier(0, 0, 0.43, 1.49);
+  --shadow: #3d3d3d 0 0 5px 0;
 }
 
 body {
@@ -72,7 +73,7 @@ input[type="search"] {
 
 header {
   margin: 0;
-  background-color: var(--header-dark);
+  background-color: var(--color-black);
   color: var(--color-brand);
   font-size: 2.0em;
   padding: 20px;
@@ -104,7 +105,7 @@ footer {
   outline: 0;
   border: 0;
   width: 70%;
-  background: var(--header-dark);
+  background: var(--color-black);
   padding: 0.5rem 2rem;
   border-radius: var(--rad);
   appearance: none;
@@ -150,11 +151,11 @@ a.ui-button:active,
 }
 
 .small {
-  font-size: 1.4rem;
+  font-size: 1.5rem;
 }
 
 .black {
-  background-color: var(--header-dark);
+  background-color: var(--color-black);
 }
 
 .gray {
@@ -162,7 +163,7 @@ a.ui-button:active,
 }
 
 .box .box-item {
-  background-color: var(--color-brand);
+  background-color: var(--color-black);
   text-align: center;
   outline: 0;
   border: 0;
@@ -171,15 +172,16 @@ a.ui-button:active,
   appearance: none;
   transition: all var(--dur) var(--bez);
   transition-property: width, border-radius;
+  box-shadow: var(--shadow);
 }
 
 .box .box-item .box-item-head {
-  color: var(--header-dark);
+  color: var(--color-light);
   font-size: 1.6rem;
 }
 
 .box .box-item .box-item-content {
-  color: var(--color-dark);
+  color: var(--color-brand);
   font-size: 3rem;
   font-weight: bold;
 }
