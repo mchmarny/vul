@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -28,41 +29,76 @@ var (
 						AND imported >= $2
 					  ) x
 					  GROUP BY x.imported, x.source
-					  ORDER BY 1 DESC, 2`
+					  ORDER BY 1, 2`
 )
 
-func ListImageTimelines(ctx context.Context, pool *pgxpool.Pool, img, since string) (map[string]*vul.ListImageTimelineItem, error) {
+func ListImageTimelines(ctx context.Context, pool *pgxpool.Pool, img, since string) ([]*vul.ImageTimeline, error) {
 	if img == "" || since == "" {
 		return nil, errors.New("empty image or since")
 	}
 
-	m := make(map[string]*vul.ListImageTimelineItem)
+	list := make([]*vul.ImageTimeline, 0)
 
 	r := func(rows pgx.Rows) error {
-		q := &vul.ListImageSourceTimelineItem{}
-		var day string
-		var src string
+		var date string
+		var name string
+		var total, negligible, low, medium, high, critical, unknown int
+
 		if err := rows.Scan(
-			&day,
-			&src,
-			&q.Total,
-			&q.Negligible,
-			&q.Low,
-			&q.Medium,
-			&q.High,
-			&q.Critical,
-			&q.Unknown,
+			&date,
+			&name,
+			&total,
+			&negligible,
+			&low,
+			&medium,
+			&high,
+			&critical,
+			&unknown,
 		); err != nil {
 			return errors.Wrapf(err, "failed to scan timeline row")
 		}
 
-		if _, ok := m[day]; !ok {
-			m[day] = &vul.ListImageTimelineItem{
-				Sources: make(map[string]*vul.ListImageSourceTimelineItem),
-			}
-		}
+		list = append(list, &vul.ImageTimeline{
+			Date:  date,
+			Name:  fmt.Sprintf("%s-total", name),
+			Value: total,
+		})
 
-		m[day].Sources[src] = q
+		list = append(list, &vul.ImageTimeline{
+			Date:  date,
+			Name:  fmt.Sprintf("%s-negligible", name),
+			Value: negligible,
+		})
+
+		list = append(list, &vul.ImageTimeline{
+			Date:  date,
+			Name:  fmt.Sprintf("%s-low", name),
+			Value: low,
+		})
+
+		list = append(list, &vul.ImageTimeline{
+			Date:  date,
+			Name:  fmt.Sprintf("%s-medium", name),
+			Value: medium,
+		})
+
+		list = append(list, &vul.ImageTimeline{
+			Date:  date,
+			Name:  fmt.Sprintf("%s-high", name),
+			Value: high,
+		})
+
+		list = append(list, &vul.ImageTimeline{
+			Date:  date,
+			Name:  fmt.Sprintf("%s-critical", name),
+			Value: critical,
+		})
+
+		list = append(list, &vul.ImageTimeline{
+			Date:  date,
+			Name:  fmt.Sprintf("%s-unknown", name),
+			Value: unknown,
+		})
 		return nil
 	}
 
@@ -70,7 +106,7 @@ func ListImageTimelines(ctx context.Context, pool *pgxpool.Pool, img, since stri
 		return nil, errors.Wrap(err, "failed to map image version rows")
 	}
 
-	log.Info().Msgf("found %d timelines", len(m))
+	log.Info().Msgf("found %d timelines", len(list))
 
-	return m, nil
+	return list, nil
 }

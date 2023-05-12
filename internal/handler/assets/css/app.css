@@ -125,6 +125,7 @@ a.ui-button:active,
 .ui-button:active,
 .ui-button.ui-state-active:hover {
   color: var(--color-brand);
+  cursor: pointer;
 }
 
 .ui-helper-hidden-accessible {

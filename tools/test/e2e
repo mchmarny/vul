@@ -29,8 +29,8 @@ exp=$(curl -s --data-urlencode "img=$img" --data-urlencode "dig=$dig" \
 echo "Exposure: $exp"
 
 # get image timeline 
-day=$(curl -s --data-urlencode "img=$img" --data-urlencode "dig=$dig" \
-    --get $url/api/v1/timeline | jq -r '.data | keys | last')
+day=$(curl -s --data-urlencode "img=$img" --get $url/api/v1/timeline \
+    | jq -r '.data | keys | last')
 echo "Last: $day"
 
 # print summary 

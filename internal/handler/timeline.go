@@ -34,7 +34,7 @@ func (h *Handler) imageTimelineHandler(c *gin.Context) {
 		return
 	}
 
-	resp := Response[map[string]*vul.ListImageTimelineItem]{
+	resp := Response[[]*vul.ImageTimeline]{
 		Version: h.Version,
 		Created: time.Now().UTC(),
 		Criteria: map[string]interface{}{

@@ -17,7 +17,7 @@ func TestImageTimelineHandler(t *testing.T) {
 
 	w := testHandler(t, uri, http.StatusOK)
 
-	var out Response[map[string]*vul.ListImageTimelineItem]
+	var out Response[[]*vul.ImageTimeline]
 	err := json.NewDecoder(w.Result().Body).Decode(&out)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, out.Created)
