@@ -51,12 +51,23 @@ func (h *Handler) imageViewHandler(c *gin.Context) {
 		return
 	}
 
+	since := time.Now().UTC().
+		AddDate(0, 0, -h.Config.App.ImageTimelineDays).
+		Format(time.DateOnly)
+
+	days, err := data.ListImageTimelines(c.Request.Context(), h.Pool, img, since)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, errors.Wrapf(err, "error listing image timeline for %s", img)) //nolint:errcheck
+		return
+	}
+
 	d := gin.H{
 		"name":    h.Name,
 		"version": h.Version,
 		"img":     img,
 		"data":    sum,
 		"list":    list,
+		"days":    days,
 	}
 
 	c.HTML(http.StatusOK, "image", d)

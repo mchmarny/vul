@@ -9,32 +9,63 @@
 
     <section>
         {{ with .data }}
-            <h3>Summary:</h3>
-            <p>Span: {{ .FirstReading }} - {{ .LastReading }}</p>
-            <p>Images: {{ .ImageCount }}</p>
-            <p>Versions: {{ .VersionCount }}</p>
-            <p>Sources: {{ .SourceCount }}</p>
-            <p>Packages: {{ .PackageCount }}</p>
-            {{ with .Exposure }}
-                <ul>
-                    <li>Total: {{ .Total }}</li>
-                    <li>Negligible: {{ .Negligible }}</li>
-                    <li>Low: {{ .Low }}</li>
-                    <li>Medium: {{ .Medium }}</li>
-                    <li>High: {{ .High }}</li>
-                    <li>Critical: {{ .Critical }}</li>
-                    <li>Unknown: {{ .Unknown }}</li>
-                </ul>
-            {{ end }}
+            <div class="group">
+                <h3>Now:</h3>
+                <div class="group">
+                <p>Span: {{ .FirstReading }} - {{ .LastReading }}</p>
+                <p>Images: {{ .ImageCount }}</p>
+                <p>Versions: {{ .VersionCount }}</p>
+                <p>Sources: {{ .SourceCount }}</p>
+                <p>Packages: {{ .PackageCount }}</p>
+                {{ with .Exposure }}
+                    <ul>
+                        <li>Total: {{ .Total }}</li>
+                        <li>Negligible: {{ .Negligible }}</li>
+                        <li>Low: {{ .Low }}</li>
+                        <li>Medium: {{ .Medium }}</li>
+                        <li>High: {{ .High }}</li>
+                        <li>Critical: {{ .Critical }}</li>
+                        <li>Unknown: {{ .Unknown }}</li>
+                    </ul>
+                {{ end }}
+                </div>
+            </div>
+        {{ end }}
+    </section>
+
+    <section>
+        <h3>Days:</h3>
+        {{ range $d, $r := .days }}
+            <div class="group">
+                <h4>{{ $d }}</a></h4>
+                <div class="group">
+                {{ range $s, $v := $r.Sources }}
+                    <h4>{{ $s }}</a></h4>
+                    {{ with $v }}
+                        <div class="group">
+                            <ul>
+                                <li>Total: {{ .Total }}</li>
+                                <li>Negligible: {{ .Negligible }}</li>
+                                <li>Low: {{ .Low }}</li>
+                                <li>Medium: {{ .Medium }}</li>
+                                <li>High: {{ .High }}</li>
+                                <li>Critical: {{ .Critical }}</li>
+                                <li>Unknown: {{ .Unknown }}</li>
+                            </ul>
+                        </div>
+                    {{ end }}
+                {{ end }}
+                </div>
+            </div>
         {{ end }}
     </section>
 
     <section>
         <h3>Versions:</h3>
         {{ range $k, $v := .list }}
-            <div class="version">
+            <div class="group">
                 <h4><a href="/exposure?img={{ $image.img }}&dig={{ $k }}">{{ $k }}</a></h4>
-                <div class="version-source">
+                <div class="group">
                 {{ range $v }}
                     <p>{{ .Source }}: {{ .PackageCount }} ({{ .FirstReading }}-{{ .LastReading }})</p>
                 {{ end }}

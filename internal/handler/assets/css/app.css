@@ -72,3 +72,18 @@ fieldset {
   border: none;
   padding: 3px;
 }
+
+section {
+  padding: 20px;
+  margin: 20px;
+}
+
+footer {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.group {
+  display: block;
+  margin-left: 20px;
+}

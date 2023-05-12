@@ -8,18 +8,20 @@
 
     <section>
         <h3>Exposures:</h3>
-        {{ range $k, $v := .list }}
-            <div class="exposure">
-                <h4>{{ $k }}</h4>
-                <div class="exposure-detail">
-                {{ range $v }}
-                    <p>Source: {{ .Source }}</p>
-                    <p>Package/Version: {{ .Package }}, {{ .Version }} (Fixed: {{ .Fixed }})</p>
-                    <p>Severity: {{ .Severity }} (Score: {{ .Score }})</p>
-                {{ end }}
+        <div class="group">
+            {{ range $k, $v := .list }}
+                <div class="group">
+                    <h4><a href="https://nvd.nist.gov/vuln/detail/{{ $k }}" target="_blank">{{ $k }}</a></h4>
+                    <div class="group">
+                    {{ range $v }}
+                        <div class="group">
+                            <b>{{ .Source }}: </b> {{ .Package }} - {{ .Version }} ({{ .Severity }}: {{ printf "%.2f" .Score }}, Fixed: {{ if .Fixed }}Y{{ else }}N{{ end }})
+                        </div> 
+                    {{ end }}
+                    </div>
                 </div>
-            </div>
-        {{ end }}
+            {{ end }}
+        </div>
     </section>
 
 
