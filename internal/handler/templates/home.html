@@ -5,15 +5,13 @@
 <!-- Middle  -->
 
     <section>
-        <h3>Images:</h3>
-        <div class="group">
-            <ul>
-                {{ range .images }}
-                    <li><a href="/image?img={{ . }}">{{ . }}</a></li>
-                {{ end }}
-            </ul>
+        <form onsubmit="event.preventDefault();" role="search">
+        <div class="search">  
+            <input id="image-search" type="search" placeholder="Search images...">
         </div>
+        </form>
     </section>
+
 
     <section>
         {{ with .data }}
@@ -38,6 +36,14 @@
             </div>
         {{ end }}
     </section>
+
+    <script>  
+        var images = [  
+            {{ range .images }}
+            "{{ . }}",
+            {{ end }} 
+        ];  
+    </script> 
 
 <!-- End Middle  -->
 

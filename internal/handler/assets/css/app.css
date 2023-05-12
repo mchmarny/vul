@@ -1,71 +1,83 @@
+:root {
+  --rad: .7rem;
+  --dur: .3s;
+  --header-dark: #1a1919;
+  --color-dark: #2f2f2f;
+  --color-gray: #858484;
+  --color-light: #fff;
+  --color-brand: #57bd84;
+  --font-fam: 'Lato', sans-serif;
+  --height: 5rem;
+  --btn-width: 6rem;
+  --bez: cubic-bezier(0, 0, 0.43, 1.49);
+}
+
+body {
+  background: var(--color-dark); 
+  color: var(--color-light);
+  font: 16px/1.5 "Lato", sans-serif;
+}
+
+html { 
+  box-sizing: border-box; 
+  height: 100%; 
+  font-size: 10px; 
+}
+
 * {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
 }
 
-ul {
-  list-style: none;
-}
-
-a,
-button {
-  color: var(---dark-blue);
-}
-
 a {
   text-decoration: none;
-  color: var(---dark-blue);
-}
-
-button {
-  background: none;
-  cursor: pointer;
-}
-
-label {
-  cursor: pointer;
-}
-
-label i {
-  color: var(--gray);
-  font-style: normal;
-  font-weight: normal;
-}
-
-button {
-  border: none;
-}
-
-input {
-  border: 1px solid var(--dark-blue);
-}
-
-option:checked { 
-  background-color: var(--dark-blue);
-  color: var(--white);
-}
-
-svg {
-  display: block;
-}
-
-body {
-  font: 16px/1.5 "Lato", sans-serif;
+  color: var(---color-brand);
 }
 
 h3 {
   text-transform: uppercase;
   letter-spacing: 0.15em;
   font-size: 1.2em;
-  color: var(--page-header-bgColor-hover);
 }
 
 h4 {
   letter-spacing: 0.15em;
   font-size: 15px;
   margin: 2px;
-  color: var(--white);
+}
+
+ul {
+  list-style: none;
+}
+
+input, button {
+  height: var(--height);
+  font-family: var(--font-fam);
+  border: 0;
+  color: var(--color-dark);
+  font-size: 1.8rem;
+}
+
+input[type="search"] {
+  outline: 0;
+  width: 100%;
+  background: var(--color-light);
+  padding: 0 1.6rem;
+  border-radius: var(--rad);
+  appearance: none;
+  transition: all var(--dur) var(--bez);
+  transition-property: width, border-radius;
+  z-index: 1;
+  position: relative;
+}
+
+header {
+  margin: 0;
+  background-color: var(--header-dark);
+  color: var(--color-brand);
+  font-size: 2.0em;
+  padding: 20px;
 }
 
 fieldset {
@@ -81,9 +93,46 @@ section {
 footer {
   margin-top: 30px;
   text-align: center;
+  font-size: 1.6rem;
+  color: var(--color-gray);
 }
 
 .group {
   display: block;
   margin-left: 20px;
+}
+
+.ui-menu {
+  outline: 0;
+  border: 0;
+  width: 70%;
+  background: var(--header-dark);
+  padding: 0.5rem 2rem;
+  border-radius: var(--rad);
+  appearance: none;
+  transition: all var(--dur) var(--bez);
+  transition-property: width, border-radius;
+  z-index: 1;
+  position: relative;
+  color: var(--color-light);
+  font-family: var(--font-fam);
+  font-size: 1.8rem;
+}
+
+.ui-state-active,
+.ui-widget-content .ui-state-active,
+.ui-widget-header .ui-state-active,
+a.ui-button:active,
+.ui-button:active,
+.ui-button.ui-state-active:hover {
+  color: var(--color-brand);
+}
+
+.ui-helper-hidden-accessible {
+  color: var(--color-gray);
+  padding: 0.5rem;
+  font-size: 1.6rem;
+  position: absolute;
+  top: 5px;
+  right: 5px;
 }
