@@ -1,6 +1,8 @@
 package vul
 
-import "time"
+import (
+	"time"
+)
 
 type SummaryItem struct {
 	Image        string    `json:"image,omitempty"`
@@ -11,6 +13,8 @@ type SummaryItem struct {
 	Exposure     Exposure  `json:"exposure"`
 	FirstReading time.Time `json:"first_reading"`
 	LastReading  time.Time `json:"last_reading"`
+
+	*Item `json:"-"`
 }
 
 type Exposure struct {
@@ -21,4 +25,6 @@ type Exposure struct {
 	High       int `json:"high"`
 	Critical   int `json:"critical"`
 	Unknown    int `json:"unknown"`
+
+	*Item `json:"-"`
 }

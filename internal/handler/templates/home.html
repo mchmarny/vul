@@ -1,9 +1,5 @@
 {{ define "home" }}
-
 {{ template "header" . }}
-
-<!-- Middle  -->
-
     <section>
         <form onsubmit="event.preventDefault();" role="search">
         <div class="search">  
@@ -11,38 +7,44 @@
         </div>
         </form>
     </section>
-
-
     <section>
         {{ with .data }}
-            <h3>Summary:</h3>
-            <div class="group">
-                <p>Span: {{ .FirstReading }} - {{ .LastReading }}</p>
-                <p>Images: {{ .ImageCount }}</p>
-                <p>Versions: {{ .VersionCount }}</p>
-                <p>Sources: {{ .SourceCount }}</p>
-                <p>Packages: {{ .PackageCount }}</p>
-                {{ with .Exposure }}
-                    <ul>
-                        <li>Total: {{ .Total }}</li>
-                        <li>Negligible: {{ .Negligible }}</li>
-                        <li>Low: {{ .Low }}</li>
-                        <li>Medium: {{ .Medium }}</li>
-                        <li>High: {{ .High }}</li>
-                        <li>Critical: {{ .Critical }}</li>
-                        <li>Unknown: {{ .Unknown }}</li>
-                    </ul>
-                {{ end }}
+            <div class="box black">
+                <div class="box-item">
+                    <div class="box-item-head">Total&nbsp;Images</div>
+                    <p class="box-item-content">
+                        {{ .Print .ImageCount }}
+                    </p>
+                </div>
+                <div class="box-item">
+                    <div class="box-item-head">Scan&nbsp;Sources</div>
+                    <p class="box-item-content">
+                        {{ .Print .SourceCount }}
+                    </p>
+                </div>
+                <div class="box-item">
+                    <div class="box-item-head">Total&nbsp;Packages</div>
+                    <p class="box-item-content">
+                        {{ .Print .PackageCount }}
+                    </p>
+                </div>
+                <div class="box-item">
+                    <div class="box-item-head">Total&nbsp;Exposures</div>
+                    <p class="box-item-content">
+                        {{ .Print .Exposure.Total }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="box">
+                <div class="small">
+                    Data collected from {{ .FormatTime "2006-01-02 15:04" .FirstReading }} to {{ .FormatTime "2006-01-02 15:04" .LastReading }} UTC
+                </div>
             </div>
         {{ end }}
     </section>
-
 <script>  
 var images = [{{ range .images }}"{{ . }}",{{ end }}];
 </script>
-
-<!-- End Middle  -->
-
 {{ template "footer" . }}
-
 {{ end }}

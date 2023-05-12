@@ -36,13 +36,11 @@ a {
 }
 
 h3 {
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  font-size: 1.2em;
+  font-size: 2em;
+  margin: 2px;
 }
 
 h4 {
-  letter-spacing: 0.15em;
   font-size: 15px;
   margin: 2px;
 }
@@ -135,4 +133,53 @@ a.ui-button:active,
   position: absolute;
   top: 5px;
   right: 5px;
+}
+
+.box {
+  outline: 0;
+  border: 0;
+  width: 100%;
+  padding: 2rem;
+  border-radius: var(--rad);
+  appearance: none;
+  transition: all var(--dur) var(--bez);
+  transition-property: width, border-radius;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-around;
+}
+
+.small {
+  font-size: 1.4rem;
+}
+
+.black {
+  background-color: var(--header-dark);
+}
+
+.gray {
+  background-color: var(--color-gray);
+}
+
+.box .box-item {
+  background-color: var(--color-brand);
+  text-align: center;
+  outline: 0;
+  border: 0;
+  padding: 1rem;
+  border-radius: var(--rad);
+  appearance: none;
+  transition: all var(--dur) var(--bez);
+  transition-property: width, border-radius;
+}
+
+.box .box-item .box-item-head {
+  color: var(--header-dark);
+  font-size: 1.6rem;
+}
+
+.box .box-item .box-item-content {
+  color: var(--color-dark);
+  font-size: 3rem;
+  font-weight: bold;
 }
