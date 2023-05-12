@@ -71,6 +71,11 @@ jobs:
       run: |
         echo "${AUTH_TOKEN}" | ko login ${{ env.REGISTRY }} --username oauth2accesstoken --password-stdin
 
+    - name: Auto Minify
+      uses: nizarmah/auto-minify@v7028a7a4b79ccdc7e00f351baed61c59d07690ee  # 2.1.1
+      with:
+        overwrite: true
+
     # Note: ko build image ref will include BOTH, the tag AND digest of the image.
     - name: Build Image
       id: image

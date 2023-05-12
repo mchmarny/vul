@@ -37,13 +37,9 @@
         {{ end }}
     </section>
 
-    <script>  
-        var images = [  
-            {{ range .images }}
-            "{{ . }}",
-            {{ end }} 
-        ];  
-    </script> 
+<script>  
+var images = [{{ range .images }}"{{ . }}",{{ end }}];
+</script>
 
 <!-- End Middle  -->
 
