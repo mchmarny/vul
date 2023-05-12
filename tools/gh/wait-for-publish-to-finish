@@ -10,12 +10,12 @@ s=""
 while [ "$s" !=	"completed" ]
 do
 	sleep 7
-  	s=$(curl -s -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $(op read $GH_TOKEN_1P)" https://api.github.com/repos/mchmarny/vul/actions/runs | jq -r '[.workflow_runs[] | select(.name == "on_tag")] | .[0].status')
+  	s=$(curl -s -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GH_TOKEN" https://api.github.com/repos/mchmarny/vul/actions/runs | jq -r '[.workflow_runs[] | select(.name == "on_tag")] | .[0].status')
 	echo "Status: $s"
 done
 
 
-c=$(curl -s -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $(op read $GH_TOKEN_1P)" https://api.github.com/repos/mchmarny/vul/actions/runs | jq -r '[.workflow_runs[] | select(.name == "on_tag")] | .[0].conclusion')
+c=$(curl -s -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GH_TOKEN" https://api.github.com/repos/mchmarny/vul/actions/runs | jq -r '[.workflow_runs[] | select(.name == "on_tag")] | .[0].conclusion')
 
 if [ "$c" != "success" ]
 then

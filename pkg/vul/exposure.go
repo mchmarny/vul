@@ -1,10 +1,5 @@
 package vul
 
-type ExposureRequest struct {
-	Image  string `json:"image"`
-	Digest string `json:"digest"`
-}
-
 type ListDigestExposureItem struct {
 	Source   string  `json:"source"`
 	Package  string  `json:"package"`

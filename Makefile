@@ -93,7 +93,7 @@ dbrestre: ## Restores Cloud SQL DB locally
 	PGPASSWORD=test psql -h localhost -U vimp -d vimp < tools/db/dump/$(NOW)
 	PGPASSWORD=test psql -h localhost -U vimp -d vimp < tools/db/sql/post-restore.sql
 	gsutil rm gs://$(DB_BUCKET)/$(NOW).gz
-	# rm tools/db/dump/$(NOW)
+	rm tools/db/dump/$(NOW)
 
 .PHONY: dbconn
 dbconn: ## Connect to remote db
