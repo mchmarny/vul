@@ -73,7 +73,7 @@ func (h *Handler) imageVersionExposureViewHandler(c *gin.Context) {
 		"name":    h.Name,
 		"version": h.Version,
 		"img":     img,
-		"digest":  dig,
+		"dig":     dig,
 		"list":    list,
 	}
 

@@ -68,6 +68,7 @@ release: test lint tag ## Runs test, lint, and tag before release
 	@echo "Triggered image build/publish for: $(VERSION)"
 	tools/gh/wait-for-publish-to-finish $(VERSION)
 	tools/tf/apply-if-img-exists "$(REG_URI)/vul" "$(VERSION)"
+	tools/test/e2e
 
 .PHONY: server
 server: ## Runs uncompiled app 
