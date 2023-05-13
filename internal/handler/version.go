@@ -30,7 +30,7 @@ func (h *Handler) imageVersionHandler(c *gin.Context) {
 		return
 	}
 
-	resp := Response[map[string][]*vul.ListImageSourceItem]{
+	resp := Response[[]*vul.ImageVersion]{
 		Version: h.Version,
 		Created: time.Now().UTC(),
 		Criteria: map[string]interface{}{

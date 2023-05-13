@@ -36,13 +36,23 @@ a {
   color: var(---color-brand);
 }
 
+h1 {
+  font-size: 1.6em;
+  margin: 2px;
+}
+
+h2 {
+  font-size: 1.4em;
+  margin-bottom: 15px;
+}
+
 h3 {
-  font-size: 2em;
+  font-size: 1.2em;
   margin: 2px;
 }
 
 h4 {
-  font-size: 15px;
+  font-size: 1em;
   margin: 2px;
 }
 
@@ -185,4 +195,22 @@ a.ui-button:active,
   color: var(--color-brand);
   font-size: 3rem;
   font-weight: bold;
+}
+
+ul.underlined {
+  list-style-type: none;
+  padding: 0;
+}
+
+ul.underlined li {
+  padding: 8px 16px;
+  border-bottom: 1px dotted var(--color-gray);
+}
+
+ul.underlined li:last-child {
+  border-bottom: none
+}
+
+.underlined a {
+  color: var(--color-brand);
 }

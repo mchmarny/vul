@@ -15,21 +15,34 @@ var (
 	sqlImageList = `SELECT DISTINCT image FROM vulns ORDER BY 1`
 
 	sqlSummary = `SELECT 
-						COUNT(distinct image) images,
-						COUNT(distinct digest) versions,
-						COUNT(distinct source) sources,
-						COUNT(distinct package) package,
-						COUNT(*) exposure,
-						SUM(CASE WHEN severity = 'negligible' THEN 1 ELSE 0 END) negligible,
-						SUM(CASE WHEN severity = 'low' THEN 1 ELSE 0 END) low,
-						SUM(CASE WHEN severity = 'medium' THEN 1 ELSE 0 END) medium,
-						SUM(CASE WHEN severity = 'high' THEN 1 ELSE 0 END) high,
-						SUM(CASE WHEN severity = 'critical' THEN 1 ELSE 0 END) critical,
-						SUM(CASE WHEN severity = 'unknown' THEN 1 ELSE 0 END) unknown,
-						MIN(processed) fist_reading,
-						MAX(processed) last_reading
+					COUNT(distinct image) images,
+					COUNT(distinct digest) versions,
+					COUNT(distinct source) sources,
+					COUNT(distinct package) package,
+					COUNT(exposure) exposure,
+					SUM(CASE WHEN severity = 'negligible' THEN 1 ELSE 0 END) negligible,
+					SUM(CASE WHEN severity = 'low' THEN 1 ELSE 0 END) low,
+					SUM(CASE WHEN severity = 'medium' THEN 1 ELSE 0 END) medium,
+					SUM(CASE WHEN severity = 'high' THEN 1 ELSE 0 END) high,
+					SUM(CASE WHEN severity = 'critical' THEN 1 ELSE 0 END) critical,
+					SUM(CASE WHEN severity = 'unknown' THEN 1 ELSE 0 END) unknown,
+					MIN(min_processed) min_processed,
+					MAX(max_processed) max_processed
+				FROM (
+					SELECT 
+						image, 
+						digest, 
+						source, 
+						package, 
+						exposure, 
+						severity, 
+						MIN(processed) min_processed,
+						MAX(processed) max_processed
 					FROM vulns
-					WHERE image = COALESCE($1, image)`
+					WHERE image = COALESCE($1, image)
+					GROUP BY image, digest, source, package, exposure, severity
+				) x
+				`
 )
 
 func ListImages(ctx context.Context, pool *pgxpool.Pool) ([]string, error) {

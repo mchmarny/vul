@@ -20,6 +20,8 @@ $(function () {
     // === IMAGE PAGE ===
     if($( "#image-chart" ).length){
         var img = urlParams.get('img');
+
+        // build image chart
         $.get(`/api/v1/timeline?img=${img}`, function(d) {
             console.log(d);
             var imgChart = c3.generate({
@@ -28,25 +30,53 @@ $(function () {
                     json: d.data,
                     keys: {
                         x: 'date',
-                        value: ['total'],
+                        value: ['grype', 'trivy', 'snyk'],
                     },
                     type: 'line',
                     labels: true
                 },
+                size: {
+                    height: 200
+                },
+                padding: {
+                    right: 20,
+                    bottom: 0
+                },
                 axis: {
                   x: {
-                    x: ['source'],
+                    x: ['date'],
                     type: "timeseries",
-                    label: 'Vulnerabilities'
-                  },
-                  y2: {
-                    type: 'timeseries',
                     label: {
-                        text: 'Source',
+                        show: false
+                    }
+                  },
+                  y: {
+                    label: {
+                        show: false
+                    },
+                    tick: {
+                        format: function (d) {
+                            return (parseInt(d) == d) ? d : null;
+                        },
                     }
                   }
                 },
             });
+        });
+
+        // build vulnerabilities chart
+        var vulChart = c3.generate({
+            bindto: '#vuln-chart',
+            data: {
+                columns: vulnData,
+                type : 'pie',
+            },
+            size: {
+                width: 300
+            },
+            legend: {
+                position: 'right'
+            }
         });
     }
 

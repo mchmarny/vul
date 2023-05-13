@@ -2,9 +2,10 @@ package vul
 
 import "time"
 
-type ListImageSourceItem struct {
-	Source       string    `json:"source"`
-	PackageCount int       `json:"package_count"`
-	FirstReading time.Time `json:"first_reading"`
-	LastReading  time.Time `json:"last_reading"`
+type ImageVersion struct {
+	Image     string    `json:"image"`
+	Digest    string    `json:"digest"`
+	Processed time.Time `json:"processed"`
+
+	*Item `json:"-"`
 }

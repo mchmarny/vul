@@ -2,7 +2,6 @@ package data
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -14,22 +13,17 @@ import (
 var (
 	sqlTimelineList = `SELECT 
 						x.imported,
-						x.source,
-						COUNT(*) total,
-						SUM(CASE WHEN x.severity = 'negligible' THEN 1 ELSE 0 END) negligible,
-						SUM(CASE WHEN x.severity = 'low' THEN 1 ELSE 0 END) low,
-						SUM(CASE WHEN x.severity = 'medium' THEN 1 ELSE 0 END) medium,
-						SUM(CASE WHEN x.severity = 'high' THEN 1 ELSE 0 END) high,
-						SUM(CASE WHEN x.severity = 'critical' THEN 1 ELSE 0 END) critical,
-						SUM(CASE WHEN x.severity = 'unknown' THEN 1 ELSE 0 END) unknown
+						SUM(CASE WHEN source = 'grype' THEN 1 ELSE 0 END) grype,
+						SUM(CASE WHEN source = 'trivy' THEN 1 ELSE 0 END) trivy,
+						SUM(CASE WHEN source = 'snyk' THEN 1 ELSE 0 END) snyk
 					  FROM (
 						SELECT DISTINCT imported, source, exposure, severity, package, version
 						FROM vulns
 						WHERE image = $1 
 						AND imported >= $2
 					  ) x
-					  GROUP BY x.imported, x.source
-					  ORDER BY 1, 2`
+					  GROUP BY x.imported
+					  ORDER BY 1`
 )
 
 func ListImageTimelines(ctx context.Context, pool *pgxpool.Pool, img, since string) ([]*vul.ImageTimeline, error) {
@@ -40,65 +34,17 @@ func ListImageTimelines(ctx context.Context, pool *pgxpool.Pool, img, since stri
 	list := make([]*vul.ImageTimeline, 0)
 
 	r := func(rows pgx.Rows) error {
-		var date string
-		var name string
-		var total, negligible, low, medium, high, critical, unknown int
-
+		t := &vul.ImageTimeline{}
 		if err := rows.Scan(
-			&date,
-			&name,
-			&total,
-			&negligible,
-			&low,
-			&medium,
-			&high,
-			&critical,
-			&unknown,
+			&t.Date,
+			&t.Grype,
+			&t.Trivy,
+			&t.Snyk,
 		); err != nil {
 			return errors.Wrapf(err, "failed to scan timeline row")
 		}
 
-		list = append(list, &vul.ImageTimeline{
-			Date:  date,
-			Name:  fmt.Sprintf("%s-total", name),
-			Value: total,
-		})
-
-		list = append(list, &vul.ImageTimeline{
-			Date:  date,
-			Name:  fmt.Sprintf("%s-negligible", name),
-			Value: negligible,
-		})
-
-		list = append(list, &vul.ImageTimeline{
-			Date:  date,
-			Name:  fmt.Sprintf("%s-low", name),
-			Value: low,
-		})
-
-		list = append(list, &vul.ImageTimeline{
-			Date:  date,
-			Name:  fmt.Sprintf("%s-medium", name),
-			Value: medium,
-		})
-
-		list = append(list, &vul.ImageTimeline{
-			Date:  date,
-			Name:  fmt.Sprintf("%s-high", name),
-			Value: high,
-		})
-
-		list = append(list, &vul.ImageTimeline{
-			Date:  date,
-			Name:  fmt.Sprintf("%s-critical", name),
-			Value: critical,
-		})
-
-		list = append(list, &vul.ImageTimeline{
-			Date:  date,
-			Name:  fmt.Sprintf("%s-unknown", name),
-			Value: unknown,
-		})
+		list = append(list, t)
 		return nil
 	}
 

@@ -1,58 +1,69 @@
 {{ define "image" }}
-
 {{ template "header" . }}
-
-<!-- Middle  -->
-
-    {{ $image := . }}
-    <h1>{{ .img }}</h1>
+    <h2>{{ .img }}</h2>
 
     <div class="box gray">
         <div id="image-chart"></div> 
     </div>
 
+    <div class="box">
+        <div class="small">
+            {{ with .data }}
+            Data collected from {{ .FormatTime "2006-01-02 15:04" .FirstReading }} to {{ .FormatTime "2006-01-02 15:04" .LastReading }} UTC
+            {{ end }}
+        </div>
+    </div>
+
     <section>
         {{ with .data }}
-            <div class="group">
-                <h3>Now:</h3>
-                <div class="group">
-                <p>Span: {{ .FirstReading }} - {{ .LastReading }}</p>
-                <p>Images: {{ .ImageCount }}</p>
-                <p>Versions: {{ .VersionCount }}</p>
-                <p>Sources: {{ .SourceCount }}</p>
-                <p>Packages: {{ .PackageCount }}</p>
-                {{ with .Exposure }}
-                    <ul>
-                        <li>Total: {{ .Total }}</li>
-                        <li>Negligible: {{ .Negligible }}</li>
-                        <li>Low: {{ .Low }}</li>
-                        <li>Medium: {{ .Medium }}</li>
-                        <li>High: {{ .High }}</li>
-                        <li>Critical: {{ .Critical }}</li>
-                        <li>Unknown: {{ .Unknown }}</li>
-                    </ul>
-                {{ end }}
+            <div class="box">
+                <div class="box-item">
+                    <div class="box-item-head">Versions</div>
+                    <p class="box-item-content">
+                        {{ .Print .VersionCount }}
+                    </p>
+                    <div class="box-item-head">Scan&nbsp;Sources</div>
+                    <p class="box-item-content">
+                        {{ .Print .SourceCount }}
+                    </p>
+                    <div class="box-item-head">Total&nbsp;Packages</div>
+                    <p class="box-item-content">
+                        {{ .Print .PackageCount }}
+                    </p>
+                    <div class="box-item-head">Total&nbsp;Exposures</div>
+                    <p class="box-item-content">
+                        {{ .Print .Exposure.Total }}
+                    </p>
                 </div>
+                <div id="vuln-chart"></div> 
             </div>
+
         {{ end }}
     </section>
 
     <section>
-        <h3>Versions:</h3>
-        {{ range $k, $v := .list }}
-            <div class="group">
-                <h4><a href="/exposure?img={{ $image.img }}&dig={{ $k }}">{{ $k }}</a></h4>
-                <div class="group">
-                {{ range $v }}
-                    <p>{{ .Source }}: {{ .PackageCount }} ({{ .FirstReading }}-{{ .LastReading }})</p>
-                {{ end }}
-                </div>
-            </div>
-        {{ end }}
+        <h3>Images Versions:</h3>
+        <div class="group">
+            <ul class="underlined">
+            {{ range .list }}
+                <li><b>{{ .FormatTime "2006-01-02 15:04" .Processed }}</b> - <a href="/exposure?img={{ .Image }}&dig={{ .Digest }}">{{ .Digest }}</a></li>
+            {{ end }}
+            </ul>
+        </div>
     </section>
 
-<!-- End Middle  -->
+<script>
+{{ with .data.Exposure -}}
+var vulnData = [
+    ['Negligible',{{- .Negligible -}}],
+    ['Low',{{- .Low -}}],
+    ['Medium',{{- .Medium -}}],
+    ['High',{{- .High -}}],
+    ['Critical',{{- .Critical -}}],
+    ['Unknown',{{- .Unknown -}}],                
+];
+{{- end }}
+</script>
 
 {{ template "footer" . }}
-
 {{ end }}

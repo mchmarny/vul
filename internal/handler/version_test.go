@@ -22,7 +22,7 @@ func TestImageVersionHandler(t *testing.T) {
 
 	w := testHandler(t, uri, http.StatusOK)
 
-	var out Response[map[string][]*vul.ListImageSourceItem]
+	var out Response[[]*vul.ImageVersion]
 	err := json.NewDecoder(w.Result().Body).Decode(&out)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, out.Created)
