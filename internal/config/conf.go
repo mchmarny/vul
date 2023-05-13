@@ -20,6 +20,7 @@ type Runtime struct {
 
 type App struct {
 	ImageTimelineDays int `yaml:"image_timeline_days"`
+	ImageVersionLimit int `yaml:"image_version_limit"`
 }
 
 // Config represents app config object.

@@ -24,7 +24,7 @@ func (h *Handler) imageVersionHandler(c *gin.Context) {
 		"image": img,
 	})
 
-	list, err := data.ListImageVersions(c.Request.Context(), h.Pool, img)
+	list, err := data.ListImageVersions(c.Request.Context(), h.Pool, img, h.Config.App.ImageVersionLimit)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, errors.Wrapf(err, "error listing image versions for %s", img)) //nolint:errcheck
 		return

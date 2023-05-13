@@ -18,7 +18,7 @@ img2=$(curl -s --data-urlencode "img=$img" --get $url/api/v1/summary | jq -r '.d
 [ "$img2" != "$img" ] && echo "expected: $img, got: $img2" && exit 1
 
 # get image versions 
-dig=$(curl -s --data-urlencode "img=$img" --get $url/api/v1/versions | jq -r '.data | keys[0]')
+dig=$(curl -s --data-urlencode "img=$img" --get $url/api/v1/versions | jq -r '.data[0].digest')
 [[ -z "$dig" ]] && echo "image digest not found" && exit 1
 echo "Digest: $dig"
 
@@ -30,7 +30,7 @@ echo "Exposure: $exp"
 
 # get image timeline 
 day=$(curl -s --data-urlencode "img=$img" --get $url/api/v1/timeline \
-    | jq -r '.data | keys | last')
+    | jq -r '.data[0].date')
 echo "Last: $day"
 
 # print summary 
@@ -38,4 +38,5 @@ echo "Summary:"
 curl -s $url/api/v1/summary | jq -r '.data'
 
 # print image summary
+echo "Images:"
 curl -s $url/api/v1/images  | jq -r '.data'

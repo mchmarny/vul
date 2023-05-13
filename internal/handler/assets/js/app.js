@@ -35,6 +35,9 @@ $(function () {
                     type: 'line',
                     labels: true
                 },
+                color: {
+                    pattern: ['#0a036b', '#fbb504', '#7b0265']
+                },
                 size: {
                     height: 200
                 },
@@ -71,8 +74,14 @@ $(function () {
                 columns: vulnData,
                 type : 'pie',
             },
+            color: {
+                /*
+                Negligible, Low, Medium, High, Critical, Unknown
+                */
+                pattern: ['#FFDCB6', '#F79540', '#FC4F00', '#B71375', '#8B1874', '#9BA4B5']
+            },
             size: {
-                width: 300
+                width: 400
             },
             legend: {
                 position: 'right'

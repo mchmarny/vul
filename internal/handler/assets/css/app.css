@@ -43,7 +43,7 @@ h1 {
 
 h2 {
   font-size: 1.4em;
-  margin-bottom: 15px;
+  margin: 20px 0;
 }
 
 h3 {
@@ -95,8 +95,8 @@ fieldset {
 }
 
 section {
-  padding: 20px;
-  margin: 20px;
+  padding: 0 20px;
+  margin: 0 20px;
 }
 
 footer {
@@ -213,4 +213,19 @@ ul.underlined li:last-child {
 
 .underlined a {
   color: var(--color-brand);
+}
+
+
+.search {
+  margin: 40px 0;
+}
+
+/* Chart */
+.c3-chart-line path {
+  stroke-width: 3px;
+}
+
+.c3-legend-item text {
+  font-size: 1.6rem;
+  fill: var(--color-gray);
 }

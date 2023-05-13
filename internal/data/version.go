@@ -17,10 +17,11 @@ var (
 					  FROM vulns
 					  WHERE image = $1
 					  GROUP BY digest
-					  ORDER BY 2 DESC`
+					  ORDER BY 2 DESC
+					  LIMIT $2`
 )
 
-func ListImageVersions(ctx context.Context, pool *pgxpool.Pool, imageURI string) ([]*vul.ImageVersion, error) {
+func ListImageVersions(ctx context.Context, pool *pgxpool.Pool, imageURI string, limit int) ([]*vul.ImageVersion, error) {
 	list := make([]*vul.ImageVersion, 0)
 
 	r := func(rows pgx.Rows) error {
@@ -37,7 +38,7 @@ func ListImageVersions(ctx context.Context, pool *pgxpool.Pool, imageURI string)
 		return nil
 	}
 
-	if err := mapRows(ctx, pool, r, sqlVersionList, imageURI); err != nil {
+	if err := mapRows(ctx, pool, r, sqlVersionList, imageURI, limit); err != nil {
 		return nil, errors.Wrap(err, "failed to map image version rows")
 	}
 
