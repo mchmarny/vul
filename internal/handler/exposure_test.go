@@ -18,7 +18,7 @@ func TestImageVersionExposureHandler(t *testing.T) {
 
 	w := testHandler(t, uri, http.StatusOK)
 
-	var out Response[map[string][]*vul.ListDigestExposureItem]
+	var out Response[*vul.ImageDigestExposures]
 	err := json.NewDecoder(w.Result().Body).Decode(&out)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, out.Created)

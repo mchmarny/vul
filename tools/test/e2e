@@ -24,9 +24,9 @@ echo "Digest: $dig"
 
 # get image version exposures
 exp=$(curl -s --data-urlencode "img=$img" --data-urlencode "dig=$dig" \
-    --get $url/api/v1/exposures | jq -r '.data | keys[0]')
+    --get $url/api/v1/exposures | jq -r '.data.packages | keys[0]')
 [[ -z "$exp" ]] && echo "image exposure not found" && exit 1
-echo "Exposure: $exp"
+echo "Exposure Package: $exp"
 
 # get image timeline 
 day=$(curl -s --data-urlencode "img=$img" --get $url/api/v1/timeline \

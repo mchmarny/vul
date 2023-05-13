@@ -7,45 +7,76 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mchmarny/vul/pkg/vul"
 	"github.com/pkg/errors"
-	"github.com/rs/zerolog/log"
 )
 
 var (
 	sqlExposureList = `SELECT 
-						exposure,
-						source,
 						package,
 						version,
+						source,
+						exposure,
 						severity,
 						MAX(score) as score,
 						fixed
 					  FROM vulns
 					  WHERE image = $1 AND digest = $2
-					  GROUP BY exposure, source, package, version, severity, fixed
+					  GROUP BY package, version, source, exposure, severity, fixed
 					  ORDER BY 1, 2, 3, 4`
 )
 
-func ListImageVersionExposures(ctx context.Context, pool *pgxpool.Pool, imageURI, digest string) (map[string][]*vul.ListDigestExposureItem, error) {
-	list := make(map[string][]*vul.ListDigestExposureItem)
+func ListImageVersionExposures(ctx context.Context, pool *pgxpool.Pool, imageURI, digest string) (*vul.ImageDigestExposures, error) {
+	if imageURI == "" || digest == "" {
+		return nil, errors.New("image and digest are required")
+	}
+
+	m := &vul.ImageDigestExposures{
+		Image:    imageURI,
+		Digest:   digest,
+		Packages: make(map[string]*vul.PackageExposures),
+	}
 
 	r := func(rows pgx.Rows) error {
-		q := &vul.ListDigestExposureItem{}
-		var e string
+		var pkg, ver, src, exp, sev string
+		var score float64
+		var fixed bool
+
 		if err := rows.Scan(
-			&e,
-			&q.Source,
-			&q.Package,
-			&q.Version,
-			&q.Severity,
-			&q.Score,
-			&q.Fixed); err != nil {
-			return errors.Wrapf(err, "failed to scan image version row")
-		}
-		if _, ok := list[e]; !ok {
-			list[e] = make([]*vul.ListDigestExposureItem, 0)
+			&pkg,
+			&ver,
+			&src,
+			&exp,
+			&sev,
+			&score,
+			&fixed); err != nil {
+			return errors.Wrapf(err, "failed to scan image version exposure row")
 		}
 
-		list[e] = append(list[e], q)
+		if _, ok := m.Packages[pkg]; !ok {
+			m.Packages[pkg] = &vul.PackageExposures{
+				Versions: make(map[string]*vul.PackageVersionExposures),
+			}
+		}
+
+		if _, ok := m.Packages[pkg].Versions[ver]; !ok {
+			m.Packages[pkg].Versions[ver] = &vul.PackageVersionExposures{
+				Sources: make(map[string]*vul.SourceExposures),
+			}
+		}
+
+		if _, ok := m.Packages[pkg].Versions[ver].Sources[src]; !ok {
+			m.Packages[pkg].Versions[ver].Sources[src] = &vul.SourceExposures{
+				Exposures: make(map[string]*vul.Exposures),
+			}
+		}
+
+		if _, ok := m.Packages[pkg].Versions[ver].Sources[src].Exposures[exp]; !ok {
+			m.Packages[pkg].Versions[ver].Sources[src].Exposures[exp] = &vul.Exposures{
+				Severity: sev,
+				Score:    score,
+				Fixed:    fixed,
+			}
+		}
+
 		return nil
 	}
 
@@ -53,7 +84,5 @@ func ListImageVersionExposures(ctx context.Context, pool *pgxpool.Pool, imageURI
 		return nil, errors.Wrap(err, "failed to map image version exposure rows")
 	}
 
-	log.Info().Msgf("found %d image versions", len(list))
-
-	return list, nil
+	return m, nil
 }

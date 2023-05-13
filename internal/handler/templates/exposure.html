@@ -1,32 +1,28 @@
 {{ define "exposure" }}
-
 {{ template "header" . }}
-
-<!-- Middle  -->
-
-    <h1>Image: {{ .img }}@{{ .dig }}</h1>
+    <h2>{{ .img }}@{{ .dig }}</h2>
 
     <section>
         <h3>Exposures:</h3>
-        <div class="group">
-            {{ range $k, $v := .list }}
-                <div class="group">
-                    <h4><a href="https://nvd.nist.gov/vuln/detail/{{ $k }}" target="_blank">{{ $k }}</a></h4>
-                    <div class="group">
-                    {{ range $v }}
-                        <div class="group">
-                            <b>{{ .Source }}: </b> {{ .Package }} - {{ .Version }} ({{ .Severity }}: {{ printf "%.2f" .Score }}, Fixed: {{ if .Fixed }}Y{{ else }}N{{ end }})
-                        </div> 
+        <div class="exposures">
+        {{ range $pkg, $p := .list.Packages }}
+            <div class="package">
+                <div>{{ $pkg }}</div>
+                <div class="version">
+                    {{ range $ver, $v := $p.Versions }}
+                    <div>{{ $ver }}</div>
+                        {{ range $src, $s := $v.Sources }}
+                        <div>{{ $src }}</div>
+                            {{ range $exp, $e := $s.Exposures }}
+                            <div><a href="https://nvd.nist.gov/vuln/detail/{{ $exp }}" target="_blank">{{ $exp }}</a> - {{ $e.Severity }} ({{ $e.Score }}, {{ $e.Fixed }})</div>
+                            {{ end }}
+                        {{ end }}
                     {{ end }}
-                    </div>
                 </div>
-            {{ end }}
+            </div>  
+        {{ end }}
         </div>
     </section>
 
-
-<!-- End Middle  -->
-
 {{ template "footer" . }}
-
 {{ end }}
