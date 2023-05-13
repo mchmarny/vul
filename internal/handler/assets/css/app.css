@@ -42,12 +42,12 @@ h1 {
 }
 
 h2 {
-  font-size: 1.4em;
+  font-size: 1.3em;
   margin: 20px 0;
 }
 
 h3 {
-  font-size: 1.2em;
+  font-size: 1.1em;
   margin: 2px;
 }
 
@@ -234,4 +234,44 @@ table, th, td {
   border-collapse: collapse;
   border: 1px solid var(--color-light);
   width: 100%;
+}
+
+/* Vulnerability Page */
+.exposure-nav, .exposure-nav a {
+  width: 100%;
+  margin: 0;
+  padding: 10px;
+  text-align: right;
+  color: var(---color-brand);
+}
+
+.package {
+  margin: 10px 0 10px 20px;
+}
+
+.package-title {
+  background-color: var(--color-black);
+  color: var(--color-light);
+  font-weight: bold;
+  padding: 5px 10px;
+  font-size: 1.2em;
+}
+
+.version {
+  margin: 10px 0 10px 20px;
+}
+
+.source {
+  margin: 10px 0 10px 20px;
+}
+
+.exposure {
+  margin: 10px 0 10px 20px;
+  padding-bottom: 5px;
+  border-bottom: 1px dotted var(--color-gray);
+}
+
+.exposure a {
+  text-decoration: none;
+  color: var(---color-brand);
 }

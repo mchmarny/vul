@@ -63,6 +63,12 @@ func (h *Handler) imageVersionExposureViewHandler(c *gin.Context) {
 		return
 	}
 
+	sum, err := data.GetSummary(c.Request.Context(), h.Pool, img, dig)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, errors.Wrapf(err, "error getting image summary for %s", img)) //nolint:errcheck
+		return
+	}
+
 	list, err := data.ListImageVersionExposures(c.Request.Context(), h.Pool, img, dig)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, errors.Wrapf(err, "error listing image version exposures view for %s@%s", img, dig)) //nolint:errcheck
@@ -74,6 +80,7 @@ func (h *Handler) imageVersionExposureViewHandler(c *gin.Context) {
 		"version": h.Version,
 		"img":     img,
 		"dig":     dig,
+		"data":    sum,
 		"list":    list,
 	}
 

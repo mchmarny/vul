@@ -17,7 +17,7 @@ func (h *Handler) homeViewHandler(c *gin.Context) {
 		return
 	}
 
-	sum, err := data.GetSummary(c.Request.Context(), h.Pool, "")
+	sum, err := data.GetSummary(c.Request.Context(), h.Pool, "", "")
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, errors.Wrap(err, "error getting image summary")) //nolint:errcheck
 		return

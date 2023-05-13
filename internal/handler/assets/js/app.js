@@ -89,4 +89,20 @@ $(function () {
         });
     }
 
+    // === VULNERABILITIES PAGE ===
+    if($( '.exposure-nav' ).length){
+        $( '#unique' ).click(function(e) {
+            e.preventDefault();
+            $( 'div.source' ).toggle();
+            var filter = $(this).data('on');
+            if (filter === undefined || filter === false) {
+                $(this).data('on', true);
+                $(this).html('Show All');
+            }else{
+                $(this).data('on', false);
+                $(this).html('Show Unique');
+            }
+        });
+    }
+
 });

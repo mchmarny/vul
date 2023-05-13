@@ -39,7 +39,7 @@ var (
 						MIN(processed) min_processed,
 						MAX(processed) max_processed
 					FROM vulns
-					WHERE image = COALESCE($1, image)
+					WHERE image = COALESCE($1, image) AND digest = COALESCE($2, digest)
 					GROUP BY image, digest, source, package, exposure, severity
 				) x
 				`
@@ -66,15 +66,20 @@ func ListImages(ctx context.Context, pool *pgxpool.Pool) ([]string, error) {
 	return list, nil
 }
 
-func GetSummary(ctx context.Context, pool *pgxpool.Pool, img string) (*vul.SummaryItem, error) {
+func GetSummary(ctx context.Context, pool *pgxpool.Pool, img, dig string) (*vul.SummaryItem, error) {
 	s := &vul.SummaryItem{
 		Image:    img,
 		Exposure: vul.Exposure{},
 	}
 
-	var arg sql.NullString
+	var imgArg sql.NullString
 	if img != "" {
-		arg = sql.NullString{String: img, Valid: true}
+		imgArg = sql.NullString{String: img, Valid: true}
+	}
+
+	var digArg sql.NullString
+	if dig != "" {
+		digArg = sql.NullString{String: dig, Valid: true}
 	}
 
 	r := func(rows pgx.Row) error {
@@ -97,7 +102,7 @@ func GetSummary(ctx context.Context, pool *pgxpool.Pool, img string) (*vul.Summa
 		return nil
 	}
 
-	if err := mapRow(ctx, pool, r, sqlSummary, arg); err != nil {
+	if err := mapRow(ctx, pool, r, sqlSummary, imgArg, digArg); err != nil {
 		return nil, errors.Wrap(err, "failed to map summary row")
 	}
 
