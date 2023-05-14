@@ -6,6 +6,7 @@
   --color-gray: #727272;
   --color-light: #dad6d6;
   --color-brand: #43a56d;
+  --color-highlight: #dcc601;
   --font-fam: 'Lato', sans-serif;
   --height: 5rem;
   --btn-width: 6rem;
@@ -31,7 +32,7 @@ html {
   box-sizing: border-box;
 }
 
-a {
+a, a:link, a:visited, a:hover, a:active {
   text-decoration: none;
   color: var(---color-brand);
 }
@@ -69,6 +70,19 @@ input, button {
 }
 
 input[type="search"] {
+  outline: 0;
+  width: 100%;
+  background: var(--color-light);
+  padding: 0 1.6rem;
+  border-radius: var(--rad);
+  appearance: none;
+  transition: all var(--dur) var(--bez);
+  transition-property: width, border-radius;
+  z-index: 1;
+  position: relative;
+}
+
+input[type="filter"] {
   outline: 0;
   width: 100%;
   background: var(--color-light);
@@ -215,7 +229,6 @@ ul.underlined li:last-child {
   color: var(--color-brand);
 }
 
-
 .search {
   margin: 40px 0;
 }
@@ -230,19 +243,26 @@ ul.underlined li:last-child {
   fill: var(--color-gray);
 }
 
-table, th, td {
-  border-collapse: collapse;
-  border: 1px solid var(--color-light);
-  width: 100%;
-}
-
 /* Vulnerability Page */
-.exposure-nav, .exposure-nav a {
+.exposure-nav {
   width: 100%;
   margin: 0;
   padding: 10px;
   text-align: right;
-  color: var(---color-brand);
+}
+
+.exposure-nav a {
+  color: var(--color-brand);
+}
+
+.exposure {
+  margin: 10px 0 10px 20px;
+  padding-bottom: 5px;
+  border-bottom: 1px dotted var(--color-gray);
+}
+
+.exposure a {
+  color: var(--color-brand);
 }
 
 .package {
@@ -265,13 +285,18 @@ table, th, td {
   margin: 10px 0 10px 20px;
 }
 
-.exposure {
-  margin: 10px 0 10px 20px;
-  padding-bottom: 5px;
-  border-bottom: 1px dotted var(--color-gray);
+.src-logo {
+  height: 20px;
+  margin: 0 5px;
+  border: 0;
+  vertical-align: middle;
 }
 
-.exposure a {
-  text-decoration: none;
-  color: var(---color-brand);
+.highlight {
+  background-color: var(--color-highlight);
+  color: var(--color-black);
+}
+
+.highlight a {
+  color: var(--color-black);
 }

@@ -1,4 +1,5 @@
 const urlParams = new URLSearchParams(window.location.search);
+const cssHighlight = 'highlight';
 
 $(function () {
 
@@ -91,6 +92,8 @@ $(function () {
 
     // === VULNERABILITIES PAGE ===
     if($( '.exposure-nav' ).length){
+
+        // unique source toggle
         $( '#unique' ).click(function(e) {
             e.preventDefault();
             $( 'div.source' ).toggle();
@@ -102,6 +105,32 @@ $(function () {
                 $(this).data('on', false);
                 $(this).html('Show Unique');
             }
+        });
+
+        // filter by source
+        $( "#vul-filter" ).on( "keyup" , function() {
+            var value = $(this).val().toLowerCase();
+            if (value === '') {
+                $( '.package-title' ).removeClass( cssHighlight );
+                $( '.exposure a' ).parent().removeClass( cssHighlight );
+                return;
+            }
+        
+            $( '.package-title' ).each(function(index) {
+                $(this).removeClass( cssHighlight );
+                var text = $(this).text().toLowerCase();
+                if (text.indexOf(value) !== -1) {
+                    $(this).addClass( cssHighlight );
+                }
+            });
+
+            $( '.exposure a' ).each(function(index) {
+                $(this).parent().removeClass( cssHighlight );
+                var text = $(this).text().toLowerCase();
+                if (text.indexOf(value) !== -1) {
+                    $(this).parent().addClass( cssHighlight );
+                }
+            });
         });
     }
 

@@ -52,8 +52,17 @@
     </section>
 
     <section>
-        <h3>Exposure Details:</h3>
-        <div class="exposure-nav"><a href="#" id="unique">Show Unique</a></div>
+        <div class="exposure-nav">
+            <div>
+                <input id="vul-filter" type="filter" placeholder="find vulnerabilities using either CVE or package name...">
+            </div>
+            <div>
+                <a href="#" id="unique">Show Unique</a>
+            </div>
+        </div>
+    </section>
+
+    <section>
         <div>
         {{ range $pkg, $p := .list.Packages }}
             <div class="package">
@@ -64,7 +73,9 @@
                         {{ $unique := $v.UniqueExposures }}
                         {{ range $src, $s := $v.Sources }}
                         <div class="source {{- if $unique -}}unique{{- end -}}">
-                            <div class="name"><b>Source:</b> {{ $src }}</div>
+                            <div class="src-name">
+                                <img src="/static/assets/img/{{ $src }}.png" alt="{{ $src }}" title="{{ $src }}" class="src-logo" /> {{ $src }} 
+                            </div>
                             {{ range $exp, $e := $s.Exposures }}
                             <div class="exposure">
                                 <a href="https://nvd.nist.gov/vuln/detail/{{ $exp }}" target="_blank">{{ $exp }}</a> - {{ $e.Severity }} (score: {{ $e.Printf "%.2f" $e.Score }}{{- if $e.Fixed }}, fixed{{ end }})
