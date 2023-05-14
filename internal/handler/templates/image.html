@@ -9,7 +9,7 @@
     <div class="box">
         <div class="small">
             {{ with .data }}
-            Data collected from {{ .FormatTime "2006-01-02 15:04" .FirstReading }} to {{ .FormatTime "2006-01-02 15:04" .LastReading }} UTC
+            Data from {{ .FormatTime "2006-01-02 15:04" .FirstReading }} to {{ .FormatTime "2006-01-02 15:04" .LastReading }} UTC
             {{ end }}
         </div>
     </div>
