@@ -47,6 +47,11 @@ h2 {
   margin: 20px 0;
 }
 
+h2 b {
+  font-size: 14px;
+  color: var(--color-gray);
+}
+
 h3 {
   font-size: 1.1em;
   margin: 2px;
@@ -239,8 +244,8 @@ ul.underlined li:last-child {
 }
 
 .c3-legend-item text {
-  font-size: 1.6rem;
-  fill: var(--color-gray);
+  font-size: 1.4rem;
+  fill: var(--color-brand);
 }
 
 /* Vulnerability Page */
