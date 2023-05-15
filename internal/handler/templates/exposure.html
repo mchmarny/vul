@@ -57,7 +57,7 @@
                 <input id="vul-filter" type="filter" placeholder="find vulnerabilities using either CVE or package name...">
             </div>
             <div>
-                <a href="#" id="unique">Show Unique</a>
+                <b>Show:</b> <a href="#" id="unique">Unique Only</a> | <a href="#" id="fixed">Fixed Only</a> | <a href="#" id="show-all">All</a>
             </div>
         </div>
     </section>
@@ -70,14 +70,14 @@
                 <div class="version">
                     {{ range $ver, $v := $p.Versions }}
                     <div class="name"><b>Version:</b> {{ $ver }}</div>
-                        {{ $unique := $v.UniqueExposures }}
+                        {{ $same := $v.SameExposures }}
                         {{ range $src, $s := $v.Sources }}
-                        <div class="source {{- if $unique -}}unique{{- end -}}">
+                        <div class="source {{ if $same -}}same{{- end -}}">
                             <div class="src-name">
                                 <img src="/static/assets/img/{{ $src }}.png" alt="{{ $src }}" title="{{ $src }}" class="src-logo" /> {{ $src }} 
                             </div>
                             {{ range $exp, $e := $s.Exposures }}
-                            <div class="exposure">
+                            <div class="exposure {{ if $e.Fixed -}}{{- else -}}nofixed{{- end -}}">
                                 <a href="https://nvd.nist.gov/vuln/detail/{{ $exp }}" target="_blank">{{ $exp }}</a> - {{ $e.Severity }} (score: {{ $e.Printf "%.2f" $e.Score }}{{- if $e.Fixed }}, fixed{{ end }})
                             </div>
                             {{ end }}

@@ -36,7 +36,7 @@ func TestExposureUniquenessFalse(t *testing.T) {
 		},
 	}
 
-	assert.False(t, p.UniqueExposures())
+	assert.True(t, p.SameExposures())
 }
 
 func TestExposureUniquenessTrue(t *testing.T) {
@@ -69,5 +69,5 @@ func TestExposureUniquenessTrue(t *testing.T) {
 		},
 	}
 
-	assert.True(t, p.UniqueExposures())
+	assert.False(t, p.SameExposures())
 }

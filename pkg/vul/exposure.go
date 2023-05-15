@@ -24,20 +24,19 @@ type PackageVersionExposures struct {
 	*Item `json:"-"`
 }
 
-func (p *PackageVersionExposures) UniqueExposures() bool {
+func (p *PackageVersionExposures) SameExposures() bool {
 	if p.Sources == nil || len(p.Sources) == 0 {
 		return false
 	}
 
 	m := make(map[string]bool, 0)
-
 	for _, sev := range p.Sources {
 		for e, exp := range sev.Exposures {
 			m[fmt.Sprintf("%s-%s", e, exp.severityScoreHash())] = true
 		}
 	}
 
-	return len(m) > 1
+	return len(m) == 1
 }
 
 type SourceExposures struct {

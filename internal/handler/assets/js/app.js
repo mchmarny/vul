@@ -93,18 +93,38 @@ $(function () {
     // === VULNERABILITIES PAGE ===
     if($( '.exposure-nav' ).length){
 
+        var countFunc = function() {
+            $('#pkg-counter').remove();
+            var count = $( '.package:visible' ).length;
+            jQuery('<div>', {class: 'ui-helper-hidden-accessible', id: 'pkg-counter'})
+                .html(count + ' packages found')
+                .appendTo('body');
+
+            setTimeout(function(){
+                $('#pkg-counter').remove();
+            }, 5000);
+        }
+
         // unique source toggle
         $( '#unique' ).click(function(e) {
             e.preventDefault();
-            $( 'div.source' ).toggle();
-            var filter = $(this).data('on');
-            if (filter === undefined || filter === false) {
-                $(this).data('on', true);
-                $(this).html('Show All');
-            }else{
-                $(this).data('on', false);
-                $(this).html('Show Unique');
-            }
+            $( '.same' ).parent().parent().hide();
+            countFunc();
+        });
+
+        // fixed version taggle
+        $( '#fixed' ).click(function(e) {
+            e.preventDefault();
+            $( '.nofixed' ).parent().parent().parent().hide();
+            countFunc();
+        });
+
+        // show all 
+        $( '#show-all' ).click(function(e) {
+            e.preventDefault();
+            $( '.same' ).parent().parent().show();
+            $( '.nofixed' ).parent().parent().parent().show();
+            countFunc();
         });
 
         // filter by source

@@ -96,6 +96,7 @@ resource "google_cloud_run_service" "app" {
     }
     metadata {
       annotations = {
+        "autoscaling.knative.dev/minScale"         = "1"
         "autoscaling.knative.dev/maxScale"         = "10"
         "run.googleapis.com/cloudsql-instances"    = "${var.db_conn_uri}"
         "run.googleapis.com/execution-environment" = "gen2"
