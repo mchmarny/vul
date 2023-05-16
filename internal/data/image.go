@@ -15,10 +15,10 @@ var (
 	sqlImageList = `SELECT DISTINCT image FROM vulns ORDER BY 1`
 
 	sqlSummary = `SELECT 
-					COUNT(distinct image) images,
-					COUNT(distinct digest) versions,
-					COUNT(distinct source) sources,
-					COUNT(distinct package) package,
+					COUNT(DISTINCT image) images,
+					COUNT(DISTINCT digest) versions,
+					COUNT(DISTINCT source) sources,
+					COUNT(DISTINCT package) package,
 					COUNT(exposure) exposure,
 					SUM(CASE WHEN severity = 'negligible' THEN 1 ELSE 0 END) negligible,
 					SUM(CASE WHEN severity = 'low' THEN 1 ELSE 0 END) low,
@@ -88,7 +88,7 @@ func GetSummary(ctx context.Context, pool *pgxpool.Pool, img, dig string) (*vul.
 			&s.VersionCount,
 			&s.SourceCount,
 			&s.PackageCount,
-			&s.Exposure.Total,
+			&s.TotalExposures,
 			&s.Exposure.Negligible,
 			&s.Exposure.Low,
 			&s.Exposure.Medium,
@@ -104,6 +104,11 @@ func GetSummary(ctx context.Context, pool *pgxpool.Pool, img, dig string) (*vul.
 
 	if err := mapRow(ctx, pool, r, sqlSummary, imgArg, digArg); err != nil {
 		return nil, errors.Wrap(err, "failed to map summary row")
+	}
+
+	s.DaysCount = int(s.LastReading.Sub(s.FirstReading).Hours() / 24)
+	if s.SourceCount > 0 {
+		s.AvgExposure = float64(s.TotalExposures / s.SourceCount)
 	}
 
 	return s, nil

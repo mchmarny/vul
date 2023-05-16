@@ -75,6 +75,9 @@ func (h *Handler) imageVersionExposureViewHandler(c *gin.Context) {
 		return
 	}
 
+	// add fixed count
+	sum.FixedCount = list.FixedCount
+
 	d := gin.H{
 		"name":    h.Name,
 		"version": h.Version,

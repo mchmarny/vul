@@ -34,11 +34,11 @@
                         {{ .Print .Exposure.Total }}
                     </p>
                 </div>
-            </div>
-
-            <div class="box">
-                <div class="small">
-                    Data from {{ .FormatTime "2006-01-02 15:04" .FirstReading }} to {{ .FormatTime "2006-01-02 15:04" .LastReading }} UTC
+                <div class="box-item">
+                    <div class="box-item-head">Days&nbsp;of&nbsp;Data</div>
+                    <p class="box-item-content">
+                        {{ .Print .DaysCount }}
+                    </p>
                 </div>
             </div>
         {{ end }}

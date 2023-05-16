@@ -30,9 +30,9 @@
                     <p class="box-item-content">
                         {{ .Print .PackageCount }}
                     </p>
-                    <div class="box-item-head">Total&nbsp;Exposures</div>
+                    <div class="box-item-head">Avg&nbsp;Exposures</div>
                     <p class="box-item-content">
-                        {{ .Print .Exposure.Total }}
+                        {{ .Printf "%.1f" .AvgExposure }}
                     </p>
                 </div>
                 <div id="vuln-chart"></div> 

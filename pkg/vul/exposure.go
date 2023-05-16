@@ -5,9 +5,10 @@ import (
 )
 
 type ImageDigestExposures struct {
-	Image    string                       `json:"image"`
-	Digest   string                       `json:"digest"`
-	Packages map[string]*PackageExposures `json:"packages"`
+	Image      string                       `json:"image"`
+	Digest     string                       `json:"digest"`
+	Packages   map[string]*PackageExposures `json:"packages"`
+	FixedCount int                          `json:"fixed_count"`
 
 	*Item `json:"-"`
 }

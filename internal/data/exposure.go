@@ -51,6 +51,10 @@ func ListImageVersionExposures(ctx context.Context, pool *pgxpool.Pool, imageURI
 			return errors.Wrapf(err, "failed to scan image version exposure row")
 		}
 
+		if fixed {
+			m.FixedCount++
+		}
+
 		if _, ok := m.Packages[pkg]; !ok {
 			m.Packages[pkg] = &vul.PackageExposures{
 				Versions: make(map[string]*vul.PackageVersionExposures),
