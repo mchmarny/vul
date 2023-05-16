@@ -23,3 +23,5 @@ us-central1-docker.pkg.dev/cloud-workstations-images/predefined/base
 cgr.dev/chainguard/bash
 cgr.dev/chainguard/go
 cgr.dev/chainguard/jre
+# Custom
+us-west1-docker.pkg.dev/s3cme1/ws-images/ws-go-code:v0.2.12
