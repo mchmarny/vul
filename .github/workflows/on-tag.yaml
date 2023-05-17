@@ -84,5 +84,5 @@ jobs:
         GOFLAGS: "-ldflags=-X=main.version=${{ env.RELEASE_VERSION }}"
         COSIGN_EXPERIMENTAL: "true"
       run: |
-        ko build internal/cmd/main.go --image-refs .digest --bare --tags ${{ env.RELEASE_VERSION }}
+        ko build internal/cmd/app/main.go --image-refs .digest --bare --tags ${{ env.RELEASE_VERSION }}
         echo "digest=$(cat .digest)" >> "$GITHUB_OUTPUT"
