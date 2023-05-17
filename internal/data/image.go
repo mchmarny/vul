@@ -15,33 +15,24 @@ var (
 	sqlImageList = `SELECT DISTINCT image FROM vulns ORDER BY 1`
 
 	sqlSummary = `SELECT 
-					COUNT(DISTINCT image) images,
-					COUNT(DISTINCT digest) versions,
-					COUNT(DISTINCT source) sources,
-					COUNT(DISTINCT package) package,
-					COUNT(exposure) exposure,
-					SUM(CASE WHEN severity = 'negligible' THEN 1 ELSE 0 END) negligible,
-					SUM(CASE WHEN severity = 'low' THEN 1 ELSE 0 END) low,
-					SUM(CASE WHEN severity = 'medium' THEN 1 ELSE 0 END) medium,
-					SUM(CASE WHEN severity = 'high' THEN 1 ELSE 0 END) high,
-					SUM(CASE WHEN severity = 'critical' THEN 1 ELSE 0 END) critical,
-					SUM(CASE WHEN severity = 'unknown' THEN 1 ELSE 0 END) unknown,
-					MIN(min_processed) min_processed,
-					MAX(max_processed) max_processed
-				FROM (
-					SELECT 
-						image, 
-						digest, 
-						source, 
-						package, 
-						exposure, 
-						severity, 
-						MIN(processed) min_processed,
-						MAX(processed) max_processed
+						COUNT(DISTINCT image) images, 
+						COUNT(DISTINCT digest) versions, 
+						COUNT(DISTINCT source) sources, 
+						COUNT(DISTINCT package) packages, 
+						COUNT(exposure) exposures,
+						COUNT(DISTINCT exposure) unique_exposures,
+						COUNT(exposure) FILTER (where fixed = true) fixed,
+						COUNT(severity) FILTER (where severity = 'negligible') negligible,
+						COUNT(severity) FILTER (where severity = 'low') low,
+						COUNT(severity) FILTER (where severity = 'medium') medium,
+						COUNT(severity) FILTER (where severity = 'high') high,
+						COUNT(severity) FILTER (where severity = 'critical') critical,
+						COUNT(severity) FILTER (where severity = 'unknown') unknown,
+						MAX(processed) last_reading
 					FROM vulns
-					WHERE image = COALESCE($1, image) AND digest = COALESCE($2, digest)
-					GROUP BY image, digest, source, package, exposure, severity
-				) x
+					WHERE imported = (SELECT MAX(imported) FROM vulns)
+					AND image = COALESCE($1, image) 
+					AND digest = COALESCE($2, digest)
 				`
 )
 
@@ -89,13 +80,14 @@ func GetSummary(ctx context.Context, pool *pgxpool.Pool, img, dig string) (*vul.
 			&s.SourceCount,
 			&s.PackageCount,
 			&s.TotalExposures,
+			&s.UniqueExposures,
+			&s.FixedCount,
 			&s.Exposure.Negligible,
 			&s.Exposure.Low,
 			&s.Exposure.Medium,
 			&s.Exposure.High,
 			&s.Exposure.Critical,
 			&s.Exposure.Unknown,
-			&s.FirstReading,
 			&s.LastReading); err != nil {
 			return errors.Wrapf(err, "failed to scan image row")
 		}
@@ -104,11 +96,6 @@ func GetSummary(ctx context.Context, pool *pgxpool.Pool, img, dig string) (*vul.
 
 	if err := mapRow(ctx, pool, r, sqlSummary, imgArg, digArg); err != nil {
 		return nil, errors.Wrap(err, "failed to map summary row")
-	}
-
-	s.DaysCount = int(s.LastReading.Sub(s.FirstReading).Hours() / 24)
-	if s.SourceCount > 0 {
-		s.AvgExposure = float64(s.TotalExposures / s.SourceCount)
 	}
 
 	return s, nil

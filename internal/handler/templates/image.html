@@ -9,7 +9,7 @@
     <div class="box">
         <div class="small">
             {{ with .data }}
-            Data from {{ .FormatTime "2006-01-02 15:04" .FirstReading }} to {{ .FormatTime "2006-01-02 15:04" .LastReading }} UTC
+            Last scan: {{ .FormatTime "2006-01-02 15:04" .LastReading }} UTC
             {{ end }}
         </div>
     </div>
@@ -30,9 +30,13 @@
                     <p class="box-item-content">
                         {{ .Print .PackageCount }}
                     </p>
-                    <div class="box-item-head">Avg&nbsp;Exposures</div>
+                    <div class="box-item-head">Unique&nbsp;Exposures</div>
                     <p class="box-item-content">
-                        {{ .Printf "%.1f" .AvgExposure }}
+                        {{ .Print .UniqueExposures }}
+                    </p>
+                    <div class="box-item-head">Fixed&nbsp;Exposures</div>
+                    <p class="box-item-content">
+                        {{ .Print .FixedCount }}
                     </p>
                 </div>
                 <div id="vuln-chart"></div> 

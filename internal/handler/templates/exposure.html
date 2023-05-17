@@ -6,6 +6,12 @@
         {{ with .data }}
             <div class="box gray">
                 <div class="box-item">
+                    <div class="box-item-head">Total&nbsp;Images</div>
+                    <p class="box-item-content">
+                        {{ .Print .ImageCount }}
+                    </p>
+                </div>
+                <div class="box-item">
                     <div class="box-item-head">Scan&nbsp;Sources</div>
                     <p class="box-item-content">
                         {{ .Print .SourceCount }}
@@ -24,34 +30,22 @@
                     </p>
                 </div>
                 <div class="box-item">
-                    <div class="box-item-head">Fix&nbsp;Available</div>
+                    <div class="box-item-head">Unique&nbsp;Exposures</div>
+                    <p class="box-item-content">
+                        {{ .Print .UniqueExposures }}
+                    </p>
+                </div>
+                <div class="box-item">
+                    <div class="box-item-head">Fixed&nbsp;Exposures</div>
                     <p class="box-item-content">
                         {{ .Print .FixedCount }}
-                    </p>
-                </div>
-                <div class="box-item">
-                    <div class="box-item-head">Critical&nbsp;Exposures</div>
-                    <p class="box-item-content">
-                        {{ .Print .Exposure.Critical }}
-                    </p>
-                </div>
-                <div class="box-item">
-                    <div class="box-item-head">High&nbsp;Exposures</div>
-                    <p class="box-item-content">
-                        {{ .Print .Exposure.High }}
-                    </p>
-                </div>
-                <div class="box-item">
-                    <div class="box-item-head">Medium&nbsp;Exposures</div>
-                    <p class="box-item-content">
-                        {{ .Print .Exposure.Medium }}
                     </p>
                 </div>
             </div>
 
             <div class="box">
                 <div class="small">
-                    Data from {{ .FormatTime "2006-01-02 15:04" .FirstReading }} to {{ .FormatTime "2006-01-02 15:04" .LastReading }} UTC
+                    Last scan: {{ .FormatTime "2006-01-02 15:04" .LastReading }} UTC
                 </div>
             </div>
         {{ end }}

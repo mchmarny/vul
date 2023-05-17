@@ -82,7 +82,7 @@ $(function () {
                 pattern: ['#FFDCB6', '#F79540', '#FC4F00', '#B71375', '#8B1874', '#9BA4B5']
             },
             size: {
-                width: 400
+                width: 450
             },
             legend: {
                 position: 'right'
