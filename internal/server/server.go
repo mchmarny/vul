@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/mchmarny/vul/internal/config"
-	"github.com/mchmarny/vul/internal/handler"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -33,32 +32,8 @@ var (
 
 type key int
 
-// Run starts the server with a given name and version.
-func Run(version string) {
-	cnf, err := config.ReadFromFile(config.GetEnv(configEnvVar, configDefaultPath))
-	if err != nil {
-		log.Fatal().Err(err).Msg("error reading config")
-	}
-	cnf.Version = version
-
-	initLogging(cnf.Name, version, cnf.Runtime.LogLevel)
-	log.Info().
-		Str("name", cnf.Name).
-		Str("version", version).
-		Msg("starting server")
-
-	ctx := context.Background()
-	h, err := handler.New(ctx, cnf)
-	if err != nil {
-		log.Fatal().Err(err).Msg("error creating handler")
-	}
-	defer h.Close()
-
-	run(ctx, h.Router)
-}
-
-// run starts the server and waits for termination signal.
-func run(ctx context.Context, router http.Handler) {
+// start starts the server and waits for termination signal.
+func start(ctx context.Context, router http.Handler) {
 	server := &http.Server{
 		Addr:              fmt.Sprintf(":%s", config.GetEnv(portEnvVar, portDefaultVal)),
 		Handler:           router,
@@ -91,6 +66,15 @@ func run(ctx context.Context, router http.Handler) {
 	if err := server.Shutdown(downCtx); err != nil {
 		log.Fatal().Err(err).Msg("error shuting server down")
 	}
+}
+
+func getConfigOrPanic(version string) *config.Config {
+	cnf, err := config.ReadFromFile(config.GetEnv(configEnvVar, configDefaultPath))
+	if err != nil {
+		log.Fatal().Err(err).Msg("error reading config")
+	}
+	cnf.Version = version
+	return cnf
 }
 
 func initLogging(name, version, level string) {
