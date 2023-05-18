@@ -30,8 +30,14 @@ variable "domain_name" {
   nullable    = false
 }
 
-variable "image_uri" {
-  description = "worker container image to deploy"
+variable "app_img_uri" {
+  description = "app container image to deploy"
+  type        = string
+  nullable    = false
+}
+
+variable "processor_img_uri" {
+  description = "processor container image to deploy"
   type        = string
   nullable    = false
 }

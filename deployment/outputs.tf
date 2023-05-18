@@ -20,5 +20,5 @@ output "SERVICE_URL" {
 }
 
 output "SERVICE_IMG" {
-  value = "${var.image_uri}:${data.template_file.version.rendered}"
+  value = "${var.app_img_uri}:${data.template_file.version.rendered}"
 }
