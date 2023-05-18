@@ -50,7 +50,7 @@ resource "google_cloud_run_service" "app" {
   template {
     spec {
       containers {
-        image = "${var.image_uri}:${data.template_file.version.rendered}"
+        image = "${var.app_img_uri}:${data.template_file.version.rendered}"
         startup_probe {
           http_get {
             path = "/health"
