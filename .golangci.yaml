@@ -19,3 +19,9 @@ linters:
   - unconvert
   - unparam
   - whitespace
+
+issues:
+  exclude-rules:
+    - path: '(.+)_test\.go'
+      linters:
+        - errcheck

@@ -22,7 +22,7 @@ func (h *Handler) processHandler(c *gin.Context) {
 	imageURI := string(b)
 	log.Debug().Str("imageURI", imageURI).Msg("processing image")
 
-	if err := processImage(c.Request.Context(), imageURI); err != nil {
+	if err := h.processImage(c.Request.Context(), imageURI); err != nil {
 		c.AbortWithError(http.StatusBadRequest, errors.Wrap(err, "error processing image")) //nolint:errcheck
 		return
 	}

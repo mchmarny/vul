@@ -20,7 +20,7 @@ const (
 )
 
 // Scan runs vulnerability scan on the provided image.
-func Scan(imageURI, targetDirPath string) int {
+func Scan(imageURI, targetDirPath string) ([]string, error) {
 	log.Info().Msgf("scanning image %s to %s", imageURI, targetDirPath)
 
 	var wg sync.WaitGroup
@@ -39,7 +39,21 @@ func Scan(imageURI, targetDirPath string) int {
 
 	wg.Wait()
 
-	return numberOfScanners
+	files, err := os.ReadDir(targetDirPath)
+	if err != nil {
+		return nil, errors.Wrap(err, "error reading scan dir")
+	}
+
+	if len(files) != numberOfScanners {
+		return nil, errors.Errorf("expected %d files, got %d, see logs for details", numberOfScanners, len(files))
+	}
+
+	list := make([]string, 0, numberOfScanners)
+	for _, f := range files {
+		list = append(list, path.Join(targetDirPath, f.Name()))
+	}
+
+	return list, nil
 }
 
 func runCmd(wg *sync.WaitGroup, cmd *exec.Cmd, path string) {
