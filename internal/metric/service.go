@@ -131,15 +131,16 @@ func (s *TimeSeriesService) post(ctx context.Context, req *monitoringpb.CreateTi
 		return
 	}
 
+	// don't create client and do not send if not configured
+	if !s.send {
+		return
+	}
+
 	c, err := monitoring.NewMetricClient(ctx)
 	if err != nil {
 		log.Error().Err(err).Msg("error creating metric client")
 	}
 	defer c.Close()
-
-	if !s.send {
-		return
-	}
 
 	if err = c.CreateTimeSeries(ctx, req); err != nil {
 		// debug only because this is a best effort anyway
