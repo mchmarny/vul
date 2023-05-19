@@ -10,7 +10,7 @@ ENV VERSION=${VERSION}
 RUN CGO_ENABLED=0 go build -a -trimpath -ldflags="\
     -w -s -X main.version=$VERSION \
 	-extldflags '-static'" \
-    -mod vendor -o processor internal/cmd/processor/main.go
+    -mod vendor -o worker internal/cmd/worker/main.go
 
 # BUILD
 FROM $FINAL_BASE
@@ -34,5 +34,5 @@ RUN curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/
 # cleanup
 RUN rm -rf /var/cache/apk/*
 
-COPY --from=builder /src/processor /processor
-ENTRYPOINT ["/processor"]
+COPY --from=builder /src/worker /worker
+ENTRYPOINT ["/worker"]

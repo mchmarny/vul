@@ -10,5 +10,5 @@ var (
 )
 
 func main() {
-	server.RunProcessor(version)
+	server.RunWorker(version)
 }

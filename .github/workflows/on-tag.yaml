@@ -88,7 +88,7 @@ jobs:
         echo "digest=$(cat .digest)" >> "$GITHUB_OUTPUT"
 
 
-  build-processor:
+  build-worker:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -139,7 +139,7 @@ jobs:
       uses: docker/metadata-action@c4ee3adeed93b1fa6a762f209fb01608c1a22f1e  # v4.4.0
       with:
         images: |
-          ${{ env.REGISTRY }}/${{ env.REG_FOLDER }}/processor
+          ${{ env.REGISTRY }}/${{ env.REG_FOLDER }}/worker
         tags: |
           type=raw,enable=true,value=${{ env.RELEASE_VERSION }}
           type=raw,enable=true,value=${{ env.GITHUB_SHA }}
@@ -155,11 +155,11 @@ jobs:
       id: push
       uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671  # v4.0.0
       with:
-        file: internal/cmd/processor/Dockerfile
+        file: internal/cmd/worker/Dockerfile
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
 
     - name: Export Digest
       run: |
-        echo "IMAGE_DIGEST=${{ env.REGISTRY }}/${{ env.REG_FOLDER }}/processor@${{ steps.push.outputs.digest }}" >> $GITHUB_ENV
+        echo "IMAGE_DIGEST=${{ env.REGISTRY }}/${{ env.REG_FOLDER }}/worker@${{ steps.push.outputs.digest }}" >> $GITHUB_ENV

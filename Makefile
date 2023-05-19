@@ -55,12 +55,12 @@ image: ## Builds container image
     GOFLAGS="-ldflags=-X=main.version=$(VERSION)" \
     ko build internal/cmd/app/main.go --bare --tags $(VERSION)
 
-.PHONY: processor
-processor: ## Builds processor container image
+.PHONY: worker
+worker: ## Builds worker container image
 	docker build \
 		--build-arg VERSION=$(VERSION) \
-		-f internal/cmd/processor/Dockerfile \
-		-t processor:$(VERSION) \
+		-f internal/cmd/worker/Dockerfile \
+		-t worker:$(VERSION) \
 		.
 
 .PHONY: vulncheck
