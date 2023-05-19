@@ -8,6 +8,10 @@ import (
 )
 
 func TestAllScanners(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping test in short mode")
+	}
+
 	dir := "test"
 	assert.NoError(t, os.Mkdir(dir, 0755))
 	defer os.RemoveAll(dir)

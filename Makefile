@@ -27,7 +27,7 @@ upgrade: ## Upgrades all dependancies
 
 .PHONY: test
 test: tidy ## Runs unit tests
-	go test -count=1 -race -covermode=atomic -coverprofile=cover.out ./...
+	go test -short -count=1 -race -covermode=atomic -coverprofile=cover.out ./...
 
 .PHONY: lint
 lint: lint-go lint-yaml ## Lints the entire project 
