@@ -15,20 +15,22 @@ type Publisher interface {
 }
 
 // New creates a new PubSub publisher.
-func New(ctx context.Context, projectID string) (Publisher, error) {
+func New(ctx context.Context, projectID string, send bool) (Publisher, error) {
 	if projectID == "" {
 		return nil, errors.New("conf is nil or project ID string is empty")
 	}
 
-	client, err := api.NewClient(ctx, projectID)
-	if err != nil {
-		return nil, errors.Wrapf(err, "error creating PubSub client for project: %s", projectID)
-	}
-
 	s := &SimplePublisher{
 		projectID: projectID,
-		client:    client,
 		topics:    make(map[string]*api.Topic),
+	}
+
+	if send {
+		client, err := api.NewClient(ctx, projectID)
+		if err != nil {
+			return nil, errors.Wrapf(err, "error creating PubSub client for project: %s", projectID)
+		}
+		s.client = client
 	}
 
 	log.Debug().Msgf("pubsub publisher created in %s project", projectID)
@@ -83,6 +85,14 @@ func (p *SimplePublisher) publish(ctx context.Context, topic string, content []b
 	}
 	if content == nil {
 		return errors.New("content is nil")
+	}
+
+	if p.client == nil {
+		log.Debug().
+			Str("topic", topic).
+			Str("content", string(content)).
+			Msgf("log only, send is disabled")
+		return nil
 	}
 
 	t, ok := p.topics[topic]

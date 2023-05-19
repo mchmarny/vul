@@ -10,6 +10,7 @@ import (
 
 type PubSub struct {
 	Topic string `yaml:"topic"`
+	Post  bool   `yaml:"post"`
 }
 
 type Store struct {
