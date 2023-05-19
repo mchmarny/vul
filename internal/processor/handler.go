@@ -14,6 +14,12 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+type pubsubProvider func(ctx context.Context, projectID string) (pubsub.Publisher, error)
+
+var (
+	pubsubNew pubsubProvider = pubsub.New
+)
+
 // New creates a new handler.
 func New(ctx context.Context, cnf *config.Config) (*Handler, error) {
 	gin.SetMode(gin.ReleaseMode)
@@ -21,7 +27,7 @@ func New(ctx context.Context, cnf *config.Config) (*Handler, error) {
 		return nil, errors.New("config is nil")
 	}
 
-	pub, err := pubsub.New(ctx, cnf.ProjectID)
+	pub, err := pubsubNew(ctx, cnf.ProjectID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create pubsub service")
 	}
@@ -78,7 +84,7 @@ type Handler struct {
 	Pool      *pgxpool.Pool
 	Router    *gin.Engine
 	Config    *config.Config
-	Publisher *pubsub.Publisher
+	Publisher pubsub.Publisher
 	Meter     metric.Service
 }
 
