@@ -59,7 +59,7 @@ image: ## Builds container image
 processor: ## Builds processor container image
 	docker build \
 		--build-arg VERSION=$(VERSION) \
-		-f config/Dockerfile \
+		-f internal/cmd/processor/Dockerfile \
 		-t processor:$(VERSION) \
 		.
 
