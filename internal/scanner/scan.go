@@ -12,13 +12,15 @@ import (
 )
 
 const (
+	numberOfScanners = 3
+
 	TrivyReportName = "trivy.json"
 	SnykReportName  = "snyk.json"
 	GrypeReportName = "grype.json"
 )
 
 // Scan runs vulnerability scan on the provided image.
-func Scan(imageURI, targetDirPath string) {
+func Scan(imageURI, targetDirPath string) int {
 	log.Info().Msgf("scanning image %s to %s", imageURI, targetDirPath)
 
 	var wg sync.WaitGroup
@@ -36,6 +38,8 @@ func Scan(imageURI, targetDirPath string) {
 	go runCmd(&wg, makeGrypeCmd(imageURI, f3), f3)
 
 	wg.Wait()
+
+	return numberOfScanners
 }
 
 func runCmd(wg *sync.WaitGroup, cmd *exec.Cmd, path string) {

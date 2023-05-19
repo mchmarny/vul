@@ -3,29 +3,27 @@ package processor
 import (
 	"context"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mchmarny/vul/internal/config"
 	"github.com/mchmarny/vul/internal/data"
 	"github.com/mchmarny/vul/internal/metric"
+	"github.com/mchmarny/vul/internal/pubsub"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )
-
-// Response is the response for the API.
-type Response[t any] struct {
-	Version string    `json:"version"`
-	Created time.Time `json:"created"`
-	Error   string    `json:"error,omitempty"`
-}
 
 // New creates a new handler.
 func New(ctx context.Context, cnf *config.Config) (*Handler, error) {
 	gin.SetMode(gin.ReleaseMode)
 	if cnf == nil {
 		return nil, errors.New("config is nil")
+	}
+
+	pub, err := pubsub.New(ctx, cnf.ProjectID)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create pubsub service")
 	}
 
 	pool, err := data.GetPool(ctx, cnf.Store.URI)
@@ -39,12 +37,13 @@ func New(ctx context.Context, cnf *config.Config) (*Handler, error) {
 	}
 
 	h := &Handler{
-		Name:    cnf.Name,
-		Version: cnf.Version,
-		Pool:    pool,
-		Router:  gin.New(),
-		Config:  cnf,
-		Meter:   mon,
+		Name:      cnf.Name,
+		Version:   cnf.Version,
+		Pool:      pool,
+		Publisher: pub,
+		Router:    gin.New(),
+		Config:    cnf,
+		Meter:     mon,
 	}
 
 	// middleware
@@ -74,12 +73,13 @@ func New(ctx context.Context, cnf *config.Config) (*Handler, error) {
 
 // Handler is the handler for the API.
 type Handler struct {
-	Name    string
-	Version string
-	Pool    *pgxpool.Pool
-	Router  *gin.Engine
-	Config  *config.Config
-	Meter   metric.Service
+	Name      string
+	Version   string
+	Pool      *pgxpool.Pool
+	Router    *gin.Engine
+	Config    *config.Config
+	Publisher *pubsub.Publisher
+	Meter     metric.Service
 }
 
 // Close closes all resources used by the handler.

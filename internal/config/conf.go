@@ -8,6 +8,10 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type PubSub struct {
+	Topic string `yaml:"topic"`
+}
+
 type Store struct {
 	URI string `yaml:"uri"`
 }
@@ -30,6 +34,7 @@ type Config struct {
 	ProjectID string  `yaml:"project_id"`
 	Runtime   Runtime `yaml:"runtime"`
 	Store     Store   `yaml:"store"`
+	PubSub    PubSub  `yaml:"pubsub"`
 	App       App     `yaml:"app"`
 }
 
