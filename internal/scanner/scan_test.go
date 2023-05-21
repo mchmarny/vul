@@ -17,7 +17,7 @@ func TestAllScanners(t *testing.T) {
 	assert.NoError(t, os.Mkdir(dir, 0755))
 	defer os.RemoveAll(dir)
 
-	img := "docker.io/redis@sha256:7b83a0167532d4320a87246a815a134e19e31504d85e8e55f0bb5bb9edf70448"
+	img := "docker.io/redis"
 
 	cnf := config.Scanner{}
 

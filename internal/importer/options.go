@@ -27,14 +27,14 @@ func ParseOptions(img, file string, pool *pgxpool.Pool) (*Options, error) {
 	}
 
 	var err error
-	if !strings.Contains(img, "@") {
+	if !strings.Contains(o.Image, "@") {
 		o.Image, err = parser.GetDigest(o.Image)
 		if err != nil {
 			return nil, errors.Wrap(err, "error getting digest")
 		}
 	}
 
-	parts := strings.Split(img, "@")
+	parts := strings.Split(o.Image, "@")
 	o.ImageURI = parts[0]
 	o.ImageDigest = parts[1]
 

@@ -3,21 +3,12 @@ package scanner
 import (
 	"bytes"
 	"os"
-	"os/exec"
-	"path"
+	"strings"
 	"sync"
 
 	"github.com/mchmarny/vul/internal/config"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
-)
-
-const (
-	numberOfScanners = 3
-
-	TrivyReportName = "trivy.json"
-	SnykReportName  = "snyk.json"
-	GrypeReportName = "grype.json"
 )
 
 // Scan runs vulnerability scan on the provided image.
@@ -26,17 +17,14 @@ func Scan(cnf config.Scanner, imageURI, targetDirPath string) ([]string, error) 
 
 	var wg sync.WaitGroup
 
-	f1 := path.Join(targetDirPath, TrivyReportName)
-	wg.Add(1)
-	go runCmd(&wg, makeTrivyCmd(imageURI, f1), f1, cnf.EnvVars)
+	commands := makeScannerCommands(imageURI, targetDirPath)
+	list := make([]string, 0, len(commands))
 
-	f2 := path.Join(targetDirPath, SnykReportName)
-	wg.Add(1)
-	go runCmd(&wg, makeSnykCmd(imageURI, f2), f2, cnf.EnvVars)
-
-	f3 := path.Join(targetDirPath, GrypeReportName)
-	wg.Add(1)
-	go runCmd(&wg, makeGrypeCmd(imageURI, f3), f3, cnf.EnvVars)
+	for _, c := range commands {
+		wg.Add(1)
+		list = append(list, c.path)
+		go runCmd(&wg, c, cnf.EnvVars)
+	}
 
 	wg.Wait()
 
@@ -45,36 +33,41 @@ func Scan(cnf config.Scanner, imageURI, targetDirPath string) ([]string, error) 
 		return nil, errors.Wrap(err, "error reading scan dir")
 	}
 
-	if len(files) != numberOfScanners {
-		return nil, errors.Errorf("expected %d files, got %d, see logs for details", numberOfScanners, len(files))
-	}
-
-	list := make([]string, 0, numberOfScanners)
-	for _, f := range files {
-		list = append(list, path.Join(targetDirPath, f.Name()))
+	if len(files) != len(commands) {
+		return nil, errors.Errorf("expected %d files, got %d, see logs for details", len(commands), len(files))
 	}
 
 	return list, nil
 }
 
-func runCmd(wg *sync.WaitGroup, cmd *exec.Cmd, path string, envVars []string) {
+func runCmd(wg *sync.WaitGroup, c *scannerCmd, envVars []string) {
 	defer wg.Done()
-	var outb, errb bytes.Buffer
-	cmd.Stdout = &outb
-	cmd.Stderr = &errb
-	if len(envVars) > 0 {
-		cmd.Env = append(cmd.Env, envVars...)
-	}
-	err := cmd.Run()
 
-	if _, e := os.Stat(path); errors.Is(e, os.ErrNotExist) {
+	log.Debug().
+		Str("name", c.name).
+		Str("report", c.path).
+		Str("cmd", c.cmd.String()).
+		Str("env", strings.Join(envVars, ",")).
+		Msg("running scanner")
+
+	var outb, errb bytes.Buffer
+	c.cmd.Stdout = &outb
+	c.cmd.Stderr = &errb
+	if len(envVars) > 0 {
+		c.cmd.Env = append(c.cmd.Env, envVars...)
+	}
+
+	err := c.cmd.Run()
+	if _, e := os.Stat(c.path); errors.Is(e, os.ErrNotExist) {
 		// only err if the file doesn't exist
 		// some scanners (snyk) will return 1 when they find vulnerabilities
 		log.Error().
 			Err(err).
-			Str("cmd", cmd.String()).
+			Str("name", c.name).
+			Str("report", c.path).
+			Str("cmd", c.cmd.String()).
 			Str("out", outb.String()).
 			Str("err", errb.String()).
-			Msgf("error executing scanner command")
+			Msgf("error executing %s scanner command", c.name)
 	}
 }
