@@ -40,7 +40,7 @@ func Scan(cnf config.Scanner, imageURI, targetDirPath string) ([]string, error) 
 	return list, nil
 }
 
-func runCmd(wg *sync.WaitGroup, c *scannerCmd, envVars []string) {
+func runCmd(wg *sync.WaitGroup, c scannerCmd, envVars []string) {
 	defer wg.Done()
 
 	log.Debug().

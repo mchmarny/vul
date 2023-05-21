@@ -22,42 +22,42 @@ func (c *scannerCmd) String() string {
 	return fmt.Sprintf("name:%s, target:%s, cmd:%s", c.name, c.path, c.cmd.String())
 }
 
-func makeScannerCommands(digest, targetPath string) []*scannerCmd {
-	return []*scannerCmd{
+func makeScannerCommands(digest, targetPath string) []scannerCmd {
+	return []scannerCmd{
 		makeTrivyCmd(digest, targetPath),
 		makeSnykCmd(digest, targetPath),
 		makeGrypeCmd(digest, targetPath),
 	}
 }
 
-func makeTrivyCmd(digest, targetPath string) *scannerCmd {
+func makeTrivyCmd(digest, targetPath string) scannerCmd {
 	t := path.Join(targetPath, trivyReportName)
 	c := exec.Command("trivy", "image", "--quiet", "--security-checks", "vuln", "--format", "json", "--no-progress", "--output", t, digest)
 
-	return &scannerCmd{
+	return scannerCmd{
 		name: "trivy",
 		path: t,
 		cmd:  c,
 	}
 }
 
-func makeSnykCmd(digest, targetPath string) *scannerCmd {
+func makeSnykCmd(digest, targetPath string) scannerCmd {
 	t := path.Join(targetPath, snykReportName)
 	jfo := fmt.Sprintf("--json-file-output=%s", t)
 	c := exec.Command("snyk", "container", "test", "--app-vulns", jfo, digest)
 
-	return &scannerCmd{
+	return scannerCmd{
 		name: "snyk",
 		path: t,
 		cmd:  c,
 	}
 }
 
-func makeGrypeCmd(digest, targetPath string) *scannerCmd {
+func makeGrypeCmd(digest, targetPath string) scannerCmd {
 	t := path.Join(targetPath, grypeReportName)
 	c := exec.Command("grype", "-q", "--add-cpes-if-none", "-s", "AllLayers", "-o", "json", "--file", t, digest)
 
-	return &scannerCmd{
+	return scannerCmd{
 		name: "trivy",
 		path: t,
 		cmd:  c,
