@@ -29,7 +29,7 @@ RUN curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/
     | sh -s -- -b /usr/local/bin
 
 # snyk tools (snyk)
-RUN curl -sfL https://static.snyk.io/cli/latest/snyk-linux \
+RUN curl -sfL https://static.snyk.io/cli/latest/snyk-alpine \
     -o /usr/local/bin/snyk && chmod +x /usr/local/bin/snyk
 
 # cleanup

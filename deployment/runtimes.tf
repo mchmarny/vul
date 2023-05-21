@@ -158,7 +158,7 @@ resource "google_cloud_run_service" "worker" {
         resources {
           limits = {
             cpu    = "2000m"
-            memory = "2048Mi"
+            memory = "4096Mi"
           }
         }
         env {
