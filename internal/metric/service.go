@@ -36,7 +36,12 @@ type Service interface {
 // New creates a new metric service instance with the specified configuration.
 func New(projectID, serviceName, serviceVersion string, send bool) (*TimeSeriesService, error) {
 	if projectID == "" || serviceName == "" || serviceVersion == "" {
-		return nil, errors.New("projectID, serviceName, serviceVersion, and environment required")
+		log.Error().
+			Str("projectID", projectID).
+			Str("serviceName", serviceName).
+			Str("serviceVersion", serviceVersion).
+			Msg("required parameters not provided")
+		return nil, errors.New("required parameters not provided")
 	}
 
 	return &TimeSeriesService{

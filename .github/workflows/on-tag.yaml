@@ -159,6 +159,8 @@ jobs:
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+        args: |
+          --build-arg VERSION=${{ env.RELEASE_VERSION }}
 
     - name: Export Digest
       run: |

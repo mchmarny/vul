@@ -15,10 +15,10 @@ output "REGISTRY_URI" {
   description = "Artifact Registry location."
 }
 
-output "SERVICE_URL" {
+output "APP_SERVICE_URL" {
   value = google_cloud_run_service.app.status[0].url
 }
 
-output "SERVICE_IMG" {
+output "APP_SERVICE_IMG" {
   value = "${var.app_img_uri}:${data.template_file.version.rendered}"
 }
