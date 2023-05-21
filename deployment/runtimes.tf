@@ -117,6 +117,8 @@ resource "google_cloud_run_service" "app" {
     percent         = 100
     latest_revision = true
   }
+
+  depends_on = [google_secret_manager_secret_version.config_secret_version]
 }
 
 resource "google_cloud_run_service_iam_member" "app-public-access" {
@@ -205,6 +207,8 @@ resource "google_cloud_run_service" "worker" {
     percent         = 100
     latest_revision = true
   }
+
+  depends_on = [google_secret_manager_secret_version.config_secret_version]
 }
 
 resource "google_cloud_run_service_iam_member" "worker_service_run_invoker" {
