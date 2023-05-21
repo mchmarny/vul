@@ -7,6 +7,7 @@ import (
 	"path"
 	"sync"
 
+	"github.com/mchmarny/vul/internal/config"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )
@@ -20,22 +21,22 @@ const (
 )
 
 // Scan runs vulnerability scan on the provided image.
-func Scan(imageURI, targetDirPath string) ([]string, error) {
+func Scan(cnf config.Scanner, imageURI, targetDirPath string) ([]string, error) {
 	log.Info().Msgf("scanning image %s to %s", imageURI, targetDirPath)
 
 	var wg sync.WaitGroup
 
 	f1 := path.Join(targetDirPath, TrivyReportName)
 	wg.Add(1)
-	go runCmd(&wg, makeTrivyCmd(imageURI, f1), f1)
+	go runCmd(&wg, makeTrivyCmd(imageURI, f1), f1, cnf.EnvVars)
 
 	f2 := path.Join(targetDirPath, SnykReportName)
 	wg.Add(1)
-	go runCmd(&wg, makeSnykCmd(imageURI, f2), f2)
+	go runCmd(&wg, makeSnykCmd(imageURI, f2), f2, cnf.EnvVars)
 
 	f3 := path.Join(targetDirPath, GrypeReportName)
 	wg.Add(1)
-	go runCmd(&wg, makeGrypeCmd(imageURI, f3), f3)
+	go runCmd(&wg, makeGrypeCmd(imageURI, f3), f3, cnf.EnvVars)
 
 	wg.Wait()
 
@@ -56,11 +57,14 @@ func Scan(imageURI, targetDirPath string) ([]string, error) {
 	return list, nil
 }
 
-func runCmd(wg *sync.WaitGroup, cmd *exec.Cmd, path string) {
+func runCmd(wg *sync.WaitGroup, cmd *exec.Cmd, path string, envVars []string) {
 	defer wg.Done()
 	var outb, errb bytes.Buffer
 	cmd.Stdout = &outb
 	cmd.Stderr = &errb
+	if len(envVars) > 0 {
+		cmd.Env = append(cmd.Env, envVars...)
+	}
 	err := cmd.Run()
 
 	if _, e := os.Stat(path); errors.Is(e, os.ErrNotExist) {

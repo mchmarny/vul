@@ -1,9 +1,10 @@
 locals {
   # List of roles that will be assigned to the runner service account
   runner_roles = toset([
+    "roles/cloudsql.client",
     "roles/iam.serviceAccountTokenCreator",
     "roles/monitoring.metricWriter",
-    "roles/cloudsql.client",
+    "roles/pubsub.publisher",
   ])
 }
 
@@ -155,7 +156,7 @@ resource "google_cloud_run_service" "worker" {
         resources {
           limits = {
             cpu    = "2000m"
-            memory = "512Mi"
+            memory = "2048Mi"
           }
         }
         env {
@@ -179,7 +180,7 @@ resource "google_cloud_run_service" "worker" {
       }
 
       container_concurrency = 1
-      timeout_seconds       = 300
+      timeout_seconds       = 600
       service_account_name  = google_service_account.runner_service_account.email
     }
     metadata {
@@ -204,4 +205,12 @@ resource "google_cloud_run_service" "worker" {
     percent         = 100
     latest_revision = true
   }
+}
+
+resource "google_cloud_run_service_iam_member" "worker_service_run_invoker" {
+  role     = "roles/run.invoker"
+  member   = "serviceAccount:${google_service_account.runner_service_account.email}"
+  location = google_cloud_run_service.worker.location
+  project  = google_cloud_run_service.worker.project
+  service  = google_cloud_run_service.worker.name
 }

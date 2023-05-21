@@ -31,7 +31,7 @@ func (h *Handler) processImage(ctx context.Context, imageURI string) error {
 	}
 
 	// scan image using digest into the temp dir
-	reports, err := scanner.Scan(imageDigest, dir)
+	reports, err := scanner.Scan(h.Config.Worker.Scanner, imageDigest, dir)
 	if err != nil {
 		return errors.Wrap(err, "error scanning image")
 	}

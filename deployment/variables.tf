@@ -53,3 +53,11 @@ variable "db_conn_uri" {
   type        = string
   nullable    = false
 }
+
+variable "pubsub_worker_queue" {
+  description = "Topic name for worker queue"
+  type        = string
+  nullable    = false
+}
+
+

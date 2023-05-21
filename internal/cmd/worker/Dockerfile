@@ -20,16 +20,17 @@ WORKDIR /
 RUN echo -e "\nhttp://dl-cdn.alpinelinux.org/alpine/v3.18/community" >> /etc/apk/repositories
 RUN apk add --update bash curl jq cosign
 
-# anchore tools 
-RUN curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh \
-    | sh -s -- -b /usr/local/bin
-
+# anchore tools (grype)
 RUN curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh \
     | sh -s -- -b /usr/local/bin
 
-# aquasecurity
+# aquasecurity tools (trivy)
 RUN curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
     | sh -s -- -b /usr/local/bin
+
+# snyk tools (snyk)
+RUN curl -sfL https://static.snyk.io/cli/latest/snyk-linux \
+    -o /usr/local/bin/snyk && chmod +x /usr/local/bin/snyk
 
 # cleanup
 RUN rm -rf /var/cache/apk/*

@@ -4,6 +4,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/mchmarny/vul/internal/config"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,7 +19,9 @@ func TestAllScanners(t *testing.T) {
 
 	img := "docker.io/redis@sha256:7b83a0167532d4320a87246a815a134e19e31504d85e8e55f0bb5bb9edf70448"
 
-	Scan(img, dir)
+	cnf := config.Scanner{}
+
+	Scan(cnf, img, dir)
 
 	files, err := os.ReadDir(dir)
 	assert.NoError(t, err)

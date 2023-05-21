@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -u
+set -e
+
+SERVICE_PATH="/api/v1/queue"
+
+SERVICE_URL=$(gcloud beta run services describe vul-worker \
+    --region us-west1 \
+    --platform managed \
+    --format "value(status.url)")
+
+echo "Service URL: ${SERVICE_URL}${SERVICE_PATH}"
+
+curl -X POST \
+     -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+     "${SERVICE_URL}${SERVICE_PATH}"

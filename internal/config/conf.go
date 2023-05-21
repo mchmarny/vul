@@ -28,6 +28,14 @@ type App struct {
 	ImageVersionLimit int `yaml:"image_version_limit"`
 }
 
+type Worker struct {
+	Scanner Scanner `yaml:"scanner"`
+}
+
+type Scanner struct {
+	EnvVars []string `yaml:"env_vars"`
+}
+
 // Config represents app config object.
 type Config struct {
 	Name      string  `yaml:"name"`
@@ -37,6 +45,7 @@ type Config struct {
 	Store     Store   `yaml:"store"`
 	PubSub    PubSub  `yaml:"pubsub"`
 	App       App     `yaml:"app"`
+	Worker    Worker  `yaml:"worker"`
 }
 
 // ReadFromEnvVarFile reads app config from file path in env var CONFIG.
