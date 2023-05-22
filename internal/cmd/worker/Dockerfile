@@ -17,7 +17,7 @@ FROM $FINAL_BASE
 WORKDIR /
 
 # packages
-RUN apt-get update && apt-get install -y bash jq cosign && rm -rf /var/lib/apt/lists/*
+RUN apt-get -y update && apt-get -y upgrade && apt-get -y install curl
 
 # anchore tools (grype)
 RUN curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh \
