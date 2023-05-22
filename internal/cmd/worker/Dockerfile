@@ -1,6 +1,6 @@
 
-ARG BUILD_BASE=cgr.dev/chainguard/go
-ARG FINAL_BASE=cgr.dev/chainguard/alpine-base
+ARG BUILD_BASE=golang:latest
+ARG FINAL_BASE=alpine:latest
 
 FROM $BUILD_BASE AS builder
 WORKDIR /src/
@@ -18,7 +18,7 @@ WORKDIR /
 
 # packages
 RUN echo -e "\nhttp://dl-cdn.alpinelinux.org/alpine/v3.18/community" >> /etc/apk/repositories
-RUN apk add --update bash curl jq cosign
+RUN apk add --update bash curl jq cosign libstdc++
 
 # anchore tools (grype)
 RUN curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh \
@@ -29,7 +29,7 @@ RUN curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/
     | sh -s -- -b /usr/local/bin
 
 # snyk tools (snyk)
-RUN curl -sfL https://static.snyk.io/cli/latest/snyk-alpine \
+RUN curl -sfL https://static.snyk.io/cli/latest/snyk-linux \
     -o /usr/local/bin/snyk && chmod +x /usr/local/bin/snyk
 
 # cleanup

@@ -59,6 +59,7 @@ image: ## Builds container image
 worker: ## Builds worker container image
 	docker build \
 		--build-arg VERSION=$(VERSION) \
+		--platform linux/amd64 \
 		-f internal/cmd/worker/Dockerfile \
 		-t worker:$(VERSION) \
 		.
