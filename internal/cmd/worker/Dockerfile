@@ -1,6 +1,6 @@
 
 ARG BUILD_BASE=golang:latest
-ARG FINAL_BASE=cgr.dev/chainguard/alpine-base:latest
+ARG FINAL_BASE=ubuntu:latest
 
 FROM $BUILD_BASE AS builder
 WORKDIR /src/
@@ -17,9 +17,7 @@ FROM $FINAL_BASE
 WORKDIR /
 
 # packages
-RUN echo -e "\nhttp://dl-cdn.alpinelinux.org/alpine/v3.18/community" >> /etc/apk/repositories
-RUN apk add --update bash curl jq cosign libstdc++ gcompat libc6-compat \
-    && rm -rf /var/cache/apk/*
+RUN apt-get update && apt-get install -y bash jq cosign && rm -rf /var/lib/apt/lists/*
 
 # anchore tools (grype)
 RUN curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh \
