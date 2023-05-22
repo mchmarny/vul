@@ -1,6 +1,6 @@
 
 ARG BUILD_BASE=golang:latest
-ARG FINAL_BASE=alpine:latest
+ARG FINAL_BASE=cgr.dev/chainguard/alpine-base:latest
 
 FROM $BUILD_BASE AS builder
 WORKDIR /src/
@@ -18,9 +18,13 @@ WORKDIR /
 
 # packages
 RUN echo -e "\nhttp://dl-cdn.alpinelinux.org/alpine/v3.18/community" >> /etc/apk/repositories
-RUN apk add --update bash curl jq cosign libstdc++
+RUN apk add --update bash curl jq cosign libstdc++ gcompat libc6-compat \
+    && rm -rf /var/cache/apk/*
 
 # anchore tools (grype)
+RUN curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh \
+    | sh -s -- -b /usr/local/bin
+
 RUN curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh \
     | sh -s -- -b /usr/local/bin
 
@@ -29,11 +33,8 @@ RUN curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/
     | sh -s -- -b /usr/local/bin
 
 # snyk tools (snyk)
-RUN curl -sfL https://static.snyk.io/cli/latest/snyk-linux \
+RUN curl -sfL https://github.com/snyk/cli/releases/latest/download/snyk-linux \
     -o /usr/local/bin/snyk && chmod +x /usr/local/bin/snyk
-
-# cleanup
-RUN rm -rf /var/cache/apk/*
 
 COPY --from=builder /src/worker /worker
 ENTRYPOINT ["/worker"]
