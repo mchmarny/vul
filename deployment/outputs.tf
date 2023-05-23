@@ -23,14 +23,6 @@ output "APP_SERVICE_IMG" {
   value = "${var.app_img_uri}:${data.template_file.version.rendered}"
 }
 
-output "WORKER_SERVICE_URL" {
-  value = google_cloud_run_service.worker.status[0].url
-}
-
-output "WORKER_SERVICE_IMG" {
-  value = "${var.worker_img_uri}:${data.template_file.version.rendered}"
-}
-
 output "SECRET_VERSION" {
   value = "${google_secret_manager_secret.config_secret.secret_id}:latest"
 }

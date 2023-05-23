@@ -36,12 +36,6 @@ variable "app_img_uri" {
   nullable    = false
 }
 
-variable "worker_img_uri" {
-  description = "worker container image to deploy"
-  type        = string
-  nullable    = false
-}
-
 variable "config_secret_version" {
   description = "secret manager version to use"
   type        = string
@@ -53,11 +47,4 @@ variable "db_conn_uri" {
   type        = string
   nullable    = false
 }
-
-variable "pubsub_worker_queue" {
-  description = "Topic name for worker queue"
-  type        = string
-  nullable    = false
-}
-
 
