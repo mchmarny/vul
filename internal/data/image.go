@@ -21,7 +21,7 @@ var (
 						COUNT(DISTINCT package) packages, 
 						COUNT(exposure) exposures,
 						COUNT(DISTINCT exposure) unique_exposures,
-						COUNT(exposure) FILTER (where fixed = true) fixed,
+						COUNT(DISTINCT exposure) FILTER (where fixed = true) fixed,
 						COUNT(severity) FILTER (where severity = 'negligible') negligible,
 						COUNT(severity) FILTER (where severity = 'low') low,
 						COUNT(severity) FILTER (where severity = 'medium') medium,
