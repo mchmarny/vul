@@ -17,7 +17,7 @@ var (
 						SUM(CASE WHEN source = 'trivy' THEN 1 ELSE 0 END) trivy,
 						SUM(CASE WHEN source = 'snyk' THEN 1 ELSE 0 END) snyk
 					  FROM (
-						SELECT DISTINCT imported, source, exposure, severity, package, version
+						SELECT DISTINCT imported, source, package, version
 						FROM vulns
 						WHERE image = $1 
 						AND imported >= $2
