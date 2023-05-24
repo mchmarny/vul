@@ -27,4 +27,11 @@ output "SECRET_VERSION" {
   value = "${google_secret_manager_secret.config_secret.secret_id}:latest"
 }
 
+output "DB_IP" {
+  value = google_sql_database_instance.db_instance.ip_address.0.ip_address
+}
+
+output "DB_NAME" {
+  value = "postgres://${google_sql_database_instance.db_instance.ip_address.0.ip_address}:5432/${var.name}?sslmode=verify-ca&sslrootcert=ca.pem&sslcert=cert.pem&sslkey=key.pem"
+}
 

@@ -48,3 +48,8 @@ variable "db_conn_uri" {
   nullable    = false
 }
 
+variable "db_machine_type" {
+  description = "Cloud SQL tier"
+  type        = string
+  default     = "db-custom-2-7680"
+}

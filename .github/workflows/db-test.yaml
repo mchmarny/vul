@@ -1,0 +1,58 @@
+name: db-test
+
+on:
+  workflow_dispatch:
+    inputs:
+      docker_ctx:
+        description: 'Build context (default: examples/apps/django/)'
+        required: false
+        type: string
+        default: examples/apps/django/
+
+permissions:
+  contents: read
+
+env:
+  PROVIDER_ID: "projects/595203407878/locations/global/workloadIdentityPools/vul-gh/providers/github-provider"
+  SA_EMAIL: "vul-github-actions-user@s3cme1.iam.gserviceaccount.com"
+
+jobs:
+
+  init:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+    steps:
+
+    - name: Checkout Code
+      uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab  # v3.5.2
+
+    - name: Get GCP token
+      id: auth
+      uses: google-github-actions/auth@35b0e87d162680511bf346c299f71c9c5c379033  # v1.1.1
+      with:
+        token_format: "access_token"
+        workload_identity_provider: ${{ env.PROVIDER_ID }}
+        service_account: ${{ env.SA_EMAIL }}
+
+    - name: Setup Keys
+      run: |
+        mkdir -p keys
+        echo "${{ secrets.DB_CLIENT_KEY }}" > keys/private_key.key
+        echo "${{ secrets.DB_CLIENT_PEM }}" > keys/public_cert.key
+        echo "${{ secrets.DB_CA_PEM }}" > keys/server_ca.key
+
+    # - name: Setup DB
+    #   working-directory: tools/db/sql
+    #   env:
+    #     PGPASSWORD: test
+    #   run: |
+    #     psql -h localhost -d vimp -U vimp < ddl.sql
+    #     psql -h localhost -d vimp -U vimp < test.sql
+
+    - name: Cleanup Keys
+      if: always()
+      run: |
+        rm -rf keys

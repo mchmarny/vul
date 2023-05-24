@@ -5,6 +5,8 @@ DIR="$(dirname "$0")"
 
 NOW=$(date +%s)
 
+# TODO: Update to the new DB type
+
 gcloud sql export sql db gs://$DB_BUCKET/$NOW.gz -d vimp
 gsutil cp gs://$DB_BUCKET/$NOW.gz tools/db/dump/
 gzip -d tools/db/dump/$NOW.gz
