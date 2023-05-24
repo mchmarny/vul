@@ -10,6 +10,7 @@ export NODE_HD="100GB" #initial only, will auto-grow
 export DB_NAME="vul"
 export DB_USER="app"
 export DB_VERSION="POSTGRES_14"
+export DB_BUCKET="vuln-db-dumps"
 
 # derived
 export PROJECT=$(gcloud config get-value project)

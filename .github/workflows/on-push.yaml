@@ -53,11 +53,6 @@ jobs:
           ${{ runner.os }}-go-
     - name: Checkout Code
       uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab  # v3.4.0
-    - name: Setup DB
-      run: psql -d postgres://vimp:test@localhost:5432/vimp -f ddl.sql
-      working-directory: tools/db/sql
-      env:
-        PGPASSWORD: test
     - name: Tidy Modules
       run: |
         make tidy
@@ -82,9 +77,12 @@ jobs:
       with:
         yamllint_config_filepath: .yamllint
     - name: Setup DB
-      run: psql -h localhost -d vimp -U vimp < tools/db/test/data
+      working-directory: tools/db/sql
       env:
         PGPASSWORD: test
+      run: |
+        psql -h localhost -d vimp -U vimp < ddl.sql
+        psql -h localhost -d vimp -U vimp < test.sql
     - name: Unit Test
       run: |
         make test

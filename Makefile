@@ -1,8 +1,6 @@
 VERSION    :=$(shell cat .version)
 YAML_FILES :=$(shell find . ! -path "./vendor/*" ! -path "./deployment/*" -type f -regex ".*\.yaml" -print)
 REG_URI    :=us-west1-docker.pkg.dev/s3cme1/vul
-DB_BUCKET  :=vuln-db-dumps
-NOW        ?=$(shell date +%s)
 
 all: help
 
@@ -96,14 +94,7 @@ db: ## Runs postgres DB as a container
 
 .PHONY: dbrestre
 dbrestre: ## Restores Cloud SQL DB locally
-	gcloud sql export sql db gs://$(DB_BUCKET)/$(NOW).gz -d vimp
-	gsutil cp gs://$(DB_BUCKET)/$(NOW).gz tools/db/dump/
-	gzip -d tools/db/dump/$(NOW).gz
-	PGPASSWORD=test psql -h localhost -U vimp -d vimp < tools/db/sql/pre-restore.sql
-	PGPASSWORD=test psql -h localhost -U vimp -d vimp < tools/db/dump/$(NOW)
-	PGPASSWORD=test psql -h localhost -U vimp -d vimp < tools/db/sql/post-restore.sql
-	gsutil rm gs://$(DB_BUCKET)/$(NOW).gz
-	rm tools/db/dump/$(NOW)
+	tools/db/restore
 
 .PHONY: dbconn
 dbconn: ## Connect to remote db
