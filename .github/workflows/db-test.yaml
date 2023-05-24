@@ -60,11 +60,11 @@ jobs:
         service_account: ${{ env.SA_EMAIL }}
 
     - name: Start Proxy
-      run: cloud-sql-proxy "s3cme1:us-west1:vul?port=5432" &
+      run: cloud-sql-proxy "s3cme1:us-west1:vimp?port=5432" &
 
     - name: Test Connection
       run: |
-        psql "host=127.0.0.1 port=5432 sslmode=disable dbname=vul" -c "SELECT 1;"
+        psql "host=127.0.0.1 port=5432 sslmode=disable dbname=db" -c "SELECT 1;"
 
     # - name: Setup Keys
     #   run: |
