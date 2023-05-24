@@ -43,6 +43,8 @@ jobs:
         echo "${{ secrets.DB_CLIENT_KEY }}" > keys/private_key.key
         echo "${{ secrets.DB_CLIENT_PEM }}" > keys/public_cert.key
         echo "${{ secrets.DB_CA_PEM }}" > keys/server_ca.key
+        ls -la keys
+        chmod 600 keys/*
 
     # - name: Setup DB
     #   working-directory: tools/db/sql
