@@ -15,6 +15,7 @@ permissions:
 env:
   PROVIDER_ID: "projects/595203407878/locations/global/workloadIdentityPools/vul-gh/providers/github-provider"
   SA_EMAIL: "vul-github-actions-user@s3cme1.iam.gserviceaccount.com"
+  GO_VERSION: "1.20.4"
 
 jobs:
 
@@ -26,8 +27,29 @@ jobs:
       id-token: write
     steps:
 
+    - name: Setup Go
+      uses: actions/setup-go@fac708d6674e30b6ba41289acaab6d4b75aa0753  # v4.0.1
+      with:
+        go-version: '${{ env.GO_VERSION }}'
+
+    - run: go version
+
+    - name: Cache Go Modules
+      uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8  # v3.3.1
+      with:
+        path: |
+          ~/go/pkg/mod
+          ~/.cache/go-build
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
     - name: Checkout Code
       uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab  # v3.5.2
+
+    - name: Install Proxy
+      run: |
+        go install github.com/GoogleCloudPlatform/cloud-sql-proxy/v2@latest
 
     - name: Get GCP token
       id: auth
@@ -37,24 +59,32 @@ jobs:
         workload_identity_provider: ${{ env.PROVIDER_ID }}
         service_account: ${{ env.SA_EMAIL }}
 
-    - name: Setup Keys
+    - name: Start Proxy
+      run: cloud-sql-proxy --port 5432 "s3cme1:us-west1:vul"
+
+    - name: Test Connection
       run: |
-        mkdir -p keys
-        echo "${{ secrets.DB_CLIENT_KEY }}" > keys/private_key.key
-        echo "${{ secrets.DB_CLIENT_PEM }}" > keys/public_cert.key
-        echo "${{ secrets.DB_CA_PEM }}" > keys/server_ca.key
-        ls -la keys
-        chmod 600 keys/*
+        psql "host=127.0.0.1 sslmode=disable dbname=vul"
+
+    # - name: Setup Keys
+    #   run: |
+    #     mkdir -p keys
+    #     echo "${{ secrets.DB_CLIENT_KEY }}" > keys/private_key.key
+    #     echo "${{ secrets.DB_CLIENT_PEM }}" > keys/public_cert.key
+    #     echo "${{ secrets.DB_CA_PEM }}" > keys/server_ca.key
+    #     chmod 600 keys/*
+    #     ls -la keys
 
     # - name: Setup DB
     #   working-directory: tools/db/sql
     #   env:
     #     PGPASSWORD: test
     #   run: |
+    #     PGPASSWORD=$(<"${CONF_DIR}/root_password") psql "sslmode=verify-ca sslrootcert=${CONF_DIR}/ca.pem sslcert=${CONF_DIR}/client.pem sslkey=${CONF_DIR}/client.key hostaddr=${INSTANCE_IP} port=5432 user=postgres dbname=${DB_NAME}"
     #     psql -h localhost -d vimp -U vimp < ddl.sql
     #     psql -h localhost -d vimp -U vimp < test.sql
 
-    - name: Cleanup Keys
-      if: always()
-      run: |
-        rm -rf keys
+    # - name: Cleanup Keys
+    #   if: always()
+    #   run: |
+    #     rm -rf keys

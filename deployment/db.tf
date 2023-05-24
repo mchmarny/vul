@@ -24,6 +24,16 @@ resource "google_sql_database_instance" "db_instance" {
       value = "on"
     }
 
+    database_flags {
+      name  = "cloudsql.enable_pgaudit"
+      value = "on"
+    }
+
+    database_flags {
+      name  = "pgaudit.log"
+      value = "all"
+    }
+
     ip_configuration {
       authorized_networks {
         value = "0.0.0.0/0"
