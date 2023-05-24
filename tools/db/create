@@ -1,0 +1,78 @@
+#!/bin/bash
+
+DIR="$(dirname "$0")"
+. "${DIR}/config"
+
+# api 
+gcloud services enable --quiet \
+    iam.googleapis.com \
+    sqladmin.googleapis.com
+
+# passwords
+mkdir -p $CONF_DIR
+
+ROOT_PASSWORD=$(openssl rand -base64 32)
+echo "${ROOT_PASSWORD}" > "${CONF_DIR}/root_password"
+
+APP_PASSWORD=$(openssl rand -base64 32)
+echo "${APP_PASSWORD}" > "${CONF_DIR}/app_password"
+
+echo "root and app user passwords saved in: ${CONF_DIR}"
+
+# instance
+gcloud sql instances create $INSTANCE \
+    --database-version $DB_VERSION \
+    --cpu $NUMBER_CPUS \
+    --memory $MEMORY_SIZE \
+    --require-ssl \
+    --authorized-networks 0.0.0.0/0 \
+    --activation-policy ALWAYS \
+    --availability-type zonal \
+    --zone $NODE_ZONE \
+    --storage-size $NODE_HD \
+    --storage-type SSD \
+    --storage-auto-increase
+
+# database
+gcloud sql databases create $DB_NAME \
+    --instance $INSTANCE
+
+# reset root password
+gcloud sql users set-password postgres \
+    --instance $INSTANCE \
+    --password=$(<"${CONF_DIR}/root_password")
+
+# create an app user
+gcloud sql users create $DB_USER \
+    --instance $INSTANCE \
+    --password=$(<"${CONF_DIR}/app_password")
+
+# client key
+rm -f "${CONF_DIR}/client.key"
+gcloud sql ssl client-certs create client \
+    "${CONF_DIR}/client.key" \
+    --instance $INSTANCE
+
+# client cert
+gcloud sql ssl client-certs describe client \
+    --instance $INSTANCE \
+    --format 'value(cert)' > "${CONF_DIR}/client.pem"
+
+# server ca
+gcloud sql instances describe $INSTANCE \
+    --format 'value(serverCaCert.cert)' > "${CONF_DIR}/ca.pem"
+
+echo "Client keys saved in: ${CONF_DIR}"
+
+# secret 
+INSTANCE_IP=$(gcloud sql instances describe ${INSTANCE} \
+    --format='value(ipAddresses[0].ipAddress)')
+
+printf "postgres://${DB_USER}:${APP_PASSWORD}@${INSTANCE_IP}:5432/${DB_NAME}?sslmode=verify-ca&sslrootcert=ca.pem&sslcert=client.pem&sslkey=client.key" | gcloud secrets create "${INSTANCE}-conn-str" --data-file=-
+
+
+gcloud secrets create "${INSTANCE}-sslrootcert" --data-file="${CONF_DIR}/ca.pem"
+gcloud secrets create "${INSTANCE}-sslcert" --data-file="${CONF_DIR}/client.pem"
+gcloud secrets create "${INSTANCE}-sslkey" --data-file="${CONF_DIR}/client.key"
+
+echo "Secrets created"
