@@ -60,7 +60,7 @@ jobs:
         service_account: ${{ env.SA_EMAIL }}
 
     - name: Start Proxy
-      run: cloud-sql-proxy --port 5432 "s3cme1:us-west1:vul"
+      run: cloud-sql-proxy --port 5432 --token ${{ steps.auth.outputs.token }} "s3cme1:us-west1:vul" &
 
     - name: Test Connection
       run: |
