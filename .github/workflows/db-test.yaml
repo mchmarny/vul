@@ -64,7 +64,7 @@ jobs:
 
     - name: Test Connection
       run: |
-        psql "host=127.0.0.1 sslmode=disable dbname=vul"
+        psql "host=127.0.0.1 port=5432 sslmode=disable dbname=vul" -c "SELECT 1;"
 
     # - name: Setup Keys
     #   run: |
