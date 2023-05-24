@@ -3,23 +3,11 @@ package data
 import (
 	"context"
 	"database/sql"
-	"embed"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
-)
-
-const (
-	sqlVulnsTableExists = `SELECT EXISTS (
-			SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename  = 'vulns'
-		)`
-)
-
-var (
-	//go:embed sql/*
-	f embed.FS
 )
 
 func GetPool(ctx context.Context, uri string) (*pgxpool.Pool, error) {
@@ -40,25 +28,6 @@ func GetPool(ctx context.Context, uri string) (*pgxpool.Pool, error) {
 
 	if err := conn.Ping(ctx); err != nil {
 		return nil, errors.Wrapf(err, "failed to ping database")
-	}
-
-	// check if table exists
-	var exists bool
-	if err := conn.QueryRow(ctx, sqlVulnsTableExists).Scan(&exists); err != nil {
-		return nil, errors.Wrapf(err, "failed to scan table name")
-	}
-
-	if !exists {
-		log.Info().Msg("vulns table does not exist, creating...")
-
-		b, err := f.ReadFile("sql/ddl.sql")
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to read the schema creation file")
-		}
-
-		if _, err := conn.Exec(ctx, string(b)); err != nil {
-			return nil, errors.Wrapf(err, "failed to create database schema in: %s", uri)
-		}
 	}
 
 	return pool, nil
