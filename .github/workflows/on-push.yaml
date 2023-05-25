@@ -16,7 +16,7 @@ env:
   LINTER_VERSION: v1.52
   DB_NAME: vul
   DB_USER: postgres
-  DB_PASSWORD: test
+  PGPASSWORD: test
 
 jobs:
 
@@ -32,7 +32,7 @@ jobs:
           POSTGRES_PORT: 5432
           POSTGRES_USER: ${{ env.DB_USER }}
           POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
-          POSTGRES_DB: ${{ env.DB_NAME }}
+          POSTGRES_DB: ${{ env.PGPASSWORD }}
         ports:
           - 5432:5432
         options: >-
@@ -90,8 +90,6 @@ jobs:
 
     - name: Setup DB
       working-directory: tools/db/sql
-      env:
-        PGPASSWORD: ${ env.DB_PASSWORD }}
       run: |
         psql -h localhost -d ${{ env.DB_NAME }} -U ${{ env.DB_USER }} < ddl.sql
         psql -h localhost -d ${{ env.DB_NAME }} -U ${{ env.DB_USER }} < test.sql
