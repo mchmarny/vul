@@ -70,6 +70,7 @@ jobs:
         echo "DB_NAME=$(yq .store.db < config.yaml)" >> $GITHUB_ENV
         echo "DB_PASS=$(yq .store.password < config.yaml)" >> $GITHUB_ENV
         echo "SNYK_TOKEN=$(yq .import.snyk_token < config.yaml)" >> $GITHUB_ENV
+        echo "DB_CONN=postgres://postgres:${{ env.DB_PASS }}@/${{ env.DB_NAME }}?host=${{ env.DB_HOST }}" >> $GITHUB_ENV
 
     - name: Start Proxy
       run: cloud-sql-proxy --debug "${{ env.DB_HOST }}?port=5432" &
@@ -79,7 +80,6 @@ jobs:
         PGPASSWORD: ${{ env.DB_PASS }}
       run: |
          psql "host=127.0.0.1 port=5432 sslmode=disable user=postgres dbname=${{ env.DB_NAME }}" -c "SELECT 1;"
-
 
     # grype
     - name: Install grype
@@ -91,13 +91,17 @@ jobs:
           --add-cpes-if-none \
           -s AllLayers \
           -o json \
-          --file ./report.json \
+          --file ./grype.json \
           ${{ inputs.image }} || true
 
     - name: Print grype
       run: |
-        echo "grype: ./report.json"
-        cat ./report.json
+        echo "grype: ./grype.json"
+        bin/importer \
+          --file ./grype.json \
+          --image ${{ inputs.image }} \
+          --conn "${{ env.DB_CONN }}" \
+          --log debug
 
     # trivy
     - name: Scan trivy
@@ -106,14 +110,18 @@ jobs:
         image-ref: ${{ inputs.image }}
         scan-type: image
         format: json
-        output: ./results.json
+        output: ./trivy.json
         hide-progress: true
         scanners: vuln
 
     - name: Print trivy
       run: |
-        echo "trivy: ./results.json"
-        cat ./results.json
+        echo "trivy: ./trivy.json"
+        bin/importer \
+          --file ./trivy.json \
+          --image ${{ inputs.image }} \
+          --conn "${{ env.DB_CONN }}" \
+          --log debug
 
     # snyk
     - name: Scan snyk
@@ -121,9 +129,13 @@ jobs:
       continue-on-error: true  # snyk returns non-zero exit code if vulnerabilities are found
       with:
         image: ${{ inputs.image }}
-        args: --json-file-output=./results.json
+        args: --json-file-output=./snyk.json
 
     - name: Print snyk
       run: |
-        echo "snyk: ./results.json"
-        cat ./results.json
+        echo "snyk: ./snyk.json"
+        bin/importer \
+          --file ./snyk.json \
+          --image ${{ inputs.image }} \
+          --conn "${{ env.DB_CONN }}" \
+          --log debug
