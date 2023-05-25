@@ -53,15 +53,14 @@ jobs:
       id: auth
       uses: google-github-actions/auth@35b0e87d162680511bf346c299f71c9c5c379033  # v1.1.1
       with:
-        token_format: "access_token"
+        token_format: "id_token"
         workload_identity_provider: ${{ env.PROVIDER_ID }}
         service_account: ${{ env.SA_EMAIL }}
+        id_token_audience: "https://www.googleapis.com/auth/cloud-platform"
+        id_token_include_email: true
 
     - name: Start Proxy
-      run: cloud-sql-proxy \
-        --debug \
-        --token ${{ steps.auth.outputs.access_token }} \
-        "s3cme1:us-west1:db?port=5432" &
+      run: cloud-sql-proxy --debug --json-credentials ${{ steps.auth.outputs.id_token }} "s3cme1:us-west1:db?port=5432" &
 
     - name: Test Connection
       run: |
