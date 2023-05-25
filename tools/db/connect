@@ -1,9 +1,8 @@
 #!/bin/bash
 
-DIR="$(dirname "$0")"
-. "${DIR}/config"
+CONFIG_FILE="config/secret-prod.yaml"
 
-export INSTANCE_IP=$(gcloud sql instances describe ${INSTANCE} \
-    --format='value(ipAddresses[0].ipAddress)')
+DB_NAME=$(yq .store.db < $CONFIG_FILE)
+DB_PASS=$(yq .store.password < $CONFIG_FILE)
 
-PGPASSWORD=$(<"${CONF_DIR}/root_password") psql "sslmode=verify-ca sslrootcert=${CONF_DIR}/ca.pem sslcert=${CONF_DIR}/client.pem sslkey=${CONF_DIR}/client.key hostaddr=${INSTANCE_IP} port=5432 user=postgres dbname=${DB_NAME}"
+PGPASSWORD=$DB_PASS psql "host=127.0.0.1 port=5432 sslmode=disable user=postgres dbname=${DB_NAME}"

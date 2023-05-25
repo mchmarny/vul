@@ -85,8 +85,9 @@ db: ## Runs postgres DB as a container
 	docker run \
 		-d \
 		--name postgres \
-		-e POSTGRES_USER=vimp \
+		-e POSTGRES_USER=postgres \
 		-e POSTGRES_PASSWORD=test \
+		-e POSTGRES_DB=vul \
 		-p 5432:5432 \
 		-v $(PWD)/data:/var/lib/postgresql/data \
 		postgres

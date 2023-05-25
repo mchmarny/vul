@@ -1,0 +1,7 @@
+#!/bin/bash
+
+NOW=$(date +%s)
+DB_BUCKET="vuln-db-dumps"
+
+gcloud sql export sql db gs://$DB_BUCKET/$NOW.gz -d vimp
+gcloud sql import sql vul gs://$DB_BUCKET/$NOW.gz -d vul

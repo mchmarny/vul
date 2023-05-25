@@ -1,0 +1,7 @@
+#!/bin/bash
+
+CONFIG_FILE="config/secret-prod.yaml"
+
+DB_HOST=$(yq .store.host < $CONFIG_FILE)
+
+cloud-sql-proxy --debug "${DB_HOST}?port=5432"
