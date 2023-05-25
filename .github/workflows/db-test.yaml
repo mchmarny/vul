@@ -54,7 +54,6 @@ jobs:
       uses: google-github-actions/auth@35b0e87d162680511bf346c299f71c9c5c379033  # v1.1.1
       with:
         token_format: id_token
-        export_environment_variables: true
         create_credentials_file: true
         id_token_include_email: true
         workload_identity_provider: ${{ env.PROVIDER_ID }}
