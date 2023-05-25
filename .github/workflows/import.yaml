@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
     inputs:
       image:
-        description: 'URI of the image to scan/import'
+        description: "URI of the image to scan/import"
         required: false
         type: string
-        default: redis
+        default: "docker.io/openjdk"
 
 permissions:
   contents: read
