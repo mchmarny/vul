@@ -16,5 +16,9 @@ func TestConfig(t *testing.T) {
 	assert.NotEmpty(t, c.Runtime.LogLevel)
 	assert.NotEmpty(t, c.Runtime.ExternalURL)
 	assert.NotNil(t, c.Store)
-	assert.NotEmpty(t, c.Store.URI)
+	assert.NotEmpty(t, c.Store.DB)
+	assert.NotEmpty(t, c.Store.Host)
+	assert.NotEmpty(t, c.Store.Password)
+	assert.NotEmpty(t, c.Store.Type)
+	assert.NotEmpty(t, c.Store.User)
 }

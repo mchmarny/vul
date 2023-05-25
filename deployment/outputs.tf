@@ -32,6 +32,6 @@ output "DB_IP" {
 }
 
 output "DB_NAME" {
-  value = "postgres://${google_sql_database_instance.db_instance.ip_address.0.ip_address}:5432/${var.name}?sslmode=verify-ca&sslrootcert=ca.pem&sslcert=cert.pem&sslkey=key.pem"
+  value = "${var.project_id}:${var.location}:${var.name}"
 }
 

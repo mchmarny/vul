@@ -1,13 +1,8 @@
-resource "random_password" "root_password" {
-  length  = 32
-  special = true
-}
-
 resource "google_sql_database_instance" "db_instance" {
   database_version    = "POSTGRES_14"
   name                = "${var.name}-instance"
   region              = var.location
-  root_password       = random_password.root_password.result
+  root_password       = var.db_password
   deletion_protection = "true"
 
   settings {
@@ -35,39 +30,10 @@ resource "google_sql_database_instance" "db_instance" {
     }
 
     ip_configuration {
-      authorized_networks {
-        value = "0.0.0.0/0"
-      }
       ipv4_enabled = true
-      require_ssl  = true
+      require_ssl  = false
     }
   }
-}
-
-# certs 
-
-data "google_sql_ca_certs" "ca_certs" {
-  instance = google_sql_database_instance.db_instance.name
-}
-
-resource "google_sql_ssl_cert" "client_cert" {
-  common_name = var.name
-  instance    = google_sql_database_instance.db_instance.name
-}
-
-resource "local_file" "private_key" {
-    content  = google_sql_ssl_cert.client_cert.private_key
-    filename = "../keys/private_key.key"
-}
-
-resource "local_file" "public_key" {
-    content  = google_sql_ssl_cert.client_cert.cert
-    filename = "../keys/public_cert.pem"
-}
-
-resource "local_file" "server_ca" {
-    content  = google_sql_ssl_cert.client_cert.server_ca_cert
-    filename = "../keys/server_ca.pem"
 }
 
 # db

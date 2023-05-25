@@ -9,7 +9,12 @@ import (
 )
 
 type Store struct {
-	URI string `yaml:"uri"`
+	Type     string `yaml:"type"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	DB       string `yaml:"db"`
+	Host     string `yaml:"host"`
+	Path     string `yaml:"path"`
 }
 
 type Runtime struct {

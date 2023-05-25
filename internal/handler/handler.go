@@ -39,7 +39,7 @@ func New(ctx context.Context, cnf *config.Config) (*Handler, error) {
 		return nil, errors.New("config is nil")
 	}
 
-	pool, err := data.GetPool(ctx, cnf.Store.URI)
+	pool, err := data.GetPool(ctx, cnf.Store)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create data pool")
 	}
