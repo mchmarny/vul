@@ -61,7 +61,7 @@ jobs:
       run: cloud-sql-proxy \
         --debug \
         --credentials-file ${{ steps.auth.outputs.access_token }} \
-        "s3cme1:us-west1:db?port=5432"" &
+        "s3cme1:us-west1:db?port=5432" &
 
     - name: Test Connection
       run: |
