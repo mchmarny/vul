@@ -28,6 +28,10 @@ type App struct {
 	ImageVersionLimit int `yaml:"image_version_limit"`
 }
 
+type Import struct {
+	SnykToken string `yaml:"snyk_token"`
+}
+
 // Config represents app config object.
 type Config struct {
 	Name      string  `yaml:"name"`
@@ -36,6 +40,7 @@ type Config struct {
 	Runtime   Runtime `yaml:"runtime"`
 	Store     Store   `yaml:"store"`
 	App       App     `yaml:"app"`
+	Import    Import  `yaml:"import"`
 }
 
 // ReadFromEnvVarFile reads app config from file path in env var CONFIG.

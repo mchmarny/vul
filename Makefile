@@ -39,8 +39,8 @@ lint-go: ## Lints the entire project using go
 lint-yaml: ## Runs yamllint on all yaml files (brew install yamllint)
 	yamllint -c .yamllint $(YAML_FILES)
 
-.PHONY: build
-build: tidy ## Builds CLI binary
+.PHONY: app
+app: tidy ## Builds CLI binary
 	mkdir -p ./bin
 	CGO_ENABLED=0 go build -trimpath \
 	-ldflags="-w -s -X main.version=$(RELEASE_VERSION) \
@@ -53,14 +53,13 @@ image: ## Builds container image
     GOFLAGS="-ldflags=-X=main.version=$(VERSION)" \
     ko build internal/cmd/app/main.go --bare --tags $(VERSION)
 
-.PHONY: worker
-worker: ## Builds worker container image
-	docker build \
-		--build-arg VERSION=$(VERSION) \
-		--platform linux/amd64 \
-		-f internal/cmd/worker/Dockerfile \
-		-t worker:$(VERSION) \
-		.
+.PHONY: importer
+importer: tidy ## Builds CLI binary
+	mkdir -p ./bin
+	CGO_ENABLED=0 go build -trimpath \
+	-ldflags="-w -s -X main.version=$(RELEASE_VERSION) \
+	-extldflags '-static'" -mod vendor \
+	-o bin/importer internal/cmd/importer/main.go
 
 .PHONY: vulncheck
 vulncheck: ## Checks for soource vulnerabilities

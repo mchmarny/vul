@@ -1,13 +1,13 @@
-name: db-test
+name: import
 
 on:
   workflow_dispatch:
     inputs:
-      test_connection:
-        description: 'Indicates whether or not to test the DB connection'
+      image_uri:
+        description: 'URI of the image to scan/import'
         required: false
-        type: boolean
-        default: true
+        type: string
+        default: redis
 
 permissions:
   contents: read
@@ -19,7 +19,7 @@ env:
 
 jobs:
 
-  test:
+  import:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -32,8 +32,21 @@ jobs:
       with:
         go-version: '${{ env.GO_VERSION }}'
 
+    - name: Cache Go Modules
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
     - name: Checkout Code
       uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab  # v3.5.2
+
+    - name: Build Importer
+      run: make importer
 
     - name: Install Proxy
       run: |
@@ -56,13 +69,14 @@ jobs:
         echo "DB_HOST=$(yq .store.host < config.yaml)" >> $GITHUB_ENV
         echo "DB_NAME=$(yq .store.db < config.yaml)" >> $GITHUB_ENV
         echo "DB_PASS=$(yq .store.password < config.yaml)" >> $GITHUB_ENV
+        echo "SNYK_TOKEN=$(yq .import.snyk_token < config.yaml)" >> $GITHUB_ENV
 
     - name: Start Proxy
       run: cloud-sql-proxy --debug "${{ env.DB_HOST }}?port=5432" &
 
     - name: Test Connection
       if: ${{ github.event.inputs.test_connection == 'true' }}
-      env: 
+      env:
         PGPASSWORD: ${{ env.DB_PASS }}
       run: |
          psql "host=127.0.0.1 port=5432 sslmode=disable user=postgres dbname=${{ env.DB_NAME }}" -c "SELECT 1;"
