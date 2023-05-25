@@ -3,7 +3,7 @@ name: import
 on:
   workflow_dispatch:
     inputs:
-      image_uri:
+      image:
         description: 'URI of the image to scan/import'
         required: false
         type: string
@@ -80,3 +80,51 @@ jobs:
         PGPASSWORD: ${{ env.DB_PASS }}
       run: |
          psql "host=127.0.0.1 port=5432 sslmode=disable user=postgres dbname=${{ env.DB_NAME }}" -c "SELECT 1;"
+
+
+    # grype 
+    - name: Install grype
+      uses: anchore/scan-action/download-grype@4be3c24559b430723e51858969965e163b196957  # v3.3.5
+
+    - name: Scan grype
+      run: |-
+        grype -q \
+          --add-cpes-if-none \
+          -s AllLayers \
+          -o json \
+          --file ./report.json \
+          ${{ inputs.image }} || true
+
+    - name: Print grype
+      run: |
+        echo "grype: ./report.json"
+        cat ./report.json
+
+    # trivy
+    - name: Scan trivy
+      uses: aquasecurity/trivy-action@e5f43133f6e8736992c9f3c1b3296e24b37e17f2  # v0.10.0
+      with:
+        image-ref: ${{ inputs.image }}
+        scan-type: image
+        format: json
+        output: ./results.json
+        hide-progress: true
+        scanners: vuln
+
+    - name: Print trivy
+      run: |
+        echo "trivy: ./results.json"
+        cat ./results.json
+
+    # snyk
+    - name: Scan snyk
+      uses: snyk/actions/docker@7fad562681122205233d1242c3bb39598c5393da  # v0.3.0
+      continue-on-error: true # snyk returns non-zero exit code if vulnerabilities are found
+      with:
+        image: ${{ inputs.image }}
+        args: --json-file-output=./results.json
+
+    - name: Print snyk
+      run: |
+        echo "snyk: ./results.json"
+        cat ./results.json
