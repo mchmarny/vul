@@ -70,7 +70,7 @@ jobs:
         echo "DB_NAME=$(yq .store.db < config.yaml)" >> $GITHUB_ENV
         echo "DB_PASS=$(yq .store.password < config.yaml)" >> $GITHUB_ENV
         echo "SNYK_TOKEN=$(yq .import.snyk_token < config.yaml)" >> $GITHUB_ENV
-        echo "DB_CONN=postgres://postgres:${{ env.DB_PASS }}@/${{ env.DB_NAME }}?host=${{ env.DB_HOST }}" >> $GITHUB_ENV
+        echo "DB_CONN=postgres://postgres:${{ env.DB_PASS }}@/${{ env.DB_NAME }}?host=127.0.0.1&port=5432" >> $GITHUB_ENV
 
     - name: Start Proxy
       run: cloud-sql-proxy --debug "${{ env.DB_HOST }}?port=5432" &
