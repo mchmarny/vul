@@ -70,7 +70,6 @@ jobs:
         echo "DB_NAME=$(yq .store.db < config.yaml)" >> $GITHUB_ENV
         echo "DB_PASS=$(yq .store.password < config.yaml)" >> $GITHUB_ENV
         echo "SNYK_TOKEN=$(yq .import.snyk_token < config.yaml)" >> $GITHUB_ENV
-        echo "DB_CONN=postgres://postgres:${{ env.DB_PASS }}@/${{ env.DB_NAME }}?host=127.0.0.1&port=5432" >> $GITHUB_ENV
 
     - name: Start Proxy
       run: cloud-sql-proxy --debug "${{ env.DB_HOST }}?port=5432" &
@@ -100,7 +99,7 @@ jobs:
         bin/importer \
           --file ./grype.json \
           --image ${{ inputs.image }} \
-          --conn "${{ env.DB_CONN }}" \
+          --conn "postgres://postgres:${{ env.DB_PASS }}@/${{ env.DB_NAME }}?host=127.0.0.1&port=5432" \
           --log debug
 
     # trivy
@@ -120,7 +119,7 @@ jobs:
         bin/importer \
           --file ./trivy.json \
           --image ${{ inputs.image }} \
-          --conn "${{ env.DB_CONN }}" \
+          --conn "postgres://postgres:${{ env.DB_PASS }}@/${{ env.DB_NAME }}?host=127.0.0.1&port=5432" \
           --log debug
 
     # snyk
@@ -137,5 +136,5 @@ jobs:
         bin/importer \
           --file ./snyk.json \
           --image ${{ inputs.image }} \
-          --conn "${{ env.DB_CONN }}" \
+          --conn "postgres://postgres:${{ env.DB_PASS }}@/${{ env.DB_NAME }}?host=127.0.0.1&port=5432" \
           --log debug
