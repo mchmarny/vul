@@ -14,9 +14,6 @@ permissions:
 env:
   GO_VERSION: "1.20.4"
   LINTER_VERSION: v1.52
-  DB_NAME: vul
-  DB_USER: postgres
-  PGPASSWORD: test
 
 jobs:
 
@@ -30,9 +27,9 @@ jobs:
         image: postgres
         env:
           POSTGRES_PORT: 5432
-          POSTGRES_USER: ${{ env.DB_USER }}
-          POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
-          POSTGRES_DB: ${{ env.PGPASSWORD }}
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: vul
         ports:
           - 5432:5432
         options: >-
@@ -90,9 +87,11 @@ jobs:
 
     - name: Setup DB
       working-directory: tools/db/sql
+      env:
+        PGPASSWORD: test
       run: |
-        psql -h localhost -d ${{ env.DB_NAME }} -U ${{ env.DB_USER }} < ddl.sql
-        psql -h localhost -d ${{ env.DB_NAME }} -U ${{ env.DB_USER }} < test.sql
+        psql -h localhost -d vul -U postgres < ddl.sql
+        psql -h localhost -d vul -U postgres < test.sql
 
     - name: Unit Test
       run: |
