@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"embed"
+	"fmt"
 	"html/template"
 	"net/http"
 	"time"
@@ -39,7 +40,10 @@ func New(ctx context.Context, cnf *config.Config) (*Handler, error) {
 		return nil, errors.New("config is nil")
 	}
 
-	pool, err := data.GetPool(ctx, cnf.Store)
+	uri := fmt.Sprintf("%s://%s:%s@/%s?host=%s%s",
+		cnf.Store.Type, cnf.Store.User, cnf.Store.Password, cnf.Store.DB, cnf.Store.Path, cnf.Store.Host)
+
+	pool, err := data.GetPool(ctx, uri)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create data pool")
 	}

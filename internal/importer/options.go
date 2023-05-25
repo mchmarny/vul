@@ -1,17 +1,19 @@
 package importer
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
 	"github.com/Jeffail/gabs/v2"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/mchmarny/vul/internal/data"
 	"github.com/mchmarny/vul/internal/parser"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )
 
-func ParseOptions(img, file string, pool *pgxpool.Pool) (*Options, error) {
+func ParseOptions(ctx context.Context, img, file, conn string) (*Options, error) {
 	if img == "" {
 		return nil, errors.New("image is required")
 	}
@@ -20,13 +22,17 @@ func ParseOptions(img, file string, pool *pgxpool.Pool) (*Options, error) {
 		return nil, errors.New("file is required")
 	}
 
+	pool, err := data.GetPool(ctx, conn)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to create data pool")
+	}
+
 	o := &Options{
 		Image: img,
 		File:  file,
 		Pool:  pool,
 	}
 
-	var err error
 	if !strings.Contains(o.Image, "@") {
 		o.Image, err = parser.GetDigest(o.Image)
 		if err != nil {

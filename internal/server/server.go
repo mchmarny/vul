@@ -81,6 +81,10 @@ func initLogging(name, version, level string) {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 
+	if level == "" {
+		level = "info"
+	}
+
 	lvl, err := zerolog.ParseLevel(level)
 	if err != nil {
 		log.Warn().Err(err).Msgf("error parsing log level: %s", level)

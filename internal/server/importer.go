@@ -2,40 +2,43 @@ package server
 
 import (
 	"context"
+	"errors"
 
-	"github.com/mchmarny/vul/internal/data"
 	"github.com/mchmarny/vul/internal/importer"
 	"github.com/rs/zerolog/log"
 )
 
-// RunImport runs the import process.
-func RunImport(version, image, file string) {
-	cnf := getConfigOrPanic(version)
-
-	if image == "" || file == "" {
-		log.Fatal().
+// Import initiates the import process
+// --version string   version of the application (default "v0.0.1")
+// --image string     name of the image to import
+// --file string      path to the file to import
+// --conn string      connection string to the data store
+// --level string     log level (default "info")
+func Import(version, image, file, conn, level string) error {
+	if image == "" || file == "" || conn == "" {
+		err := errors.New("image, file, and conn are required")
+		log.Error().
+			Err(err).
 			Str("image", image).
 			Str("file", file).
+			Str("conn", conn).
 			Msg("image and file are required")
+		return err
 	}
 
-	initLogging("cli", version, cnf.Runtime.LogLevel)
+	initLogging("cli", version, level)
 	log.Debug().Msg("import initiated")
 
 	ctx := context.Background()
 
-	pool, err := data.GetPool(ctx, cnf.Store)
+	opt, err := importer.ParseOptions(ctx, image, file, conn)
 	if err != nil {
-		log.Fatal().Err(err).Msg("failed to create data pool")
-	}
-
-	opt, err := importer.ParseOptions(image, file, pool)
-	if err != nil {
-		log.Fatal().Err(err).Msg("failed to parse options")
+		log.Error().Err(err).Msg("failed to parse options")
+		return err
 	}
 
 	if err := importer.Import(ctx, opt); err != nil {
-		log.Fatal().
+		log.Error().
 			Err(err).
 			Str("file", opt.File).
 			Str("format", opt.Format.String()).
@@ -43,6 +46,7 @@ func RunImport(version, image, file string) {
 			Str("image_uri", opt.ImageURI).
 			Str("digest", opt.ImageDigest).
 			Msg("failed to import")
+		return err
 	}
 
 	log.Info().
@@ -52,4 +56,6 @@ func RunImport(version, image, file string) {
 		Str("image_uri", opt.ImageURI).
 		Str("digest", opt.ImageDigest).
 		Msg("imported")
+
+	return nil
 }

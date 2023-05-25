@@ -3,17 +3,14 @@ package data
 import (
 	"context"
 	"database/sql"
-	"fmt"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/mchmarny/vul/internal/config"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )
 
-func GetPool(ctx context.Context, cnf config.Store) (*pgxpool.Pool, error) {
-	uri := fmt.Sprintf("%s://%s:%s@/%s?host=%s%s", cnf.Type, cnf.User, cnf.Password, cnf.DB, cnf.Path, cnf.Host)
+func GetPool(ctx context.Context, uri string) (*pgxpool.Pool, error) {
 	pool, err := pgxpool.New(ctx, uri)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to connect to database: %s", uri)
