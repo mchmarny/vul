@@ -1,9 +1,9 @@
 resource "google_sql_database_instance" "db_instance" {
   database_version    = "POSTGRES_14"
-  name                = "${var.name}-instance"
+  name                = var.name
   region              = var.location
   root_password       = var.db_password
-  deletion_protection = "true"
+  # deletion_protection = "true"
 
   settings {
     activation_policy     = "ALWAYS"
@@ -13,6 +13,13 @@ resource "google_sql_database_instance" "db_instance" {
     disk_autoresize_limit = 0
     disk_size             = 100
     disk_type             = "PD_SSD"
+
+    insights_config {
+      query_insights_enabled  = true
+      query_string_length     = 1024
+      record_application_tags = true
+      record_client_address   = true
+    }
 
     database_flags {
       name  = "cloudsql.iam_authentication"
@@ -31,7 +38,11 @@ resource "google_sql_database_instance" "db_instance" {
 
     ip_configuration {
       ipv4_enabled = true
-      require_ssl  = false
+      private_network = "projects/${var.project_id}/global/networks/default"
+    }
+
+    user_labels = {
+      demo = "s3c"
     }
   }
 }

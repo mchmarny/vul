@@ -7,6 +7,7 @@ locals {
     "roles/artifactregistry.writer",
     "roles/cloudsql.client",
     "roles/iam.serviceAccountTokenCreator",
+    "roles/secretmanager.secretAccessor",
   ])
 }
 

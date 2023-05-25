@@ -3,11 +3,11 @@ name: db-test
 on:
   workflow_dispatch:
     inputs:
-      docker_ctx:
-        description: 'Build context (default: examples/apps/django/)'
+      test_connection:
+        description: 'Indicates whether or not to test the DB connection'
         required: false
-        type: string
-        default: examples/apps/django/
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -35,16 +35,6 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab  # v3.5.2
 
-    - name: Cache Go Modules
-      uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8  # v3.3.1
-      with:
-        path: |
-          ~/go/pkg/mod
-          ~/.cache/go-build
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
-
     - name: Install Proxy
       run: |
         go install github.com/GoogleCloudPlatform/cloud-sql-proxy/v2@latest
@@ -53,38 +43,26 @@ jobs:
       id: auth
       uses: google-github-actions/auth@35b0e87d162680511bf346c299f71c9c5c379033  # v1.1.1
       with:
-        token_format: "id_token"
         workload_identity_provider: ${{ env.PROVIDER_ID }}
         service_account: ${{ env.SA_EMAIL }}
-        id_token_audience: "https://www.googleapis.com/auth/cloud-platform"
-        id_token_include_email: true
+
+    - name: Setup gcloud
+      uses: google-github-actions/setup-gcloud@e30db14379863a8c79331b04a9969f4c1e225e0b  # v1.1.1
+
+    - name: Get Config
+      run: |
+        set -euo pipefail
+        gcloud secrets versions access "latest" --secret "vul-config" > config.yaml
+        echo "DB_HOST=$(yq .store.host < config.yaml)" >> $GITHUB_ENV
+        echo "DB_NAME=$(yq .store.db < config.yaml)" >> $GITHUB_ENV
+        echo "DB_PASS=$(yq .store.password < config.yaml)" >> $GITHUB_ENV
 
     - name: Start Proxy
-      run: cloud-sql-proxy --debug --json-credentials ${{ steps.auth.outputs.id_token }} "s3cme1:us-west1:db?port=5432" &
+      run: cloud-sql-proxy --debug "${{ env.DB_HOST }}?port=5432" &
 
     - name: Test Connection
+      if: ${{ github.event.inputs.test_connection == 'true' }}
+      env: 
+        PGPASSWORD: ${{ env.DB_PASS }}
       run: |
-        psql "host=127.0.0.1 port=5432 sslmode=disable dbname=vimp" -c "SELECT 1;"
-
-    # - name: Setup Keys
-    #   run: |
-    #     mkdir -p keys
-    #     echo "${{ secrets.DB_CLIENT_KEY }}" > keys/private_key.key
-    #     echo "${{ secrets.DB_CLIENT_PEM }}" > keys/public_cert.key
-    #     echo "${{ secrets.DB_CA_PEM }}" > keys/server_ca.key
-    #     chmod 600 keys/*
-    #     ls -la keys
-
-    # - name: Setup DB
-    #   working-directory: tools/db/sql
-    #   env:
-    #     PGPASSWORD: test
-    #   run: |
-    #     PGPASSWORD=$(<"${CONF_DIR}/root_password") psql "sslmode=verify-ca sslrootcert=${CONF_DIR}/ca.pem sslcert=${CONF_DIR}/client.pem sslkey=${CONF_DIR}/client.key hostaddr=${INSTANCE_IP} port=5432 user=postgres dbname=${DB_NAME}"
-    #     psql -h localhost -d vimp -U vimp < ddl.sql
-    #     psql -h localhost -d vimp -U vimp < test.sql
-
-    # - name: Cleanup Keys
-    #   if: always()
-    #   run: |
-    #     rm -rf keys
+         psql "host=127.0.0.1 port=5432 sslmode=disable user=postgres dbname=${{ env.DB_NAME }}" -c "SELECT 1;"
