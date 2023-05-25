@@ -14,7 +14,6 @@ Create secrets that will hold the snyk token and Postgres DB connection:
 gcloud secrets create snyk-token --replication-policy="automatic"
 echo -n "${SNYK_TOKEN}" | gcloud secrets versions add snyk-token --data-file=-
 
-
 gcloud secrets create db-conn-str --replication-policy="automatic"
 echo -n "${DB_CONN}" | gcloud secrets versions add db-conn-str --data-file=-
 ```

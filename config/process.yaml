@@ -61,7 +61,7 @@ availableSecrets:
   secretManager:
   - versionName: projects/$PROJECT_NUMBER/secrets/snyk-token/versions/1
     env: 'SNYK_TOKEN'
-  - versionName: projects/$PROJECT_NUMBER/secrets/db-conn-str/versions/1
+  - versionName: projects/$PROJECT_NUMBER/secrets/db-conn-str/versions/2
     env: 'VIMP_TARGET'
 
 options:
