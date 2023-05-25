@@ -53,23 +53,19 @@ jobs:
       id: auth
       uses: google-github-actions/auth@35b0e87d162680511bf346c299f71c9c5c379033  # v1.1.1
       with:
-        token_format: id_token
-        create_credentials_file: true
-        id_token_include_email: true
+        token_format: "access_token"
         workload_identity_provider: ${{ env.PROVIDER_ID }}
         service_account: ${{ env.SA_EMAIL }}
 
     - name: Start Proxy
       run: cloud-sql-proxy \
         --debug \
-        --credentials-file ${{ steps.auth.outputs.credentials_file_path }} \
-        --disable-metrics \
-        --disable-traces \
-        "s3cme1:us-west1:vimp?port=5432&dbname=db" &
+        --credentials-file ${{ steps.auth.outputs.access_token }} \
+        "s3cme1:us-west1:db?port=5432"" &
 
     - name: Test Connection
       run: |
-        psql "host=127.0.0.1 port=5432 sslmode=disable dbname=db" -c "SELECT 1;"
+        psql "host=127.0.0.1 port=5432 sslmode=disable dbname=vimp" -c "SELECT 1;"
 
     # - name: Setup Keys
     #   run: |
