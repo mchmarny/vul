@@ -19,7 +19,7 @@ env:
 
 jobs:
 
-  init:
+  test:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -32,7 +32,8 @@ jobs:
       with:
         go-version: '${{ env.GO_VERSION }}'
 
-    - run: go version
+    - name: Checkout Code
+      uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab  # v3.5.2
 
     - name: Cache Go Modules
       uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8  # v3.3.1
@@ -44,9 +45,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-go-
 
-    - name: Checkout Code
-      uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab  # v3.5.2
-
     - name: Install Proxy
       run: |
         go install github.com/GoogleCloudPlatform/cloud-sql-proxy/v2@latest
@@ -55,12 +53,20 @@ jobs:
       id: auth
       uses: google-github-actions/auth@35b0e87d162680511bf346c299f71c9c5c379033  # v1.1.1
       with:
-        token_format: "access_token"
+        token_format: id_token
+        export_environment_variables: true
+        create_credentials_file: true
+        id_token_include_email: true
         workload_identity_provider: ${{ env.PROVIDER_ID }}
         service_account: ${{ env.SA_EMAIL }}
 
     - name: Start Proxy
-      run: cloud-sql-proxy "s3cme1:us-west1:vimp?port=5432" &
+      run: cloud-sql-proxy \
+        --debug \
+        --credentials-file ${{ steps.auth.outputs.credentials_file_path }} \
+        --disable-metrics \
+        --disable-traces \
+        "s3cme1:us-west1:vimp?port=5432&dbname=db" &
 
     - name: Test Connection
       run: |
