@@ -94,7 +94,7 @@ jobs:
           --file ./grype.json \
           ${{ inputs.image }} || true
 
-    - name: Print grype
+    - name: Import grype
       run: |
         echo "grype: ./grype.json"
         bin/importer \
@@ -114,7 +114,7 @@ jobs:
         hide-progress: true
         scanners: vuln
 
-    - name: Print trivy
+    - name: Import trivy
       run: |
         echo "trivy: ./trivy.json"
         bin/importer \
@@ -131,7 +131,7 @@ jobs:
         image: ${{ inputs.image }}
         args: --json-file-output=./snyk.json
 
-    - name: Print snyk
+    - name: Import snyk
       run: |
         echo "snyk: ./snyk.json"
         bin/importer \
