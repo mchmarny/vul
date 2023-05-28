@@ -29,14 +29,16 @@ module "lb-http" {
   backends = {
     default = {
       description             = null
-      enable_cdn              = false
+      enable_cdn              = true
       security_policy         = google_compute_security_policy.policy.name
       edge_security_policy    = null
       custom_request_headers  = null
       custom_response_headers = null
       compression_mode        = null
-      protocol                = "HTTP"
+      protocol                = "HTTPS"
       port_name               = "http"
+      compression_mode        = "DISABLED"
+      connection_draining_timeout_sec = 300
 
       groups = [
         {
@@ -55,6 +57,16 @@ module "lb-http" {
         sample_rate = 1.0
       }
 
+      cdn_policy = {
+        cacheMode                    = "CACHE_ALL_STATIC"
+        maxTtl                       = 86400
+        signed_url_cache_max_age_sec = 3600
+        cache_key_policy = {
+          include_protocol     = true
+          include_query_string = true
+          include_host         = true
+        }
+      }
     }
   }
 

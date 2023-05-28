@@ -25,7 +25,7 @@ variable "queue_image_schedule" {
 variable "rate_limit_threshold_count_per_min" {
   description = "Request rate limit threshold per minute"
   type        = number
-  default     = 10
+  default     = 100
 }
 
 variable "app_ingress" {
