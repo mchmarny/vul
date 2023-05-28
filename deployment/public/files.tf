@@ -30,11 +30,6 @@ data "template_file" "snyk_token" {
   template = yamldecode(file("../../config/secret-prod.yaml"))["import"]["snyk_token"]
 }
 
-# data.template_file.app_domain.rendered
-data "template_file" "app_domain" {
-  template = yamldecode(file("../../config/secret-prod.yaml"))["app"]["domain"]
-}
-
 # updates SQL instance private IP and SQL instance name in secret-prod.yaml
 # this is really only needed for the first deployment
 # subsequent runs will still execute but have not impact on the updated prod config file

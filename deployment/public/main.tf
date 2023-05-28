@@ -4,6 +4,7 @@
 locals {
   services = [
     "artifactregistry.googleapis.com",
+    "cloudbuild.googleapis.com",
     "cloudresourcemanager.googleapis.com",
     "compute.googleapis.com",
     "container.googleapis.com",
@@ -29,7 +30,6 @@ data "google_compute_network" "default" {
   name = "default"
 }
 
-
 # Enable the required GCP APIs
 resource "google_project_service" "default" {
   for_each = toset(local.services)
@@ -45,13 +45,22 @@ resource "google_project_service" "compute_engine" {
   project  = data.template_file.project_id.rendered
   service  = "compute.googleapis.com"
 
-  disable_on_destroy = true
+  disable_on_destroy         = true
+  disable_dependent_services = true
 }
 
 resource "google_project_service" "service_networking" {
   provider = google-beta
   project  = data.template_file.project_id.rendered
   service  = "servicenetworking.googleapis.com"
+
+  disable_on_destroy = true
+}
+
+resource "google_project_service" "build_service" {
+  provider = google-beta
+  project  = data.template_file.project_id.rendered
+  service  = "cloudbuild.googleapis.com"
 
   disable_on_destroy = true
 }

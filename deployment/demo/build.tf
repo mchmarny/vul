@@ -67,7 +67,7 @@ resource "google_project_iam_binding" "project" {
   project = data.template_file.project_id.rendered
   role    = "roles/cloudbuild.builds.editor"
   members = [
-    "serviceAccount:${google_service_account.github_actions_user.email}",
+    "serviceAccount:${google_service_account.schedule_account.email}",
   ]
 }
 
@@ -87,7 +87,7 @@ resource "google_cloud_scheduler_job" "queue_image_trigger_schedule" {
     uri         = "https://cloudbuild.googleapis.com/v1/projects/${data.template_file.project_id.rendered}/locations/${data.template_file.location.rendered}/triggers/${google_cloudbuild_trigger.queue_image_trigger.trigger_id}:run"
 
     oauth_token {
-      service_account_email = google_service_account.github_actions_user.email
+      service_account_email = google_service_account.schedule_account.email
     }
   }
 }
