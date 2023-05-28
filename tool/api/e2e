@@ -1,0 +1,46 @@
+#!/bin/bash
+
+CONFIG_FILE="config/secret-prod.yaml"
+
+domain=$(yq .app.domain < $CONFIG_FILE)
+
+# get service url
+url="https://$domain/api/v1"
+echo "Testing: $url"
+
+# get images
+img=$(curl -s $url/images | jq -r '.data[3]')
+[[ -z "$img" ]] && echo "image not found" && exit 1
+echo "Image: $img"
+
+# get all summary
+img1=$(curl -s $url/summary | jq -r '.data.image_count')
+[ "$img1" -lt "1" ] && echo "expected at least one image" && exit 1
+
+# get one image summary
+img2=$(curl -s --data-urlencode "img=$img" --get $url/summary | jq -r '.data.image')
+[ "$img2" != "$img" ] && echo "expected: $img, got: $img2" && exit 1
+
+# get image versions 
+dig=$(curl -s --data-urlencode "img=$img" --get $url/versions | jq -r '.data[0].digest')
+[[ -z "$dig" ]] && echo "image digest not found" && exit 1
+echo "Digest: $dig"
+
+# get image version exposures
+exp=$(curl -s --data-urlencode "img=$img" --data-urlencode "dig=$dig" \
+    --get $url/exposures | jq -r '.data.packages | keys[0]')
+[[ -z "$exp" ]] && echo "image exposure not found" && exit 1
+echo "Exposure Package: $exp"
+
+# get image timeline 
+day=$(curl -s --data-urlencode "img=$img" --get $url/timeline \
+    | jq -r '.data[0].date')
+echo "Last: $day"
+
+# print summary 
+echo "Summary:"
+curl -s $url/summary | jq -r '.data'
+
+# print image summary
+echo "Images:"
+curl -s $url/images  | jq -r '.data'

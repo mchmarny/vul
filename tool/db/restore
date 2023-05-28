@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -e
+
+DIR="$(dirname "$0")"
+. "${DIR}/config" $1
+
+NOW=$(date +%s)
+DB_BUCKET="${NAME}-data-dumps"
+
+# eport to GCS bucket
+gcloud sql export sql $DB_NAME gs://$DB_BUCKET/$NOW.gz -d $DB_NAME --project $PROJECT_ID
+
+# Download from GCS bucket
+echo "Downloading from 'gs://$DB_BUCKET/$NOW.gz' '$DIR/dump/'..."
+gsutil cp gs://$DB_BUCKET/$NOW.gz $DIR/dump/
+
+# Compress downlaoded dump file 
+gzip -d $DIR/dump/$NOW.gz
+
+# prepare db for restore
+PGPASSWORD=test psql -h localhost -U postgres -d $DB_NAME < $DIR/sql/pre-restore.sql
+
+# restore db
+PGPASSWORD=test psql -h localhost -U postgres -d $DB_NAME < $DIR/dump/$NOW
+
+# run post restore sql
+PGPASSWORD=test psql -h localhost -U postgres -d $DB_NAME < $DIR/sql/post-restore.sql
+
+# clean up
+gsutil rm gs://$DB_BUCKET/$NOW.gz
+rm $DIR/dump/$NOW

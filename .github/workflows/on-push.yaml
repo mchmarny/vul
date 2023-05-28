@@ -1,0 +1,98 @@
+name: on_push
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+env:
+  GO_VERSION: "1.20.4"
+  LINTER_VERSION: v1.52
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: vul
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+
+    - name: Setup Go
+      uses: actions/setup-go@fac708d6674e30b6ba41289acaab6d4b75aa0753  # v4.0.1
+      with:
+        go-version: '${{ env.GO_VERSION }}'
+
+    - name: Cache Go Modules
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Checkout Code
+      uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab  # v3.4.0
+
+    - name: Tidy Modules
+      run: |
+        make tidy
+
+    - name: Config Go Lint
+      id: golangci_config
+      uses: andstor/file-existence-action@20b4d2e596410855db8f9ca21e96fbe18e12930b  # v2.0
+      with:
+        files: .golangci.yaml
+
+    - name: Lint Go
+      if: steps.golangci_config.outputs.files_exists == 'true'
+      uses: golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5  # v3.4.0
+      with:
+        version: ${{ env.LINTER_VERSION }}
+
+    - name: Config YAML Lint
+      id: yamllint_config
+      uses: andstor/file-existence-action@20b4d2e596410855db8f9ca21e96fbe18e12930b  # v2.0
+      with:
+        files: .yamllint
+
+    - name: Lint YAML
+      if: steps.yamllint_config.outputs.files_exists == 'true'
+      uses: karancode/yamllint-github-action@fdef6bc189425ecc84cc4543b2674566c0827053  # master
+      with:
+        yamllint_config_filepath: .yamllint
+
+    - name: Setup DB
+      working-directory: tool/db/sql
+      env:
+        PGPASSWORD: test
+      run: |
+        psql -h localhost -d vul -U postgres < ddl.sql
+        psql -h localhost -d vul -U postgres < test.sql
+
+    - name: Unit Test
+      run: |
+        make test

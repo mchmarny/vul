@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -e
+
+DIR="$(dirname "$0")"
+. "${DIR}/config" $1
+
+NOW=$(date +%s)
+DB_BUCKET="${NAME}-data-dumps"
+
+# eport to GCS bucket
+gcloud sql export sql $DB_NAME gs://$DB_BUCKET/$DB_NAME-backup-$NOW.gz -d $DB_NAME --project $PROJECT_ID

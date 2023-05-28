@@ -1,0 +1,13 @@
+#!/bin/bash
+
+CONFIG_FILE="config/secret-prod.yaml"
+
+domain=$(yq .app.domain < $CONFIG_FILE)
+
+# get service url
+url="https://$domain/api/v1/summary"
+echo "Testing: $url"
+
+for i in {1..15}; do
+    curl -I -X GET $url
+done

@@ -1,0 +1,93 @@
+{{ define "exposure" }}
+{{ template "header" . }}
+    <h2>{{ .img }}<b>@{{ .dig }}</b></h2>
+
+    <section>
+        {{ with .data }}
+            <div class="box gray">
+                <div class="box-item">
+                    <div class="box-item-head">Total&nbsp;Images</div>
+                    <p class="box-item-content">
+                        {{ .Print .ImageCount }}
+                    </p>
+                </div>
+                <div class="box-item">
+                    <div class="box-item-head">Scan&nbsp;Sources</div>
+                    <p class="box-item-content">
+                        {{ .Print .SourceCount }}
+                    </p>
+                </div>
+                <div class="box-item">
+                    <div class="box-item-head">Total&nbsp;Packages</div>
+                    <p class="box-item-content">
+                        {{ .Print .PackageCount }}
+                    </p>
+                </div>
+                <div class="box-item">
+                    <div class="box-item-head">Total&nbsp;Exposures</div>
+                    <p class="box-item-content">
+                        {{ .Print .TotalExposures }}
+                    </p>
+                </div>
+                <div class="box-item">
+                    <div class="box-item-head">Unique&nbsp;Exposures</div>
+                    <p class="box-item-content">
+                        {{ .Print .UniqueExposures }}
+                    </p>
+                </div>
+                <div class="box-item">
+                    <div class="box-item-head">Fixed&nbsp;Exposures</div>
+                    <p class="box-item-content">
+                        {{ .Print .FixedCount }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="box">
+                <div class="small">
+                    Last scan: {{ .FormatTime "2006-01-02 15:04" .LastReading }} UTC
+                </div>
+            </div>
+        {{ end }}
+    </section>
+
+    <section>
+        <div class="exposure-nav">
+            <div>
+                <input id="vul-filter" type="filter" placeholder="find vulnerabilities using either CVE or package name...">
+            </div>
+            <div>
+                <b>Show:</b> <a href="#" id="unique">Unique Only</a> | <a href="#" id="fixed">Fixed Only</a> | <a href="#" id="show-all">All</a>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div>
+        {{ range $pkg, $p := .list.Packages }}
+            <div class="package">
+                <div class="package-title">Package: {{ $pkg }}</div>
+                <div class="version">
+                    {{ range $ver, $v := $p.Versions }}
+                    <div class="name"><b>Version:</b> {{ $ver }}</div>
+                        {{ $same := $v.SameExposures }}
+                        {{ range $src, $s := $v.Sources }}
+                        <div class="source {{ if $same -}}same{{- end -}}">
+                            <div class="src-name">
+                                <img src="/static/assets/img/{{ $src }}.png" alt="{{ $src }}" title="{{ $src }}" class="src-logo" /> {{ $src }} 
+                            </div>
+                            {{ range $exp, $e := $s.Exposures }}
+                            <div class="exposure {{ if $e.Fixed -}}{{- else -}}nofixed{{- end -}}">
+                                <a href="https://nvd.nist.gov/vuln/detail/{{ $exp }}" target="_blank">{{ $exp }}</a> - {{ $e.Severity }} (score: {{ $e.Printf "%.2f" $e.Score }}{{- if $e.Fixed }}, fixed{{ end }})
+                            </div>
+                            {{ end }}
+                        </div>
+                        {{ end }}
+                    {{ end }}
+                </div>
+            </div>  
+        {{ end }}
+        </div>
+    </section>
+{{ template "footer" . }}
+{{ end }}

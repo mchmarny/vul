@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -e
+
+DIR="$(dirname "$0")"
+. "${DIR}/config" $1
+
+PGPASSWORD=$DB_PASS psql "host=127.0.0.1 port=${DB_PORT} sslmode=disable user=${DB_USER} dbname=${DB_NAME}"

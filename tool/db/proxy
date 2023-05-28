@@ -1,0 +1,9 @@
+#!/bin/bash
+
+DIR="$(dirname "$0")"
+. "${DIR}/config" $1
+
+DB_CONN="${DB_INSTANCE}?port=${DB_PORT}"
+
+echo "Connecting to '$DB_CONN'"
+cloud-sql-proxy --debug $DB_CONN

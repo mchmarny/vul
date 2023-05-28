@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -e
+
+CONF_ENV=$1
+
+if [ -z "$CONF_ENV" ]; then
+  CONF_ENV="prod"
+fi
+
+CONFIG_FILE="config/secret-${CONF_ENV}.yaml"
+
+NAME=$(yq .name < $CONFIG_FILE)
+PROJECT_ID=$(yq .project_id < $CONFIG_FILE)
+LOCATION=$(yq .location < $CONFIG_FILE)
+DB_PASS=$(yq .store.password < $CONFIG_FILE)
+DB_USER=$(yq .store.user < $CONFIG_FILE)
+DB_NAME=$(yq .store.db < $CONFIG_FILE)
+DB_INSTANCE=$(yq .store.instance < $CONFIG_FILE)
+DB_PORT=$(yq .store.port < $CONFIG_FILE)

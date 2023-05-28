@@ -1,0 +1,85 @@
+steps:
+
+  # save config
+  - id: mount-config
+    name: gcr.io/cloud-builders/gcloud
+    entrypoint: bash
+    args:
+    - -c
+    - |-
+      gcloud secrets versions access latest --secret vul-config > ./importer.config
+
+  # grype
+  - id: scan-grype
+    name: docker.io/anchore/grype
+    args:
+    - --scope=AllLayers
+    - --output=json
+    - --file=./grype.json
+    - ${_DIGEST}
+
+  - id: load-grype
+    name: us-west1-docker.pkg.dev/s3cme1/vul/importer:${_IMPORT_IMAGE_VERSION}
+    wait_for:
+    - mount-config
+    - scan-grype
+    env:
+    - "CONFIG=./importer.config"
+    args:
+    - --file=./grype.json
+    - --image=${_DIGEST}
+
+  # trivy
+  - id: scan-trivy
+    name: docker.io/aquasec/trivy
+    args:
+    - image
+    - --format=json
+    - --scanners=vuln
+    - --output=./trivy.json
+    - ${_DIGEST}
+
+  - id: load-trivy
+    name: us-west1-docker.pkg.dev/s3cme1/vul/importer:${_IMPORT_IMAGE_VERSION}
+    wait_for:
+    - mount-config
+    - scan-trivy
+    env:
+    - "CONFIG=./importer.config"
+    args:
+    - --file=./trivy.json
+    - --image=${_DIGEST}
+
+  # snyk
+  # NOTE: snyk exit with 1 if vulnerabilities are found
+  # ERROR: step exited with non-zero status: 1
+  # This is why the allowExitCodes is set to [0, 1]
+  - id: scan-snyk
+    name: docker.io/snyk/snyk:docker
+    wait_for:
+    - mount-config
+    allowExitCodes: [0, 1]
+    env:
+    - "SNYK_TOKEN=${_SNYK_TOKEN}"
+    args:
+    - snyk
+    - container
+    - test
+    - --app-vulns
+    - --json-file-output=./snyk.json
+    - ${_DIGEST}
+
+  - id: load-snyk
+    name: us-west1-docker.pkg.dev/s3cme1/vul/importer:${_IMPORT_IMAGE_VERSION}
+    wait_for:
+    - mount-config
+    - scan-snyk
+    env:
+    - "CONFIG=./importer.config"
+    args:
+    - --file=./snyk.json
+    - --image=${_DIGEST}
+
+options:
+  pool:
+    name: "${_POOL_ID}"

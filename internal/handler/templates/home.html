@@ -1,0 +1,58 @@
+{{ define "home" }}
+{{ template "header" . }}
+    <section>
+        <form onsubmit="event.preventDefault();" role="search">
+        <div class="search">  
+            <input id="image-search" type="search" placeholder="Search images...">
+        </div>
+        </form>
+    </section>
+    <section>
+        {{ with .data }}
+            <div class="box gray">
+                <div class="box-item">
+                    <div class="box-item-head">Total&nbsp;Images</div>
+                    <p class="box-item-content">
+                        {{ .Print .ImageCount }}
+                    </p>
+                </div>
+                <div class="box-item">
+                    <div class="box-item-head">Scan&nbsp;Sources</div>
+                    <p class="box-item-content">
+                        {{ .Print .SourceCount }}
+                    </p>
+                </div>
+                <div class="box-item">
+                    <div class="box-item-head">Total&nbsp;Packages</div>
+                    <p class="box-item-content">
+                        {{ .Print .PackageCount }}
+                    </p>
+                </div>
+                <div class="box-item">
+                    <div class="box-item-head">Total&nbsp;Exposures</div>
+                    <p class="box-item-content">
+                        {{ .Print .TotalExposures }}
+                    </p>
+                </div>
+                <div class="box-item">
+                    <div class="box-item-head">Unique&nbsp;Exposures</div>
+                    <p class="box-item-content">
+                        {{ .Print .UniqueExposures }}
+                    </p>
+                </div>
+                <div class="box-item">
+                    <div class="box-item-head">Fixed&nbsp;Exposures</div>
+                    <p class="box-item-content">
+                        {{ .Print .FixedCount }}
+                    </p>
+                </div>
+            </div>
+        {{ end }}
+    </section>
+
+
+<script>  
+var images = [{{ range .images }}"{{ . }}",{{ end }}];
+</script>
+{{ template "footer" . }}
+{{ end }}

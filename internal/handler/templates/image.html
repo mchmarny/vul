@@ -1,0 +1,73 @@
+{{ define "image" }}
+{{ template "header" . }}
+    <h2>{{ .img }}</h2>
+
+    <div class="box gray">
+        <div id="image-chart"></div> 
+    </div>
+
+    <div class="box">
+        <div class="small">
+            {{ with .data }}
+            Unique package vulnerabilities. Last scan: {{ .FormatTime "2006-01-02 15:04" .LastReading }} UTC
+            {{ end }}
+        </div>
+    </div>
+
+    <section>
+        {{ with .data }}
+            <div class="box">
+                <div class="box-item">
+                    <div class="box-item-head">Versions</div>
+                    <p class="box-item-content">
+                        {{ .Print .VersionCount }}
+                    </p>
+                    <div class="box-item-head">Scan&nbsp;Sources</div>
+                    <p class="box-item-content">
+                        {{ .Print .SourceCount }}
+                    </p>
+                    <div class="box-item-head">Total&nbsp;Packages</div>
+                    <p class="box-item-content">
+                        {{ .Print .PackageCount }}
+                    </p>
+                    <div class="box-item-head">Unique&nbsp;Exposures</div>
+                    <p class="box-item-content">
+                        {{ .Print .UniqueExposures }}
+                    </p>
+                    <div class="box-item-head">Fixed&nbsp;Exposures</div>
+                    <p class="box-item-content">
+                        {{ .Print .FixedCount }}
+                    </p>
+                </div>
+                <div id="vuln-chart"></div> 
+            </div>
+
+        {{ end }}
+    </section>
+
+    <section>
+        <h3>Images Versions:</h3>
+        <div class="group">
+            <ul class="underlined">
+            {{ range .list }}
+                <li><b>{{ .FormatTime "2006-01-02 15:04" .Processed }}</b> - <a href="/exposure?img={{ .Image }}&dig={{ .Digest }}">{{ .Digest }}</a></li>
+            {{ end }}
+            </ul>
+        </div>
+    </section>
+
+<script>
+{{ with .data.Exposure -}}
+var vulnData = [
+    ['Negligible',{{- .Negligible -}}],
+    ['Low',{{- .Low -}}],
+    ['Medium',{{- .Medium -}}],
+    ['High',{{- .High -}}],
+    ['Critical',{{- .Critical -}}],
+    ['Unknown',{{- .Unknown -}}],                
+];
+{{- end }}
+</script>
+
+{{ template "footer" . }}
+{{ end }}

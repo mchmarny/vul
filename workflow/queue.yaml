@@ -1,0 +1,22 @@
+steps:
+
+  - id: spool
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: /bin/bash
+    args:
+    - -c
+    - |-
+      while read img; do
+        # skip comments
+        if [[ $img =~ ^[[:space:]]*\#.*$ ]]; then
+          continue
+        fi
+        echo "image: $img"
+        gcloud pubsub topics publish ${_IMAGE_QUEUE_NAME} \
+          --message "$img" \
+          --project $PROJECT_ID
+      done < workflow/image.txt
+
+options:
+  pool:
+    name: "${_POOL_ID}"
