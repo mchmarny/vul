@@ -55,7 +55,7 @@ jobs:
           ${{ runner.os }}-go-
 
     - name: Checkout Code
-      uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab  # v3.4.0
+      uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633  # v3.4.0
 
     - name: Tidy Modules
       run: |
